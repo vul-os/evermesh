@@ -1,0 +1,24 @@
+# Pandoc defaults for rendering the spec to PDF in a classic RFC/technical-
+# report style: Latin Modern serif, 11pt, black text, numbered sections,
+# hyperlinked TOC, color only in code syntax highlighting.
+# Usage: pandoc -d spec/pandoc-pdf.yaml spec/<file>.md -o dist/<file>.pdf
+
+pdf-engine: tectonic
+from: markdown
+toc: true
+toc-depth: 2
+number-sections: true
+highlight-style: tango
+variables:
+  documentclass: article
+  papersize: a4
+  fontsize: 11pt
+  geometry:
+    - margin=1.1in
+  linestretch: 1.05
+  colorlinks: false
+  header-includes:
+    - \usepackage{etoolbox}
+    - \AtBeginDocument{\hypersetup{hidelinks}}
+    - \AtBeginEnvironment{longtable}{\small}
+    - \setcounter{tocdepth}{2}

@@ -27,6 +27,12 @@ lint:
 fmt:
     cargo fmt --all
 
+# Render the protocol spec to PDF (requires pandoc + tectonic)
+spec-pdf:
+    mkdir -p dist
+    pandoc -d spec/pandoc-pdf.yaml spec/draft-vidmesh-protocol-00.md -o dist/vidmesh-protocol-draft-00.pdf
+    @echo "wrote dist/vidmesh-protocol-draft-00.pdf"
+
 # Build the WASM kernel bindings (Phase 3)
 wasm:
     @echo "Phase 3 not implemented yet: builds crates/vidmesh-wasm via wasm-pack into packages/kernel-ts/wasm/"
