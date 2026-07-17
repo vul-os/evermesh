@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Branding-accent extension points. A gateway operator re-skinning this
+ * uniform UI (spec 009 §7 — accents only, never the interface) overrides
+ * these custom properties, nothing else: no Tailwind rebuild, no
+ * component edits. `--vm-brand-*` / `--vm-accent-*` back the `brand`/
+ * `accent` color scales in tailwind.config.ts.
+ *
+ * Values below are Vidmesh's own reference brand (assets/README.md):
+ * deep indigo #3C3489 (brand-600) and signal teal #1D9E75 (accent-500).
+ */
+:root {
+  --vm-bg: #fdfcff;
+  --vm-surface: #f4f2fb;
+  --vm-fg: #1b1830;
+  --vm-muted: #4b466a;
+  --vm-border: #dedaf0;
+  --vm-focus-ring: #1d9e75;
+
+  --vm-brand-50: #f2f0fc;
+  --vm-brand-100: #e4e0f8;
+  --vm-brand-200: #c9c2f5;
+  --vm-brand-300: #aca1ec;
+  --vm-brand-400: #8e7fde;
+  --vm-brand-500: #6c5bc4;
+  --vm-brand-600: #3c3489;
+  --vm-brand-700: #322b70;
+  --vm-brand-800: #282358;
+  --vm-brand-900: #1e1a41;
+  --vm-brand-950: #14101f;
+
+  --vm-accent-50: #eafbf5;
+  --vm-accent-100: #d0f5e7;
+  --vm-accent-200: #a3ecd1;
+  --vm-accent-300: #6edfb8;
+  --vm-accent-400: #2fe3a6;
+  --vm-accent-500: #1d9e75;
+  --vm-accent-600: #17805f;
+  --vm-accent-700: #12634a;
+  --vm-accent-800: #0d4736;
+  --vm-accent-900: #082c22;
+  --vm-accent-950: #041712;
+}
+
+:root.dark {
+  --vm-bg: #14101f;
+  --vm-surface: #1e1a33;
+  --vm-fg: #ece9fb;
+  --vm-muted: #b3acd1;
+  --vm-border: #322c52;
+  --vm-focus-ring: #2fe3a6;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--vm-bg);
+  color: var(--vm-fg);
+}
+
+:focus-visible {
+  outline: 3px solid var(--vm-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--vm-brand-600);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 0 0 6px 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}

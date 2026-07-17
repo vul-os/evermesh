@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vidmesh gateway</title>
+    <meta name="description" content="Watch, publish, and verify video on a Vidmesh gateway — signed and checkable in your browser." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FDFCFF" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14101F" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Applied synchronously, before first paint, so there is no
+      // flash of the wrong theme. Mirrors src/hooks/useTheme.ts, which
+      // owns the toggle after mount; kept tiny and dependency-free on
+      // purpose since it runs before any module has loaded.
+      (function () {
+        try {
+          var stored = localStorage.getItem("vidmesh:theme");
+          var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (_e) {
+          /* localStorage/matchMedia unavailable: default to light. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

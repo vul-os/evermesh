@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Vidmesh favicon: simplified mark only. Hex mesh ring + play triangle. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Vidmesh">
+  <!-- hexagonal lattice ring, bold for legibility at 16px -->
+  <path d="M204.2,172 L128,216 L51.8,172 L51.8,84 L128,40 L204.2,84 Z"
+        fill="none" stroke="#3C3489" stroke-width="17" stroke-linejoin="round"/>
+  <!-- outer mesh nodes -->
+  <circle cx="204.2" cy="172" r="13" fill="#3C3489"/>
+  <circle cx="128"   cy="216" r="13" fill="#3C3489"/>
+  <circle cx="51.8"  cy="172" r="13" fill="#3C3489"/>
+  <circle cx="51.8"  cy="84"  r="13" fill="#3C3489"/>
+  <circle cx="128"   cy="40"  r="13" fill="#3C3489"/>
+  <circle cx="204.2" cy="84"  r="13" fill="#3C3489"/>
+  <!-- the mesh converges on a play triangle -->
+  <path d="M168,128 L108,93.4 L108,162.6 Z" fill="#1D9E75"/>
+</svg>
