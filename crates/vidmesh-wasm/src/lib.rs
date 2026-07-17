@@ -76,14 +76,18 @@ impl WasmKeypair {
     /// Generate from host randomness.
     #[wasm_bindgen(constructor)]
     pub fn generate() -> Result<WasmKeypair, JsError> {
-        Ok(WasmKeypair { inner: Keypair::generate().map_err(js_err)? })
+        Ok(WasmKeypair {
+            inner: Keypair::generate().map_err(js_err)?,
+        })
     }
 
     /// Restore from 32 secret bytes.
     #[wasm_bindgen(js_name = fromSecret)]
     pub fn from_secret(secret: &[u8]) -> Result<WasmKeypair, JsError> {
         let secret = take32(secret, "secret")?;
-        Ok(WasmKeypair { inner: Keypair::from_secret_bytes(&secret) })
+        Ok(WasmKeypair {
+            inner: Keypair::from_secret_bytes(&secret),
+        })
     }
 
     /// The 32-byte public key.
@@ -123,15 +127,19 @@ pub fn build_record(
         if pair.len() != 2 {
             return Err(JsError::new("each ref must be [type, hash]"));
         }
-        let ref_type =
-            pair[0].as_u64().ok_or_else(|| JsError::new("ref type must be 0 or 1"))?;
+        let ref_type = pair[0]
+            .as_u64()
+            .ok_or_else(|| JsError::new("ref type must be 0 or 1"))?;
         if ref_type > 1 {
             return Err(JsError::new("ref type must be 0 or 1"));
         }
         let hash = pair[1]
             .as_bytes()
             .ok_or_else(|| JsError::new("ref hash must be hex bytes"))?;
-        refs.push(vidmesh_kernel::Ref { ref_type, hash: take32(hash, "ref hash")? });
+        refs.push(vidmesh_kernel::Ref {
+            ref_type,
+            hash: take32(hash, "ref hash")?,
+        });
     }
     let body = codec::from_json(body_json).map_err(js_err)?;
     let record = vidmesh_kernel::RecordBuilder::new(kind as u64)
@@ -300,8 +308,10 @@ pub fn verify_chunk(
     proof: &[u8],
 ) -> Result<(), JsError> {
     let root = take32(root, "root")?;
-    if proof.len() % 32 != 0 {
-        return Err(JsError::new("proof must be a concatenation of 32-byte hashes"));
+    if !proof.len().is_multiple_of(32) {
+        return Err(JsError::new(
+            "proof must be a concatenation of 32-byte hashes",
+        ));
     }
     let siblings: Vec<[u8; 32]> = proof
         .chunks_exact(32)
@@ -363,7 +373,8 @@ impl BlobHasher {
             self.pending.extend_from_slice(&rest[..take]);
             rest = &rest[take..];
             if self.pending.len() == chunk_size {
-                self.leaves.push(vidmesh_kernel::blob::leaf_hash(&self.pending));
+                self.leaves
+                    .push(vidmesh_kernel::blob::leaf_hash(&self.pending));
                 self.pending.clear();
             }
         }
@@ -377,7 +388,8 @@ impl BlobHasher {
             return Err(JsError::new("hasher already finalized"));
         }
         if !self.pending.is_empty() {
-            self.leaves.push(vidmesh_kernel::blob::leaf_hash(&self.pending));
+            self.leaves
+                .push(vidmesh_kernel::blob::leaf_hash(&self.pending));
             self.pending.clear();
         }
         // Fold leaves to the root with the kernel's node hash
@@ -448,12 +460,12 @@ mod tests {
         h.update(&data[..1000]).unwrap();
         h.update(&data[1000..]).unwrap();
         h.finalize().unwrap();
-        assert_eq!(h.id_hex().unwrap(), vidmesh_kernel::blob::hash_blob(&data).to_hex());
-        let tree = vidmesh_kernel::ChunkTree::from_bytes(&data);
         assert_eq!(
-            h.chunk_root_hex().unwrap(),
-            tree.root().map(|r| hex_of(&r))
+            h.id_hex().unwrap(),
+            vidmesh_kernel::blob::hash_blob(&data).to_hex()
         );
+        let tree = vidmesh_kernel::ChunkTree::from_bytes(&data);
+        assert_eq!(h.chunk_root_hex().unwrap(), tree.root().map(|r| hex_of(&r)));
         assert_eq!(h.n_chunks(), 2);
     }
 

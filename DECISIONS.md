@@ -20,6 +20,9 @@ process/product decisions that don't belong in the spec.
   when. Compilation/type checks are still performed so shipped code is
   sound.
 - Commit per phase minimum, conventional commits (build plan §4/§15).
+- **Git identity:** author/committer `imranparuk <imranparuk@live.com>`;
+  no Co-Authored-By or Generated-with trailers, ever (owner directive
+  2026-07-17; history rewritten to comply).
 - **Parallelism:** use Sonnet subagents, five at a time, for separable
   work; the lead session integrates, reviews, and owns consensus-critical
   code (canonical codec review, record/identity semantics).

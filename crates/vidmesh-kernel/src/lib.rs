@@ -27,6 +27,7 @@ pub mod codec;
 pub mod error;
 pub mod identity;
 pub mod ids;
+pub mod kinds;
 pub mod record;
 
 pub use blob::ChunkTree;
