@@ -1,28 +1,39 @@
 # vidmesh-kernel
 
-The permanent core library of the Vidmesh protocol. One Rust implementation of
-the kernel, compiled natively and to WASM, so the same crypto and canonical
-encoding runs everywhere.
+The permanent core library of the Vidmesh protocol. One Rust
+implementation of the kernel, compiled natively and to WASM, so the same
+crypto and canonical encoding runs everywhere.
 
-**Status: Phase 0 scaffold — no implementation yet.** Phase 2 fills this in
-after the spec (`spec/001-kernel.md` and friends) is written.
+Implements `spec/001-kernel.md`, `spec/002-identity.md`,
+`spec/003-kinds-registry.md` (typed wrappers), and `spec/007-bundles.md`.
 
-## Planned API surface
+## API surface
 
-- `Keypair` / `Identity` — key generation, genesis, rotation, chain
-  verification with recovery precedence.
-- `RecordBuilder` / `Record` — build, sign, verify, and canonically encode
-  records; derive record ids.
-- `Blob` / `ChunkTree` — BLAKE3 blob addressing, 1 MiB chunk Merkle trees,
-  verified range reads.
-- `kinds::*` — typed wrappers over the registered record kinds.
-- `Bundle` — offline export/import with full verification on ingest.
+- `codec` — canonical CBOR `Value`, `encode_canonical` /
+  `decode_canonical` (strict: rejects all non-canonical input), JSON
+  interchange (`to_json` / `from_json`).
+- `record` — `RecordBuilder … .sign_as(&Keypair, IdentityId)`,
+  `Record::{from_cbor, verify, id, to_canonical_cbor, to_json}`, `Ref`,
+  `IdentityRef`.
+- `identity` — `Keypair`, `Identity::{genesis, rotate, verify_chain}`
+  with recovery-precedence fork resolution, `IdentityState`.
+- `blob` — `hash_blob` / `hash_stream`, `ChunkTree::{build, from_bytes,
+  root, prove}`, `verify_chunk` (1 MiB Merkle range proofs).
+- `kinds` — typed parse/build wrappers and validation for all 27 launch
+  kinds.
+- `bundle` — `Bundle::{export, import}` and `import_streaming`
+  (salvaging, memory-bounded).
+
+Design rules: `#![forbid(unsafe_code)]`, no panics on untrusted input,
+no dependencies beyond `blake3`, `ed25519-dalek`, `getrandom`.
 
 ## Testing
+
+Unit tests in every module; property tests in `tests/properties.rs`
+(canonical round-trips, merge-order independence); fuzz harnesses in
+`fuzz/` (see `FUZZING.md`). Byte-exact cross-implementation fixtures
+live in `tools/conformance/vectors`.
 
 ```sh
 cargo test -p vidmesh-kernel
 ```
-
-Conformance vectors live in `tools/conformance/vectors` and are run by
-`just conformance`.
