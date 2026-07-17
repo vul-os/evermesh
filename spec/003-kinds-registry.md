@@ -390,7 +390,7 @@ A structured legal notice as a signed record.
 |-------|------|-----|---------|
 | `regime` | text | y | e.g. `us-dmca-512`, `eu-dsa-16` |
 | `claimant` | map | y | `{ name: text, contact: text, on_behalf_of: text? }` |
-| `statement` | text | y | The sworn/good-faith statement the regime requires |
+| `statement` | text | y | All statements the regime requires, concatenated (for `us-dmca-512`: both the §512(c)(3)(A)(v) good-faith statement and the (vi) accuracy-under-penalty-of-perjury statement) |
 | `work` | text | y | Identification of the allegedly infringed work |
 | `signature_name` | text | y | Natural-person signature line |
 

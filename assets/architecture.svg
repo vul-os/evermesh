@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Vidmesh architecture: creators publish into a self-certifying substrate
+  (signed records + content-addressed blobs); independent gateways index and
+  serve their own selection of it; viewers and nodes verify and reseed it.
+  Flat two-color style matching assets/logo.svg. A neutral card background
+  keeps it readable regardless of the page it is embedded on.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" role="img"
+     aria-label="Diagram: creators publish to a substrate of records and blobs; gateways index and serve their own selection; viewers and nodes verify and reseed it.">
+  <title>Vidmesh architecture</title>
+
+  <!-- neutral card so the diagram reads on any background -->
+  <rect x="0" y="0" width="1000" height="380" rx="16" fill="#F4F2FB"/>
+
+  <!-- connective flow arrows -->
+  <g stroke="#3C3489" stroke-width="4" fill="none">
+    <path d="M150,190 H230" marker-end="url(#arrow)"/>
+    <path d="M470,190 H550" marker-end="url(#arrow)"/>
+    <path d="M790,190 H860" marker-end="url(#arrow)"/>
+  </g>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#3C3489"/>
+    </marker>
+  </defs>
+
+  <!-- creators -->
+  <g>
+    <circle cx="90" cy="190" r="50" fill="none" stroke="#3C3489" stroke-width="6"/>
+    <path d="M78,168 L78,212 L112,190 Z" fill="#1D9E75"/>
+    <text x="90" y="270" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="22" fill="#1B1830">Creators</text>
+    <text x="90" y="296" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="15" fill="#4B466A">publish manifests</text>
+  </g>
+
+  <!-- substrate -->
+  <g>
+    <rect x="230" y="120" width="240" height="140" rx="14" fill="none" stroke="#3C3489" stroke-width="6"/>
+    <circle cx="280" cy="165" r="8" fill="#3C3489"/>
+    <circle cx="340" cy="150" r="8" fill="#3C3489"/>
+    <circle cx="400" cy="170" r="8" fill="#3C3489"/>
+    <circle cx="300" cy="205" r="8" fill="#1D9E75"/>
+    <circle cx="360" cy="215" r="8" fill="#1D9E75"/>
+    <circle cx="420" cy="200" r="8" fill="#1D9E75"/>
+    <g stroke="#3C3489" stroke-width="3">
+      <path d="M280,165 L340,150 M340,150 L400,170 M280,165 L300,205 M340,150 L360,215 M400,170 L420,200 M300,205 L360,215 M360,215 L420,200"/>
+    </g>
+    <text x="350" y="285" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="22" fill="#1B1830">Substrate</text>
+    <text x="350" y="311" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="15" fill="#4B466A">signed records + content-addressed blobs</text>
+  </g>
+
+  <!-- gateways -->
+  <g>
+    <rect x="550" y="130" width="240" height="120" rx="14" fill="none" stroke="#3C3489" stroke-width="6"/>
+    <rect x="575" y="155" width="70" height="70" rx="8" fill="none" stroke="#3C3489" stroke-width="4"/>
+    <rect x="665" y="155" width="70" height="70" rx="8" fill="none" stroke="#1D9E75" stroke-width="4"/>
+    <path d="M598,180 L598,200 L622,190 Z" fill="#3C3489"/>
+    <path d="M688,180 L688,200 L712,190 Z" fill="#1D9E75"/>
+    <text x="670" y="275" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="22" fill="#1B1830">Gateways</text>
+    <text x="670" y="301" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="15" fill="#4B466A">index + serve their own selection</text>
+  </g>
+
+  <!-- viewers and nodes -->
+  <g>
+    <circle cx="910" cy="170" r="34" fill="none" stroke="#3C3489" stroke-width="6"/>
+    <path d="M898,155 L898,185 L922,170 Z" fill="#1D9E75"/>
+    <rect x="878" y="215" width="64" height="44" rx="8" fill="none" stroke="#3C3489" stroke-width="5"/>
+    <circle cx="898" cy="237" r="5" fill="#3C3489"/>
+    <circle cx="922" cy="237" r="5" fill="#1D9E75"/>
+    <text x="910" y="300" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="22" fill="#1B1830">Viewers &amp; nodes</text>
+    <text x="910" y="326" text-anchor="middle" font-family="-apple-system,'Segoe UI',sans-serif" font-size="15" fill="#4B466A">verify, watch, reseed</text>
+  </g>
+</svg>

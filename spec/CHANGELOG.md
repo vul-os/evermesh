@@ -3,6 +3,13 @@
 Newest first. Per build-plan §15, implementation-revealed spec bugs are
 fixed in the same commit as the implementation and noted here.
 
+## 2026-07-17 — 003 §6.5 notice.takedown `statement` clarified
+
+Writing the DMCA operator guide revealed that US notices require two
+distinct statements (good-faith belief and accuracy-under-perjury);
+`statement` now explicitly carries all statements the named regime
+requires. No wire change.
+
 ## 2026-07-17 — Draft 0.2 split into per-concern files (Phase 1)
 
 - Added `000-overview.md` … `011-threat-model.md`, transcribing and

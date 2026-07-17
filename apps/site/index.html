@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vidmesh — many gateways, one substrate</title>
+<meta name="description" content="Vidmesh is a decentralized video protocol: a self-certifying substrate of signed records and content-addressed blobs, served by independent gateways. No servers of record, no token, no mandatory dependencies.">
+<link rel="canonical" href="https://vidmesh.org/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://vidmesh.org/">
+<meta property="og:title" content="Vidmesh — many gateways, one substrate">
+<meta property="og:description" content="A decentralized video protocol built on signed records and content-addressed blobs. Independent gateways index and serve their own selection. No token, no servers of record.">
+<meta property="og:image" content="https://vidmesh.org/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vidmesh — many gateways, one substrate">
+<meta name="twitter:description" content="A decentralized video protocol built on signed records and content-addressed blobs. No token, no servers of record.">
+<meta name="twitter:image" content="https://vidmesh.org/assets/og-image.png">
+
+<!-- Theme + icons -->
+<meta name="theme-color" content="#FDFCFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14101F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#main" aria-label="Vidmesh home">
+      <picture>
+        <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="assets/logo.svg" alt="Vidmesh" height="28">
+      </picture>
+    </a>
+    <nav aria-label="Page sections">
+      <ul>
+        <li><a href="#roles">Roles</a></li>
+        <li><a href="#principles">Principles</a></li>
+        <li><a href="#spec">Spec</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://github.com/vidmesh/vidmesh">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <picture>
+        <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+        <img class="hero-logo" src="assets/logo.svg" alt="Vidmesh" width="360" height="96">
+      </picture>
+      <p class="tagline">Many gateways. One substrate. Video that outlives its platforms.</p>
+      <p class="hero-sub">
+        Vidmesh separates video into a small, permanent <strong>substrate</strong> of
+        signed records and content-addressed blobs, and a competitive <strong>edge</strong>
+        of gateways, nodes, and viewers that handle everything contested — moderation,
+        discovery, monetization — by their own choice, not by protocol rule.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/vidmesh/vidmesh/tree/main/spec">Read the spec</a>
+        <a class="btn btn-secondary" href="https://github.com/vidmesh/vidmesh/tree/main/apps/gateway/server#readme">Run a gateway</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="roles" class="roles" aria-labelledby="roles-heading">
+    <div class="wrap">
+      <h2 id="roles-heading">Three ways to take part</h2>
+      <p class="section-lede">Participation is a ladder. Every rung is optional and useful on its own.</p>
+      <div class="card-grid">
+        <article class="card">
+          <h3>Viewer</h3>
+          <p>Runs nothing but a browser or app. Verifies signatures and hashes
+          client-side while watching, and quietly helps seed the swarm. No
+          setup, no commitment.</p>
+        </article>
+        <article class="card">
+          <h3>Node</h3>
+          <p>A small background app that pins content you choose — your own
+          videos first, subscriptions second — and seeds it to others within
+          budgets you set. No public-facing duties.</p>
+        </article>
+        <article class="card">
+          <h3>Gateway</h3>
+          <p>An independent website on its own domain that indexes and serves
+          its own selection of the substrate. Sets its own moderation policy,
+          handles its own jurisdiction and compliance, and competes on
+          product — search, transcoding, community, payment.</p>
+        </article>
+      </div>
+      <p class="section-note">
+        A creator is not a separate infrastructure role — it is any keyholder
+        who publishes video manifests. Creators may also run their own node
+        and gateway. A foundation stewards the specification, registries,
+        and conformance suite, and runs no servers of its own.
+      </p>
+    </div>
+  </section>
+
+  <section id="principles" class="principles" aria-labelledby="principles-heading">
+    <div class="wrap">
+      <h2 id="principles-heading">Design principles</h2>
+      <p class="section-lede">
+        Ten rules the protocol is not allowed to break, condensed from the
+        <a href="https://github.com/vidmesh/vidmesh/tree/main/spec/000-overview.md">spec overview</a>.
+      </p>
+      <ol class="principle-list">
+        <li><strong>Minimal kernel.</strong> Only the record envelope, algorithm registry, identity rotation log, and blob addressing are permanent. Everything else is an extension.</li>
+        <li><strong>Self-certifying.</strong> Every record and blob verifies from its own bytes and math — no server, chain, DNS name, or certificate required.</li>
+        <li><strong>Forkability.</strong> The full index can be replicated by anyone; identities are portable; blobs are re-hostable by anyone who has them.</li>
+        <li><strong>Transport and storage agnostic.</strong> The kernel never names a transport. Blobs are hashes; delivery details are optional hints.</li>
+        <li><strong>No mandatory dependencies.</strong> No company, blockchain, or external network is required for the protocol to work correctly.</li>
+        <li><strong>Economic neutrality.</strong> Payment is optional and pluggable. There is no protocol token, and there will not be one.</li>
+        <li><strong>Edge-resolved moderation.</strong> The substrate never deletes. Gateways choose what to serve; compliance is plural, subscribable, signed takedown feeds.</li>
+        <li><strong>Partition tolerance.</strong> No part of the protocol needs global consensus or ordering. It keeps working across slow links, offline stretches, or permanent isolation.</li>
+        <li><strong>Two-implementations rule.</strong> Nothing joins the specification until two independent implementations interoperate against the public conformance suite.</li>
+        <li><strong>Legibility.</strong> Formats are plain, documented, and boring on purpose, so a stranger can reimplement the whole thing from the spec alone.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="spec" class="spec-index" aria-labelledby="spec-heading">
+    <div class="wrap">
+      <h2 id="spec-heading">The specification</h2>
+      <p class="section-lede">
+        Twelve files, one concern each, cross-referenced and self-consistent.
+        Code follows spec — never the reverse.
+      </p>
+      <ol class="file-list">
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/000-overview.md"><code>000-overview</code></a> — principles, roles, and the map of the spec</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/001-kernel.md"><code>001-kernel</code></a> — record envelope, canonical CBOR, ids, algorithm registry, blobs, chunk trees</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/002-identity.md"><code>002-identity</code></a> — rotation log, recovery precedence, delegation, profiles</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/003-kinds-registry.md"><code>003-kinds-registry</code></a> — the numeric registry of record kinds and their schemas</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/004-manifest.md"><code>004-manifest</code></a> — video manifests, renditions, deduplication, live streams</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/005-claims.md"><code>005-claims</code></a> — authorship and license claims, disputes, provenance</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/006-relay.md"><code>006-relay</code></a> — relay sync protocol, blob sidecar, anti-spam, gossip</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/007-bundles.md"><code>007-bundles</code></a> — the offline bundle container format and partition posture</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/008-privacy.md"><code>008-privacy</code></a> — encryption modes, key grants, metadata privacy</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/009-gateway.md"><code>009-gateway</code></a> — gateway selection, compliance, legal toolkit, discovery</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/010-economics.md"><code>010-economics</code></a> — payment pointers, receipts, disclosures</li>
+        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/011-threat-model.md"><code>011-threat-model</code></a> — adversaries, attack surfaces, mitigations, residual risk</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="faq" class="faq" aria-labelledby="faq-heading">
+    <div class="wrap">
+      <h2 id="faq-heading">Frequently asked questions</h2>
+      <dl>
+        <div class="faq-item">
+          <dt>How is this different from PeerTube, Nostr, or Bluesky?</dt>
+          <dd>
+            <strong>PeerTube</strong> federates independent servers, but each
+            server still owns the identity and data of its own users — moving
+            off one means starting over. Vidmesh keeps identity and content
+            self-certifying and portable; gateways select and serve rather
+            than own.
+            <br><br>
+            <strong>Nostr</strong> shares the same substrate spirit — signed
+            events distributed through relays you choose. Vidmesh is built
+            specifically for video on top of that idea: native manifests,
+            renditions, authorship claims, and offline bundles that a plain
+            event feed does not define.
+            <br><br>
+            <strong>Bluesky / the AT Protocol</strong> also uses rotation-based,
+            portable identity, similar in spirit to Vidmesh's identity log.
+            The difference is that Vidmesh has no required global relay or
+            app-view service — every gateway can build its own view from
+            scratch, and the protocol is designed to keep working when
+            partitioned, not just when everyone can reach a central firehose.
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is there a token?</dt>
+          <dd>No, permanently. The specification carries optional payment
+          primitives so creators and gateways can charge for things if they
+          want to, but it takes no position on business models, and no
+          protocol token exists or will exist.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is this a blockchain?</dt>
+          <dd>No. There is no chain, no mining, and no global consensus of
+          any kind. Records are signed and content-addressed, which is
+          enough to make them independently verifiable — that verification
+          never depends on everyone agreeing on a shared ledger.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>What happens if a gateway shuts down?</dt>
+          <dd>Nothing is lost. The records and blobs it served are just as
+          valid on any other gateway that chooses to index them, and any
+          node that pinned the underlying blobs can re-seed them. Identity
+          and history live in the substrate, not in the gateway.</dd>
+        </div>
+        <div class="faq-item">
+          <dt>Who is in charge?</dt>
+          <dd>No one operationally. A foundation stewards the specification,
+          the kind registry, and the conformance suite, but it runs no
+          servers and holds no user data. The design goal is that the
+          network keeps working even after the foundation is gone.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p>
+      <a href="https://github.com/vidmesh/vidmesh">github.com/vidmesh/vidmesh</a>
+    </p>
+    <p class="footer-licenses">
+      Code: MIT OR Apache-2.0. Specification: CC-BY-SA-4.0.
+    </p>
+    <p class="footer-note">
+      Vidmesh is stewarded by a foundation that operates nothing and
+      publishes the spec, registries, and conformance suite in the open.
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

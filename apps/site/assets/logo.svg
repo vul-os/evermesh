@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Vidmesh logo (color, for light backgrounds).
+  Mark: a hexagonal mesh of nodes and edges; three of the outer nodes send
+  spokes inward to a central cluster that forms a play triangle. Flat fills
+  only, two colors: deep indigo #3C3489, signal teal #1D9E75.
+  Wordmark: "vidmesh" drawn as hand-built path outlines (no font-family/<text>).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 256" role="img" aria-label="Vidmesh">
+  <title>Vidmesh</title>
+
+  <!-- ============ mark ============ -->
+  <g>
+    <!-- hexagonal lattice ring -->
+    <path d="M204.2,172 L128,216 L51.8,172 L51.8,84 L128,40 L204.2,84 Z"
+          fill="none" stroke="#3C3489" stroke-width="10" stroke-linejoin="round"/>
+    <!-- outer mesh nodes -->
+    <circle cx="204.2" cy="172" r="8" fill="#3C3489"/>
+    <circle cx="128"   cy="216" r="8" fill="#3C3489"/>
+    <circle cx="51.8"  cy="172" r="8" fill="#3C3489"/>
+    <circle cx="51.8"  cy="84"  r="8" fill="#3C3489"/>
+    <circle cx="128"   cy="40"  r="8" fill="#3C3489"/>
+    <circle cx="204.2" cy="84"  r="8" fill="#3C3489"/>
+    <!-- spokes converging from the play triangle's corners to the ring -->
+    <g fill="none" stroke="#3C3489" stroke-width="7" stroke-linecap="round">
+      <path d="M108,93.4 L128,40"/>
+      <path d="M108,93.4 L51.8,84"/>
+      <path d="M108,162.6 L51.8,172"/>
+      <path d="M108,162.6 L128,216"/>
+      <path d="M168,128 L204.2,84"/>
+      <path d="M168,128 L204.2,172"/>
+    </g>
+    <!-- central cluster reads as a play triangle -->
+    <path d="M168,128 L108,93.4 L108,162.6 Z" fill="#1D9E75"/>
+  </g>
+
+  <!-- ============ wordmark: "vidmesh" as path outlines ============ -->
+  <g transform="translate(300,23)" fill="none" stroke="#3C3489" stroke-width="20"
+     stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(0,0)"><!-- v -->
+      <path d="M0,100 L35,180 L70,100"/>
+    </g>
+    <g transform="translate(96,0)"><!-- i -->
+      <circle cx="16" cy="78" r="11" fill="#3C3489" stroke="none"/>
+      <path d="M16,100 L16,180"/>
+    </g>
+    <g transform="translate(154,0)"><!-- d -->
+      <path d="M82,140 L70.3,168.3 L42,180 L13.7,168.3 L2,140 L13.7,111.7 L42,100 L70.3,111.7 Z"/>
+      <path d="M82,30 L82,180"/>
+    </g>
+    <g transform="translate(272,0)"><!-- m -->
+      <path d="M0,180 L0,100 M36,180 L36,100 M72,180 L72,100 M0,100 L18,90 L36,100 M36,100 L54,90 L72,100"/>
+    </g>
+    <g transform="translate(382,0)"><!-- e -->
+      <path d="M42,180 L13.7,168.3 L2,140 L13.7,111.7 L42,100 L70.3,111.7 L82,140 M2,140 L82,140"/>
+    </g>
+    <g transform="translate(500,0)"><!-- s -->
+      <path d="M50,112 L32,100 L14,112 L14,128 L32,140 L50,152 L50,168 L32,180 L14,168"/>
+    </g>
+    <g transform="translate(590,0)"><!-- h -->
+      <path d="M0,180 L0,30 M40,180 L40,100 M0,100 L20,90 L40,100"/>
+    </g>
+  </g>
+</svg>

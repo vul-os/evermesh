@@ -1,0 +1,16 @@
+{
+  "name": "Vidmesh",
+  "short_name": "Vidmesh",
+  "description": "Many gateways. One substrate. Video that outlives its platforms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFCFF",
+  "theme_color": "#3C3489",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
