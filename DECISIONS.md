@@ -15,6 +15,10 @@ process/product decisions that don't belong in the spec.
 - **Work loop:** continue autonomously on a 15-minute wakeup cadence for
   up to 10 hours (2026-07-17); stop the loop when implementation is
   complete. Do not stop to ask questions — decide, log here, move on.
+  **AMENDED 2026-07-17 ~04:10: owner said "pause after this wave" — after
+  the in-flight conformance/gateway-server/gateway-web agents complete
+  and their work is integrated+committed, STOP the loop (ScheduleWakeup
+  stop:true), launch no new agents, and wait for the owner.**
 - **Testing:** implement extensive tests throughout (unit, property,
   vectors), but **do not run test suites yet** — the owner will say
   when. Compilation/type checks are still performed so shipped code is
@@ -70,3 +74,25 @@ process/product decisions that don't belong in the spec.
   the launch path.
 - Anchor system launch set — reference implements `opentimestamps` proof
   *carriage* only (verification is external tooling) in v1.
+
+## Phase 1 — first test-suite run (2026-07-19)
+
+The owner authorized running the never-executed suites and fixing what
+breaks (non-destructive: no kernel/codec/relay byte-format rewrites). All
+suites now run and pass; the fixes made, as decisions:
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| T1 | A freshly built signed `Record` stores its body in **canonical key order** (`Value::into_canonical`, applied in `RecordBuilder::sign_as`) | The `Value::Map` invariant was documented but only held for decoded values; a hand-built body kept insertion order, so byte-identical records (same id/sig) compared unequal via derived `PartialEq`. Ordering only — the signed bytes are unchanged (the encoder already sorts). Fixed bundle round-trip + salvage tests; the `attest_round_trip` fixture's non-canonical literal was corrected to match. |
+| T2 | `kinds::validate()` verifies each manifest rendition's `derivation_sig` against the manifest's own original blob (spec 004 §3.1) | `Manifest::parse` stops at structure by design; `validate()` is the caller it documents as responsible for the crypto check. Conformance vector `kinds/manifest/bad-derivation-sig` required it; the kernel accepted a forged sig before. |
+| T3 | `verifyChain` (WASM + kernel-ts + node harness) takes an `observedAt` map threaded into `Identity::verify_chain`'s `observed_at` closure | The binding hardcoded `observed = None`, so contest-window finality could never be exercised under Node and `identity/fork-final-signing` genuinely diverged from the kernel. Closing the divergence (not special-casing the vector) is the golden rule (build plan §7). |
+| T4 | JS test/dev runners: gateway-server uses `--experimental-transform-types`; kernel-ts expands its one parameter property to a field | Node's strip-only mode rejects TS parameter-property constructors and enums; the gateway uses many parameter properties (a deliberate style), so the flag switch is the least-invasive correct fix there. |
+| T5 | Conformance verdict recorded: kernel 189/0/0, node 142/0/47, relay 115/0/74 — 0 failures; all differences are documented per-runtime skips | The three-runtime golden rule holds. Skips are each runtime checking only what it is responsible for (relay = envelope only; node = no bundle/json/kind-invalid surface). |
+
+**DMTAP-PUB convergence** — recorded as a full decision document at
+[docs/DMTAP-CONVERGENCE.md](docs/DMTAP-CONVERGENCE.md). Recommendation:
+re-base vidmesh's video layer as the DMTAP-PUB §24 video profile (route b),
+contributing range proofs / rotation-log finality / a fetch-hint registry
+upstream. **FOUNDER-GATED** — no substrate byte changes until the founder
+confirms direction, §24 is targetable, and envoir's §22 Rust impl is a
+consumable dependency. Phase 1 stayed non-destructive per this gate.
