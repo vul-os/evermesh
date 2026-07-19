@@ -23,12 +23,14 @@
 <meta name="twitter:image" content="https://vidmesh.org/assets/og-image.png">
 
 <!-- Theme + icons -->
-<meta name="theme-color" content="#FDFCFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#14101F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0C0B" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
+<link rel="preload" href="assets/fonts/syne-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/hanken-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,19 +38,20 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="#main" aria-label="Vidmesh home">
+    <a class="brand" href="./" aria-label="Vidmesh home">
       <picture>
         <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="assets/logo.svg" alt="Vidmesh" height="28">
+        <img src="assets/logo.svg" alt="Vidmesh" width="98" height="26">
       </picture>
     </a>
-    <nav aria-label="Page sections">
+    <nav aria-label="Sections">
       <ul>
+        <li><a href="#survival">Survival test</a></li>
+        <li><a href="#how">How it works</a></li>
         <li><a href="#roles">Roles</a></li>
-        <li><a href="#principles">Principles</a></li>
-        <li><a href="#spec">Spec</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="https://github.com/vidmesh/vidmesh">GitHub</a></li>
+        <li><a href="#status">Status</a></li>
+        <li><a href="docs.html">Docs</a></li>
+        <li><a class="nav-cta" href="https://github.com/vul-os/vidmesh">GitHub</a></li>
       </ul>
     </nav>
   </div>
@@ -57,159 +60,508 @@
 <main id="main">
 
   <section class="hero">
+    <!-- the mesh, at the edge of visibility, with three packets crossing it -->
+    <svg class="hero-lattice" viewBox="0 0 1400 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g class="edge">
+        <path d="M120,80 L420,240 L720,80 L1020,240 L1320,80"/>
+        <path d="M120,540 L420,240 L720,540 L1020,240 L1320,540"/>
+        <path d="M420,240 L420,540 M1020,240 L1020,540"/>
+        <path d="M120,80 L120,540 M720,80 L720,540 M1320,80 L1320,540"/>
+      </g>
+      <g class="node">
+        <circle cx="120" cy="80" r="5"/><circle cx="420" cy="240" r="5"/>
+        <circle cx="720" cy="80" r="5"/><circle cx="1020" cy="240" r="5"/>
+        <circle cx="1320" cy="80" r="5"/><circle cx="120" cy="540" r="5"/>
+        <circle cx="720" cy="540" r="5"/><circle cx="1320" cy="540" r="5"/>
+        <circle cx="420" cy="540" r="5"/><circle cx="1020" cy="540" r="5"/>
+      </g>
+      <circle class="signal a" r="4.5" style="offset-path: path('M120,80 L420,240 L720,80 L1020,240 L1320,80')"/>
+      <circle class="signal b" r="4.5" style="offset-path: path('M1320,540 L1020,240 L720,540 L420,240 L120,540')"/>
+      <circle class="signal c" r="4.5" style="offset-path: path('M420,540 L420,240 L720,80')"/>
+    </svg>
+
     <div class="wrap">
-      <picture>
-        <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
-        <img class="hero-logo" src="assets/logo.svg" alt="Vidmesh" width="360" height="96">
-      </picture>
-      <p class="tagline">Many gateways. One substrate. Video that outlives its platforms.</p>
+      <p class="eyebrow">Pre-alpha &middot; protocol first, product later</p>
+      <h1>Many gateways.<br>One substrate.<br><em>Video that outlives its platforms.</em></h1>
       <p class="hero-sub">
-        Vidmesh separates video into a small, permanent <strong>substrate</strong> of
-        signed records and content-addressed blobs, and a competitive <strong>edge</strong>
-        of gateways, nodes, and viewers that handle everything contested — moderation,
-        discovery, monetization — by their own choice, not by protocol rule.
+        Vidmesh splits video into a small, permanent <strong>substrate</strong> — signed
+        records and content-addressed blobs that verify from their own bytes — and a
+        competitive <strong>edge</strong> of gateways, nodes, and viewers that decides
+        everything contested: moderation, discovery, monetization. No servers of record.
+        No token. No company you have to trust, including ours.
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="https://github.com/vidmesh/vidmesh/tree/main/spec">Read the spec</a>
-        <a class="btn btn-secondary" href="https://github.com/vidmesh/vidmesh/tree/main/apps/gateway/server#readme">Run a gateway</a>
+        <a class="btn btn-primary" href="docs.html#000-overview">Read the spec</a>
+        <a class="btn btn-secondary" href="https://github.com/vul-os/vidmesh#development">Run a gateway</a>
+      </div>
+
+      <dl class="stat-strip">
+        <div>
+          <dt>Spec files</dt>
+          <dd>12 <span class="mono" style="font-size:14px;color:var(--vm-faint)">+ draft</span></dd>
+        </div>
+        <div>
+          <dt>Record kinds</dt>
+          <dd>27</dd>
+        </div>
+        <div>
+          <dt>Conformance vectors</dt>
+          <dd>189</dd>
+        </div>
+        <div>
+          <dt>Independent runtimes</dt>
+          <dd>3</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" id="survival" aria-labelledby="survival-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="section-num">01 / the test</span>
+          <h2 id="survival-heading">The survival test</h2>
+        </div>
+        <div>
+          <p class="lede">
+            Every design decision in Vidmesh answers one question:
+            <strong>does the network still work after every organization involved
+            dies or betrays it?</strong>
+          </p>
+          <p class="lede">
+            Not "is it federated". Not "is it open source". Those are means. The
+            test is whether a video published today is still playable, still
+            attributable, and still re-hostable when the gateway that served it,
+            the foundation that wrote this spec, and the operators who ran the
+            relays are all gone.
+          </p>
+        </div>
+      </div>
+
+      <div class="section-body survival">
+        <article class="death">
+          <p class="strike">The gateway shuts down</p>
+          <h3>Your videos were never in it</h3>
+          <p>
+            A gateway is an index and a cache with a domain name and a legal
+            posture. It holds a selection of the substrate, not the original of
+            anything.
+          </p>
+          <p class="survives">
+            <b>Still works</b>
+            The records and blobs are just as valid on any other gateway that
+            chooses to index them, and any node that pinned the blobs can
+            re-seed them. Nothing needs to be migrated, because nothing was
+            ever owned.
+          </p>
+        </article>
+
+        <article class="death">
+          <p class="strike">The foundation dies</p>
+          <h3>It operated nothing to lose</h3>
+          <p>
+            The steward publishes a spec, a kind registry, and a conformance
+            suite. It runs no servers, holds no keys, and has no ability to
+            revoke, delist, or authorize anyone.
+          </p>
+          <p class="survives">
+            <b>Still works</b>
+            A frozen spec is a working spec. The registry is a file you can
+            fork; the conformance suite is 189 vectors you can replay. The
+            two-implementations rule exists so nothing in the protocol depends
+            on one group's code surviving.
+          </p>
+        </article>
+
+        <article class="death">
+          <p class="strike">The network splits</p>
+          <h3>There was no consensus to lose</h3>
+          <p>
+            No chain, no global ordering, no quorum, no firehose everyone must
+            reach. Records are signed and content-addressed, which is enough to
+            verify them alone in a room.
+          </p>
+          <p class="survives">
+            <b>Still works</b>
+            Both sides of a partition keep publishing and keep verifying.
+            Offline bundles move content across an air gap on a disk. When the
+            link comes back, the two halves merge — there is nothing to
+            reconcile because nothing was ever a vote.
+          </p>
+        </article>
+      </div>
+
+      <p class="pull">
+        A protocol that needs its authors to stay alive is a product with
+        extra steps.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="section-num">02 / mechanics</span>
+          <h2 id="how-heading">How it works</h2>
+        </div>
+        <p class="lede">
+          Three layers, and only the middle one is permanent. The kernel names
+          no transport, no company, and no chain — it defines bytes that carry
+          their own proof.
+        </p>
+      </div>
+
+      <div class="section-body">
+        <div class="flow">
+          <article class="layer">
+            <p class="tag">Layer 1 — publish</p>
+            <h3>A record is signed bytes</h3>
+            <p class="body">
+              A creator's key signs a canonical CBOR envelope. Video itself
+              lives in blobs addressed by BLAKE3 chunk trees, so a byte range
+              can be proven without fetching the file.
+            </p>
+            <ul>
+              <li>Ed25519 signatures, canonical encoding, stable ids</li>
+              <li>Identity is a rotation log, not an account</li>
+              <li>27 record kinds: manifests, claims, comments, live, more</li>
+            </ul>
+          </article>
+          <article class="layer">
+            <p class="tag">Layer 2 — carry</p>
+            <h3>Relays move records; nobody owns them</h3>
+            <p class="body">
+              Relays accept, store, and forward records over a websocket sync
+              protocol with filtered subscriptions, proof-of-work anti-spam,
+              and retention policy. Losing one costs you nothing.
+            </p>
+            <ul>
+              <li>Subscribe to what you care about, not to everything</li>
+              <li>Blob sidecar serves ranges and chunk proofs over HTTP</li>
+              <li>Offline bundles carry the same records with no network</li>
+            </ul>
+          </article>
+          <article class="layer">
+            <p class="tag">Layer 3 — serve</p>
+            <h3>Gateways compete on judgement</h3>
+            <p class="body">
+              A gateway indexes its own selection, sets its own moderation
+              policy, answers to its own jurisdiction, and competes on search,
+              transcoding, community and payment.
+            </p>
+            <ul>
+              <li>The substrate never deletes; gateways decline to serve</li>
+              <li>Takedown feeds are plural, signed, and subscribable</li>
+              <li>Viewers verify client-side — trust the math, not the host</li>
+            </ul>
+          </article>
+        </div>
+
+        <figure class="diagram">
+          <img src="assets/architecture.svg" alt="Creators publish signed manifests into a substrate of records and content-addressed blobs; independent gateways index and serve their own selection of it; viewers and nodes verify signatures and hashes and re-seed the blobs." width="1000" height="380">
+        </figure>
       </div>
     </div>
   </section>
 
-  <section id="roles" class="roles" aria-labelledby="roles-heading">
+  <section class="section" id="roles" aria-labelledby="roles-heading">
     <div class="wrap">
-      <h2 id="roles-heading">Three ways to take part</h2>
-      <p class="section-lede">Participation is a ladder. Every rung is optional and useful on its own.</p>
-      <div class="card-grid">
-        <article class="card">
-          <h3>Viewer</h3>
-          <p>Runs nothing but a browser or app. Verifies signatures and hashes
-          client-side while watching, and quietly helps seed the swarm. No
-          setup, no commitment.</p>
+      <div class="section-head">
+        <div>
+          <span class="section-num">03 / participation</span>
+          <h2 id="roles-heading">Three ways to take part</h2>
+        </div>
+        <p class="lede">
+          Participation is a ladder. Every rung is optional, useful on its own,
+          and reversible — you can stop being a node on Tuesday and still be a
+          viewer on Wednesday.
+        </p>
+      </div>
+
+      <div class="section-body ladder">
+        <article class="rung">
+          <p class="step">rung 01</p>
+          <div>
+            <h3>Viewer</h3>
+            <span class="runs">runs: a browser</span>
+          </div>
+          <p>
+            Watches. Verifies signatures and hashes client-side while the video
+            plays, so a hostile or careless gateway cannot quietly substitute
+            different bytes. No account, no setup, no commitment.
+          </p>
         </article>
-        <article class="card">
-          <h3>Node</h3>
-          <p>A small background app that pins content you choose — your own
-          videos first, subscriptions second — and seeds it to others within
-          budgets you set. No public-facing duties.</p>
+        <article class="rung">
+          <p class="step">rung 02</p>
+          <div>
+            <h3>Node</h3>
+            <span class="runs">runs: a background app</span>
+          </div>
+          <p>
+            Pins what you choose — your own videos first, subscriptions second —
+            and re-seeds it to others inside budgets you set. This is the rung
+            that makes "outlives its platforms" literally true. No public-facing
+            duties, no domain, no legal exposure.
+          </p>
         </article>
-        <article class="card">
-          <h3>Gateway</h3>
-          <p>An independent website on its own domain that indexes and serves
-          its own selection of the substrate. Sets its own moderation policy,
-          handles its own jurisdiction and compliance, and competes on
-          product — search, transcoding, community, payment.</p>
+        <article class="rung">
+          <p class="step">rung 03</p>
+          <div>
+            <h3>Gateway</h3>
+            <span class="runs">runs: a public website</span>
+          </div>
+          <p>
+            An independent site on its own domain that indexes and serves its
+            own selection of the substrate, under its own moderation policy and
+            its own jurisdiction. Gateways are where the contested decisions
+            live, on purpose, so that the substrate never has to make them.
+          </p>
         </article>
       </div>
-      <p class="section-note">
-        A creator is not a separate infrastructure role — it is any keyholder
-        who publishes video manifests. Creators may also run their own node
-        and gateway. A foundation stewards the specification, registries,
-        and conformance suite, and runs no servers of its own.
+
+      <p class="lede" style="margin-top:24px">
+        A creator is not a separate piece of infrastructure — it is any keyholder
+        who publishes a video manifest, and creators may run a node and a gateway
+        too. A foundation stewards the spec, the registries, and the conformance
+        suite, and runs no servers of its own.
       </p>
     </div>
   </section>
 
-  <section id="principles" class="principles" aria-labelledby="principles-heading">
+  <section class="section" id="status" aria-labelledby="status-heading">
     <div class="wrap">
-      <h2 id="principles-heading">Design principles</h2>
-      <p class="section-lede">
-        Ten rules the protocol is not allowed to break, condensed from the
-        <a href="https://github.com/vidmesh/vidmesh/tree/main/spec/000-overview.md">spec overview</a>.
-      </p>
-      <ol class="principle-list">
-        <li><strong>Minimal kernel.</strong> Only the record envelope, algorithm registry, identity rotation log, and blob addressing are permanent. Everything else is an extension.</li>
-        <li><strong>Self-certifying.</strong> Every record and blob verifies from its own bytes and math — no server, chain, DNS name, or certificate required.</li>
-        <li><strong>Forkability.</strong> The full index can be replicated by anyone; identities are portable; blobs are re-hostable by anyone who has them.</li>
-        <li><strong>Transport and storage agnostic.</strong> The kernel never names a transport. Blobs are hashes; delivery details are optional hints.</li>
-        <li><strong>No mandatory dependencies.</strong> No company, blockchain, or external network is required for the protocol to work correctly.</li>
-        <li><strong>Economic neutrality.</strong> Payment is optional and pluggable. There is no protocol token, and there will not be one.</li>
-        <li><strong>Edge-resolved moderation.</strong> The substrate never deletes. Gateways choose what to serve; compliance is plural, subscribable, signed takedown feeds.</li>
-        <li><strong>Partition tolerance.</strong> No part of the protocol needs global consensus or ordering. It keeps working across slow links, offline stretches, or permanent isolation.</li>
-        <li><strong>Two-implementations rule.</strong> Nothing joins the specification until two independent implementations interoperate against the public conformance suite.</li>
-        <li><strong>Legibility.</strong> Formats are plain, documented, and boring on purpose, so a stranger can reimplement the whole thing from the spec alone.</li>
+      <div class="section-head">
+        <div>
+          <span class="section-num">04 / honesty</span>
+          <h2 id="status-heading">What actually exists</h2>
+        </div>
+        <p class="lede">
+          A page like this usually describes software that does not exist yet.
+          Here is the line between what runs today and what is only written
+          down. It mirrors the repository README exactly, and it is meant to be
+          uncomfortable while it is still true.
+        </p>
+      </div>
+
+      <div class="section-body">
+        <p class="status-note">
+          <strong>Vidmesh is pre-alpha.</strong> There is no deployment, no
+          public gateway, and no app you can install. What exists is a normative
+          spec, a protocol kernel, a relay, a reference gateway, and a
+          conformance suite whose tests pass. Where code and spec disagree, the
+          spec wins.
+        </p>
+
+        <div class="table-scroll">
+          <table class="status">
+            <caption class="mono" style="text-align:left;padding:14px 20px;color:var(--vm-faint);font-size:12.5px">Component status</caption>
+            <thead>
+              <tr><th scope="col">Path</th><th scope="col">What it is</th><th scope="col">State</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="path">spec/</td>
+                <td>Normative protocol spec (000–011 + IETF draft)</td>
+                <td><span class="pill pill-built">Complete for v1</span></td>
+              </tr>
+              <tr>
+                <td class="path">vidmesh-kernel</td>
+                <td>Records, identity rotation, blobs and chunk proofs, bundles, all 27 kinds</td>
+                <td><span class="pill pill-built">Implemented, tested</span></td>
+              </tr>
+              <tr>
+                <td class="path">vidmesh-relay</td>
+                <td>Sync websocket, storage, subscriptions, gossip, PoW, retention, blob sidecar</td>
+                <td><span class="pill pill-built">Implemented, tested</span></td>
+              </tr>
+              <tr>
+                <td class="path">vidmesh-wasm / kernel-ts</td>
+                <td>WASM bindings and the typed TS API over them</td>
+                <td><span class="pill pill-built">Implemented, tested</span></td>
+              </tr>
+              <tr>
+                <td class="path">gateway/server</td>
+                <td>Index, policy engine, key custody, ingest, upload, JSON API</td>
+                <td><span class="pill pill-built">Implemented, tested</span></td>
+              </tr>
+              <tr>
+                <td class="path">gateway/web</td>
+                <td>The uniform reference UI: player, verification, channels, upload</td>
+                <td><span class="pill pill-built">Implemented, tested</span></td>
+              </tr>
+              <tr>
+                <td class="path">tools/conformance</td>
+                <td>189 deterministic vectors replayed against three runtimes</td>
+                <td><span class="pill pill-built">Green</span></td>
+              </tr>
+              <tr>
+                <td class="path">swarm / P2P</td>
+                <td>WebRTC / BitTorrent-style retrieval described in the spec</td>
+                <td><span class="pill pill-none">Spec only — not built</span></td>
+              </tr>
+              <tr>
+                <td class="path">live streaming</td>
+                <td><code>live.manifest</code> / <code>live.chat</code> kinds validate in the kernel</td>
+                <td><span class="pill pill-none">Spec only — no ingest, no player</span></td>
+              </tr>
+              <tr>
+                <td class="path">non-custodial keys</td>
+                <td>Client-held keys; the reference gateway custodies keys server-side today</td>
+                <td><span class="pill pill-spec">Later phase</span></td>
+              </tr>
+              <tr>
+                <td class="path">vidmesh-node</td>
+                <td>Desktop node (Tauri 2) — pins and seeds nothing yet</td>
+                <td><span class="pill pill-none">Scaffold only</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subhead">Conformance: the golden rule</h3>
+        <p class="lede" style="margin-bottom:22px">
+          The same vectors are replayed against three independent runtimes — the
+          Rust kernel in-process, the WASM kernel under Node, and a live relay
+          over its websocket. A vector must pass identically in every runtime; a
+          divergence is a protocol bug, never a fixture to special-case. The
+          differing counts are documented per-runtime skips — each runtime only
+          checks what it is responsible for.
+        </p>
+        <div class="table-scroll">
+          <table class="status">
+            <thead>
+              <tr>
+                <th scope="col">Target</th>
+                <th scope="col" class="num">Pass</th>
+                <th scope="col" class="num">Fail</th>
+                <th scope="col" class="num">Skip</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="path">kernel</td><td class="num">189</td><td class="num">0</td><td class="num">0</td></tr>
+              <tr><td class="path">node (WASM / kernel-ts)</td><td class="num">142</td><td class="num">0</td><td class="num">47</td></tr>
+              <tr><td class="path">relay (/sync)</td><td class="num">115</td><td class="num">0</td><td class="num">74</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="spec" aria-labelledby="spec-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="section-num">05 / the spec</span>
+          <h2 id="spec-heading">Twelve files, one concern each</h2>
+        </div>
+        <p class="lede">
+          Cross-referenced, self-consistent, and boring on purpose, so a
+          stranger can reimplement the whole thing from the text alone. Read
+          them <a href="docs.html">in the docs viewer</a> or in the repository.
+        </p>
+      </div>
+
+      <ol class="section-body spec-list">
+        <li><a href="docs.html#000-overview">000-overview</a><span>principles, roles, and the map of the spec</span></li>
+        <li><a href="docs.html#001-kernel">001-kernel</a><span>record envelope, canonical CBOR, ids, algorithm registry, blobs, chunk trees</span></li>
+        <li><a href="docs.html#002-identity">002-identity</a><span>rotation log, recovery precedence, delegation, profiles</span></li>
+        <li><a href="docs.html#003-kinds-registry">003-kinds-registry</a><span>the numeric registry of record kinds and their schemas</span></li>
+        <li><a href="docs.html#004-manifest">004-manifest</a><span>video manifests, renditions, deduplication, live streams</span></li>
+        <li><a href="docs.html#005-claims">005-claims</a><span>authorship and license claims, disputes, provenance</span></li>
+        <li><a href="docs.html#006-relay">006-relay</a><span>relay sync protocol, blob sidecar, anti-spam, gossip</span></li>
+        <li><a href="docs.html#007-bundles">007-bundles</a><span>the offline bundle container format and partition posture</span></li>
+        <li><a href="docs.html#008-privacy">008-privacy</a><span>encryption modes, key grants, metadata privacy</span></li>
+        <li><a href="docs.html#009-gateway">009-gateway</a><span>gateway selection, compliance, legal toolkit, the uniform reference UI</span></li>
+        <li><a href="docs.html#010-economics">010-economics</a><span>payment pointers, receipts, disclosures</span></li>
+        <li><a href="docs.html#011-threat-model">011-threat-model</a><span>adversaries, attack surfaces, mitigations, residual risk</span></li>
+        <li><a href="docs.html#draft-vidmesh-protocol-00">IETF draft</a><span>the same protocol as an Internet-Draft</span></li>
       </ol>
     </div>
   </section>
 
-  <section id="spec" class="spec-index" aria-labelledby="spec-heading">
+  <section class="section" id="faq" aria-labelledby="faq-heading">
     <div class="wrap">
-      <h2 id="spec-heading">The specification</h2>
-      <p class="section-lede">
-        Twelve files, one concern each, cross-referenced and self-consistent.
-        Code follows spec — never the reverse.
-      </p>
-      <ol class="file-list">
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/000-overview.md"><code>000-overview</code></a> — principles, roles, and the map of the spec</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/001-kernel.md"><code>001-kernel</code></a> — record envelope, canonical CBOR, ids, algorithm registry, blobs, chunk trees</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/002-identity.md"><code>002-identity</code></a> — rotation log, recovery precedence, delegation, profiles</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/003-kinds-registry.md"><code>003-kinds-registry</code></a> — the numeric registry of record kinds and their schemas</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/004-manifest.md"><code>004-manifest</code></a> — video manifests, renditions, deduplication, live streams</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/005-claims.md"><code>005-claims</code></a> — authorship and license claims, disputes, provenance</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/006-relay.md"><code>006-relay</code></a> — relay sync protocol, blob sidecar, anti-spam, gossip</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/007-bundles.md"><code>007-bundles</code></a> — the offline bundle container format and partition posture</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/008-privacy.md"><code>008-privacy</code></a> — encryption modes, key grants, metadata privacy</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/009-gateway.md"><code>009-gateway</code></a> — gateway selection, compliance, legal toolkit, discovery</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/010-economics.md"><code>010-economics</code></a> — payment pointers, receipts, disclosures</li>
-        <li><a href="https://github.com/vidmesh/vidmesh/tree/main/spec/011-threat-model.md"><code>011-threat-model</code></a> — adversaries, attack surfaces, mitigations, residual risk</li>
-      </ol>
-    </div>
-  </section>
+      <div class="section-head">
+        <div>
+          <span class="section-num">06 / objections</span>
+          <h2 id="faq-heading">Reasonable objections</h2>
+        </div>
+        <p class="lede">
+          Most of these have been asked in bad faith at some point. They are all
+          still worth answering.
+        </p>
+      </div>
 
-  <section id="faq" class="faq" aria-labelledby="faq-heading">
-    <div class="wrap">
-      <h2 id="faq-heading">Frequently asked questions</h2>
-      <dl>
+      <dl class="section-body faq-list">
         <div class="faq-item">
           <dt>How is this different from PeerTube, Nostr, or Bluesky?</dt>
           <dd>
-            <strong>PeerTube</strong> federates independent servers, but each
-            server still owns the identity and data of its own users — moving
-            off one means starting over. Vidmesh keeps identity and content
-            self-certifying and portable; gateways select and serve rather
-            than own.
-            <br><br>
-            <strong>Nostr</strong> shares the same substrate spirit — signed
-            events distributed through relays you choose. Vidmesh is built
-            specifically for video on top of that idea: native manifests,
-            renditions, authorship claims, and offline bundles that a plain
-            event feed does not define.
-            <br><br>
-            <strong>Bluesky / the AT Protocol</strong> also uses rotation-based,
-            portable identity, similar in spirit to Vidmesh's identity log.
-            The difference is that Vidmesh has no required global relay or
-            app-view service — every gateway can build its own view from
-            scratch, and the protocol is designed to keep working when
-            partitioned, not just when everyone can reach a central firehose.
+            <p><strong>PeerTube</strong> federates independent servers, but each server still
+            owns the identity and data of its own users — moving off one means
+            starting over. Vidmesh keeps identity and content self-certifying and
+            portable; gateways select and serve rather than own.</p>
+            <p><strong>Nostr</strong> shares the substrate spirit — signed events distributed
+            through relays you choose. Vidmesh is built specifically for video on
+            top of that idea: native manifests, renditions, authorship claims, and
+            offline bundles that a plain event feed does not define.</p>
+            <p><strong>Bluesky / AT Protocol</strong> also uses rotation-based portable identity,
+            similar in spirit to Vidmesh's identity log. The difference is that
+            Vidmesh has no required global relay or app-view: every gateway builds
+            its own view from scratch, and the protocol is designed to keep working
+            partitioned, not just when everyone can reach a central firehose.</p>
           </dd>
         </div>
         <div class="faq-item">
           <dt>Is there a token?</dt>
-          <dd>No, permanently. The specification carries optional payment
-          primitives so creators and gateways can charge for things if they
-          want to, but it takes no position on business models, and no
-          protocol token exists or will exist.</dd>
+          <dd>
+            <p>No, permanently. The spec carries optional payment primitives so
+            creators and gateways can charge for things if they want to, but it
+            takes no position on business models, and no protocol token exists or
+            will exist.</p>
+          </dd>
         </div>
         <div class="faq-item">
           <dt>Is this a blockchain?</dt>
-          <dd>No. There is no chain, no mining, and no global consensus of
-          any kind. Records are signed and content-addressed, which is
-          enough to make them independently verifiable — that verification
-          never depends on everyone agreeing on a shared ledger.</dd>
+          <dd>
+            <p>No. No chain, no mining, no global consensus of any kind. Records are
+            signed and content-addressed, which is enough to make them
+            independently verifiable — and that verification never depends on
+            everyone agreeing on a shared ledger.</p>
+          </dd>
         </div>
         <div class="faq-item">
-          <dt>What happens if a gateway shuts down?</dt>
-          <dd>Nothing is lost. The records and blobs it served are just as
-          valid on any other gateway that chooses to index them, and any
-          node that pinned the underlying blobs can re-seed them. Identity
-          and history live in the substrate, not in the gateway.</dd>
+          <dt>So anything can be published and nothing can be removed?</dt>
+          <dd>
+            <p>The substrate does not delete, and pretending otherwise would be a
+            lie. Removal happens where it can actually be enforced: at the
+            gateway that chooses to serve, in the jurisdiction it operates in.
+            The reference gateway ships a policy engine, signed and subscribable
+            takedown feeds, geo-blocking, and a legal toolkit — because
+            moderation is a real operational job, not a protocol keyword.</p>
+          </dd>
         </div>
         <div class="faq-item">
           <dt>Who is in charge?</dt>
-          <dd>No one operationally. A foundation stewards the specification,
-          the kind registry, and the conformance suite, but it runs no
-          servers and holds no user data. The design goal is that the
-          network keeps working even after the foundation is gone.</dd>
+          <dd>
+            <p>No one operationally. A foundation stewards the spec, the kind
+            registry, and the conformance suite; it runs no servers and holds no
+            user data. The design goal is that the network keeps working after
+            the foundation is gone — see the survival test above.</p>
+          </dd>
+        </div>
+        <div class="faq-item">
+          <dt>Is Vidmesh converging with another protocol?</dt>
+          <dd>
+            <p>Re-basing the substrate on a shared publish/subscribe layer
+            (DMTAP §24) is <strong>under decision</strong> and has not been adopted. The
+            analysis is public in
+            <a href="docs.html#dmtap-convergence">DMTAP convergence</a> and the
+            reasoning log in <a href="docs.html#decisions">DECISIONS</a>. Until it
+            is decided, the spec in this repository is the protocol.</p>
+          </dd>
         </div>
       </dl>
     </div>
@@ -219,16 +571,28 @@
 
 <footer class="site-footer">
   <div class="wrap footer-inner">
-    <p>
-      <a href="https://github.com/vidmesh/vidmesh">github.com/vidmesh/vidmesh</a>
-    </p>
-    <p class="footer-licenses">
-      Code: MIT OR Apache-2.0. Specification: CC-BY-SA-4.0.
-    </p>
-    <p class="footer-note">
-      Vidmesh is stewarded by a foundation that operates nothing and
-      publishes the spec, registries, and conformance suite in the open.
-    </p>
+    <div>
+      <picture>
+        <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="assets/logo.svg" alt="Vidmesh" width="90" height="24">
+      </picture>
+    </div>
+    <div>
+      <ul class="footer-links">
+        <li><a href="docs.html">Docs</a></li>
+        <li><a href="docs.html#000-overview">Spec</a></li>
+        <li><a href="docs.html#changelog">Changelog</a></li>
+        <li><a href="https://github.com/vul-os/vidmesh">GitHub</a></li>
+      </ul>
+      <p class="footer-note">
+        Code: MIT OR Apache-2.0. Specification: CC-BY-SA-4.0.
+      </p>
+      <p class="footer-note">
+        Vidmesh is stewarded by a foundation that operates nothing and publishes
+        the spec, registries, and conformance suite in the open. If that
+        foundation disappears, this page is the only thing that stops working.
+      </p>
+    </div>
   </div>
 </footer>
 

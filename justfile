@@ -50,3 +50,24 @@ conformance-generate:
 # For the node and relay targets, see README "Conformance suite".
 conformance:
     cargo run --bin vidmesh-conformance -- run --target kernel
+
+# Copy spec/ + docs into apps/site/docs (the site is deployable on its own)
+site-docs:
+    node tools/site/sync-docs.mjs
+
+# Verify the site in a real browser: console errors, links, every docs route
+site-check:
+    node tools/site/sync-docs.mjs --check
+    node tools/site/check.mjs
+
+# Same, and refresh apps/site/screenshots/
+site-shots:
+    node tools/site/check.mjs --shots
+
+# Re-render the raster brand exports (OG card, apple-touch-icon)
+brand:
+    node tools/brand/render.mjs
+
+# Serve apps/site locally at http://127.0.0.1:8080
+site-serve:
+    cd apps/site && python3 -m http.server 8080

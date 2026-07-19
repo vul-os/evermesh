@@ -1,57 +1,69 @@
 # apps/site
 
-The vidmesh.org landing page: static, hand-crafted HTML + CSS, no framework,
-no JavaScript required for content. Deployable to any static host as-is.
+vidmesh.org: a static landing page and a hash-routed docs viewer. No
+framework, no build step, no CDN. Deployable as a directory.
 
-**Status: built** — hero, three-role explainer, principles summary, spec
-index, FAQ, and full head metadata are in place. `assets/` is a self-contained
-copy of the brand assets so this directory can be deployed on its own.
+```
+index.html          landing page — hero, survival test, how it works,
+                    roles, honest status, spec index, objections
+docs.html           docs viewer (hash routes over ./docs/*.md)
+docs/               copies of spec/ + DECISIONS.md + docs/, written by
+                    tools/site/sync-docs.mjs — do not hand-edit
+style.css           layout only; colour/type come from assets/tokens.css
+assets/             brand: logos, favicon, tokens.css, vendored fonts,
+                    architecture diagram, OG card, marked.js
+screenshots/        refreshed by `just site-shots`
+```
 
 ## Preview locally
 
-No build step. From this directory:
-
 ```sh
-python3 -m http.server 8080
-# then open http://localhost:8080/
+just site-serve        # http://127.0.0.1:8080
 ```
 
-Any other static file server works equally well (`npx serve`, `caddy file-server`, etc).
+Any static file server works (`npx serve`, `caddy file-server`, an nginx
+`root`). The docs viewer fetches markdown, so it needs HTTP — opening
+`docs.html` over `file://` will show load errors.
+
+## Verify
+
+```sh
+just site-check        # sync check + real-browser check
+```
+
+`tools/site/check.mjs` drives Chromium over the landing page (dark **and**
+light) and every docs route, and fails on: any console or page error, any
+failed request or 4xx, any internal link that does not resolve, any docs
+route that renders empty or errors, and the display font failing to load.
+`just site-shots` does the same and refreshes `screenshots/`.
+
+`tools/site/sync-docs.mjs --check` fails if a copy under `docs/` has
+drifted from its source in `spec/`. The copies are byte-identical: the
+viewer rewrites cross-references at render time rather than editing spec
+text, because the spec is normative and this is only a rendering of it.
 
 ## Deploy
 
-This directory is self-contained — `index.html`, `style.css`, `robots.txt`,
-`sitemap.xml`, `site.webmanifest`, and `assets/` are everything the site
-needs. Copy `apps/site/*` to any static host (GitHub Pages, Netlify,
-Cloudflare Pages, S3 + CDN, a single nginx `root`) with no build command.
+Copy `apps/site/*` to any static host with no build command. Everything is
+same-origin: fonts, the markdown renderer (`assets/vendor/marked.umd.js`,
+MIT), and the documents themselves.
 
-Before going live on the real domain, double-check:
-
-- `<link rel="canonical">` and the `og:url` / `og:image` values in
-  `index.html` already point at `https://vidmesh.org/` — update them if the
-  site is deployed elsewhere first.
-- `robots.txt` and `sitemap.xml` both assume the `https://vidmesh.org/` origin.
+Before going live, check `<link rel="canonical">`, the `og:` URLs,
+`robots.txt` and `sitemap.xml` — they all assume the
+`https://vidmesh.org/` origin.
 
 ## Design
 
-- Colors are CSS custom properties on `:root`, overridden under
-  `@media (prefers-color-scheme: dark)` — no JavaScript theme toggle, no
-  flash of unstyled content.
-- Fonts: system font stack only (`-apple-system, "Segoe UI", Roboto, ...`).
-  The wordmark in the logo is drawn as SVG path outlines, not text.
-- Logo swaps for its dark-background variant via `<picture>` +
-  `prefers-color-scheme`, natively, without a script.
-- Layout is a handful of stacked `<section>`s with a max content width; no
-  grid framework, no build step.
+The brand is documented in [`assets/README.md`](../../assets/README.md):
+"signal on carbon", Syne / Hanken Grotesk / JetBrains Mono, and the
+`--vm-*` tokens in `assets/tokens.css` that this stylesheet and the
+gateway's reference UI both read from.
 
-## Lighthouse notes
-
-Written to score well without special-casing the audit: no render-blocking
-scripts, no web fonts, no layout-shift-prone images (explicit `width`/
-`height` on the hero logo), one small stylesheet, semantic landmarks
-(`header`/`nav`/`main`/`section`/`footer`), a full head (title, description,
-canonical, Open Graph, Twitter card, theme-color for light and dark,
-favicon, manifest, apple-touch-icon), and every image has descriptive `alt`
-text. If a real Lighthouse run turns up something below 95, it is most
-likely a hosting-level issue (missing cache headers, no compression) rather
-than the markup — check the static host's response headers first.
+- Both themes come from `prefers-color-scheme` — no toggle, no JavaScript,
+  no flash of the wrong theme. Contrast is measured, not eyeballed; the
+  table is in `assets/README.md`.
+- One animation on the whole site (a packet crossing the hero lattice),
+  and it is removed entirely under `prefers-reduced-motion`.
+- The status section is deliberately unflattering and mirrors the
+  repository README. If the README's truth changes, change it here in the
+  same commit.
