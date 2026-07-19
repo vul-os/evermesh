@@ -65,7 +65,9 @@ describe("VerifiedBadge", () => {
 
   it("renders the verified state and reveals what was checked on click", () => {
     render(<VerifiedBadge state="verified" shortId="abc123abc123" />);
-    const button = screen.getByRole("button", { name: /^✓ verified$/i });
+    // The ✓ icon is aria-hidden (decorative), so the accessible name is
+    // just the label — a screen reader hears "Verified", not "check Verified".
+    const button = screen.getByRole("button", { name: /^verified$/i });
     expect(button).toHaveAttribute("aria-expanded", "false");
 
     fireEvent.click(button);
