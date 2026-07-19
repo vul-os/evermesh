@@ -211,7 +211,8 @@ fn run_chunk_proof(
         None => {
             return if valid {
                 Outcome::Fail(
-                    "chunk_index out of range for synthesized blob, but vector expects valid".into(),
+                    "chunk_index out of range for synthesized blob, but vector expects valid"
+                        .into(),
                 )
             } else {
                 Outcome::Pass
