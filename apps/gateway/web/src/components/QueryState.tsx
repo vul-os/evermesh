@@ -28,28 +28,28 @@ export function QueryBoundary<T>({
 }: QueryBoundaryProps<T>): JSX.Element {
   if (isLoading) {
     return (
-      <p role="status" className="py-6 text-sm text-slate-500 dark:text-slate-400">
+      <p role="status" className="py-6 text-sm text-muted">
         {loadingLabel}
       </p>
     );
   }
   if (isError) {
     return (
-      <p role="alert" className="py-6 text-sm text-red-700 dark:text-red-300">
+      <p role="alert" className="vm-card border-red-300 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
         {errorMessage(error)}
       </p>
     );
   }
   if (data === undefined) {
     return (
-      <p role="status" className="py-6 text-sm text-slate-500 dark:text-slate-400">
+      <p role="status" className="py-6 text-sm text-muted">
         {emptyLabel}
       </p>
     );
   }
   if (isEmpty?.(data)) {
     return (
-      <p role="status" className="py-6 text-sm text-slate-500 dark:text-slate-400">
+      <p role="status" className="py-6 text-sm text-muted">
         {emptyLabel}
       </p>
     );

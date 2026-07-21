@@ -23,9 +23,9 @@ function LatestVideos(): JSX.Element {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Latest on this gateway</h1>
+      <h1 className="mb-5 text-xl font-semibold">Latest on this gateway</h1>
       {query.isLoading ? (
-        <p role="status" className="py-6 text-sm text-slate-500 dark:text-slate-400">
+        <p role="status" className="py-6 text-sm text-muted">
           Loading…
         </p>
       ) : query.isError ? (
@@ -36,13 +36,8 @@ function LatestVideos(): JSX.Element {
         <>
           <VideoGrid videos={items} emptyLabel="This gateway hasn't published any videos yet." />
           {query.hasNextPage && (
-            <div className="mt-6 flex justify-center">
-              <button
-                type="button"
-                onClick={() => void query.fetchNextPage()}
-                disabled={query.isFetchingNextPage}
-                className="rounded-md border border-slate-300 px-4 py-2 text-sm disabled:opacity-50 dark:border-slate-700"
-              >
+            <div className="mt-8 flex justify-center">
+              <button type="button" onClick={() => void query.fetchNextPage()} disabled={query.isFetchingNextPage} className="vm-btn vm-btn-secondary">
                 {query.isFetchingNextPage ? "Loading…" : "Load more"}
               </button>
             </div>
@@ -58,7 +53,7 @@ function SearchResults({ q }: { q: string }): JSX.Element {
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold">Results for &ldquo;{q}&rdquo;</h1>
+      <h1 className="mb-5 text-xl font-semibold">Results for &ldquo;{q}&rdquo;</h1>
       <QueryBoundary
         isLoading={query.isLoading}
         isError={query.isError}

@@ -1,4 +1,4 @@
-import { cn } from "@vidmesh/ui";
+import { MoonIcon, SearchIcon, SunIcon } from "@vidmesh/ui";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useMe } from "../hooks/useMe.js";
@@ -32,20 +32,20 @@ export function Layout(): JSX.Element {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex min-h-screen flex-col bg-surface-base text-ink">
       <a href="#main" className="skip-link">
         Skip to content
       </a>
 
-      <header className="border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-30 border-b border-line bg-surface-base/85 backdrop-blur supports-[backdrop-filter]:bg-surface-base/70">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
           {/* The lockup, drawn inline: the mark inherits the signal colour
               from the token layer and the wordmark is the display face, so
               the header is branded without loading an image. */}
-          <Link to="/" className="flex items-center gap-2" aria-label="Home">
-            <svg viewBox="0 0 256 256" aria-hidden="true" className="h-6 w-6 shrink-0">
+          <Link to="/" className="group flex shrink-0 items-center gap-2" aria-label="Home">
+            <svg viewBox="0 0 256 256" aria-hidden="true" className="h-6 w-6 shrink-0 transition-transform duration-200 group-hover:scale-110">
               <g
-                className="fill-slate-900 stroke-slate-900 dark:fill-slate-100 dark:stroke-slate-100"
+                className="fill-ink stroke-ink"
                 strokeWidth={16}
                 strokeLinecap="round"
               >
@@ -70,18 +70,21 @@ export function Layout(): JSX.Element {
             <label htmlFor="site-search" className="sr-only">
               Search videos
             </label>
-            <input
-              id="site-search"
-              type="search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search this gateway…"
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:placeholder:text-slate-400"
-            />
+            <div className="relative w-full">
+              <SearchIcon size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+              <input
+                id="site-search"
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search this gateway…"
+                className="vm-field pl-9"
+              />
+            </div>
           </form>
 
           <nav aria-label="Primary">
-            <ul className="flex items-center gap-4 text-sm [&_a:hover]:text-brand-700 [&_a:hover]:underline dark:[&_a:hover]:text-brand-300">
+            <ul className="flex items-center gap-5 text-sm font-medium text-muted [&_a]:relative [&_a]:py-1 [&_a]:transition-colors [&_a:hover]:text-ink">
               <li>
                 <Link to="/upload">Upload</Link>
               </li>
@@ -89,39 +92,33 @@ export function Layout(): JSX.Element {
                 <Link to="/policy">Policy</Link>
               </li>
               <li>
-                <Link to={me ? "/me" : "/auth"}>{me ? me.handle : "Sign in"}</Link>
+                <Link to={me ? "/me" : "/auth"} className="text-ink">
+                  {me ? me.handle : "Sign in"}
+                </Link>
               </li>
             </ul>
           </nav>
 
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className={cn(
-              "rounded-md border border-slate-300 px-2 py-1.5 text-sm dark:border-slate-700",
-              "hover:border-brand-600 dark:hover:border-brand-400",
-            )}
-          >
-            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+          <button type="button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} className="vm-icon-btn">
+            {theme === "dark" ? <SunIcon size={17} /> : <MoonIcon size={17} />}
           </button>
         </div>
       </header>
 
-      <div id="main" ref={mainRef} tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none">
+      <div id="main" ref={mainRef} tabIndex={-1} className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 outline-none">
         <Outlet />
       </div>
 
-      <footer className="border-t border-slate-200 py-6 text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
+      <footer className="border-t border-line bg-surface py-6 text-sm text-muted">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4">
           <p>
             Powered by{" "}
-            <a href="https://vidmesh.org" className="text-brand-800 underline dark:text-brand-300">
+            <a href="https://vidmesh.org" className="font-medium text-signal hover:underline">
               vidmesh
             </a>
-            — many gateways, one substrate.
+            {" "}— many gateways, one substrate.
           </p>
-          <Link to="/policy" className="underline">
+          <Link to="/policy" className="hover:text-ink hover:underline">
             What this gateway serves
           </Link>
         </div>
