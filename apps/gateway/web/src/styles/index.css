@@ -320,20 +320,30 @@ pre,
   transform: none;
 }
 
+/* --vm-bg is the correct label colour in both themes (measured in
+   assets/README.md): paper on the deep signal in light (5.2:1), carbon
+   on acid lime in dark (12.5:1). --vm-on-signal is calibrated for the
+   *bright* end of the ramp only — using it here on the darker "safe on
+   paper" signal shade under-contrasts, so button fills use --vm-bg. */
 .vm-btn-primary {
   background: var(--vm-signal);
-  color: var(--vm-on-signal);
+  color: var(--vm-bg);
   box-shadow: var(--vm-shadow);
 }
 
 .vm-btn-primary:hover:not(:disabled) {
+  background: var(--vm-brand-600);
   box-shadow: var(--vm-shadow-lg);
   transform: translateY(-1px);
 }
 
+:root.dark .vm-btn-primary:hover:not(:disabled) {
+  background: var(--vm-brand-300);
+}
+
 .vm-btn-accent {
   background: var(--vm-verified);
-  color: var(--vm-on-signal);
+  color: var(--vm-bg);
   box-shadow: var(--vm-shadow);
 }
 

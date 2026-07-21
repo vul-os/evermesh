@@ -71,14 +71,14 @@ export function Layout(): JSX.Element {
               Search videos
             </label>
             <div className="relative w-full">
-              <SearchIcon size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+              <SearchIcon size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
               <input
                 id="site-search"
                 type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search this gateway…"
-                className="vm-field pl-9"
+                className="vm-field pl-10"
               />
             </div>
           </form>
