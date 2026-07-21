@@ -25,20 +25,20 @@ export function RecordCard({ author, createdAtMs, kindLabel, body, actions, clas
   return (
     <article
       className={cn(
-        "flex gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900",
+        "flex gap-3 rounded-card border border-line bg-surface p-3.5 shadow-card",
         className,
       )}
     >
       <Avatar name={author.name} src={author.avatarUrl} size="sm" />
       <div className="min-w-0 flex-1">
         <header className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="font-medium text-slate-900 dark:text-slate-100">{author.name}</span>
-          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium uppercase tracking-wide text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+          <span className="font-medium text-ink">{author.name}</span>
+          <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
             {kindLabel}
           </span>
-          <TimeAgo unixMs={createdAtMs} className="text-xs text-slate-500 dark:text-slate-400" />
+          <TimeAgo unixMs={createdAtMs} className="text-xs text-faint" />
         </header>
-        <div className="mt-1 break-words text-sm text-slate-800 dark:text-slate-200">{body}</div>
+        <div className="mt-1 break-words text-sm text-ink">{body}</div>
       </div>
       {actions && <div className="flex shrink-0 items-start gap-2">{actions}</div>}
     </article>

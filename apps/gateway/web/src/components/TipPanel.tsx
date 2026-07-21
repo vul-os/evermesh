@@ -1,4 +1,4 @@
-import { RecordCard } from "@vidmesh/ui";
+import { CloseIcon, RecordCard } from "@vidmesh/ui";
 import { useState } from "react";
 import type { ReceiptView } from "../lib/api-types.js";
 
@@ -30,39 +30,39 @@ export function TipPanel({ payment, receipts }: TipPanelProps): JSX.Element {
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        disabled={payment.length === 0}
-        className="rounded-md bg-accent-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
-      >
+      <button type="button" onClick={() => setOpen(true)} disabled={payment.length === 0} className="vm-btn vm-btn-accent w-full">
         Tip the creator
       </button>
 
       {open && (
-        <div role="dialog" aria-modal="true" aria-label="Payment pointers" className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-4 dark:bg-slate-900">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Payment pointers"
+          className="fixed inset-0 z-20 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+        >
+          <div className="vm-fade-up max-h-[80vh] w-full max-w-md overflow-y-auto rounded-card bg-surface p-5 shadow-elevated">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Payment pointers</h2>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="rounded p-1 text-lg">
-                ×
+              <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="vm-icon-btn h-8 w-8 border-transparent">
+                <CloseIcon size={16} />
               </button>
             </div>
-            <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mb-3 text-sm text-muted">
               This gateway does not process payments. Copy a pointer below and send a tip through whatever wallet or client you already use.
             </p>
             <ul className="space-y-2">
               {payment.map(([rail, pointer]) => (
-                <li key={`${rail}-${pointer}`} className="rounded-md border border-slate-200 p-2 text-sm dark:border-slate-700">
-                  <div className="font-medium">{railName(rail)}</div>
-                  <code className="block truncate text-xs">{pointer}</code>
+                <li key={`${rail}-${pointer}`} className="rounded-control border border-line bg-surface-2/60 p-2.5 text-sm">
+                  <div className="font-medium text-ink">{railName(rail)}</div>
+                  <code className="block truncate text-xs text-muted">{pointer}</code>
                 </li>
               ))}
             </ul>
 
             <h3 className="mb-2 mt-4 text-sm font-semibold">Receipts on this gateway</h3>
             {receipts.length === 0 ? (
-              <p role="status" className="text-sm text-slate-500 dark:text-slate-400">
+              <p role="status" className="text-sm text-muted">
                 No receipts recorded yet.
               </p>
             ) : (

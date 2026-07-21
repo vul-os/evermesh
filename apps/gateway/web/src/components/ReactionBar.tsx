@@ -34,7 +34,7 @@ export function ReactionBar({ videoId, reactions }: ReactionBarProps): JSX.Eleme
           disabled={!me || mutation.isPending}
           onClick={() => mutation.mutate(reaction)}
           title={me ? `React with ${reaction}` : "Sign in to react"}
-          className="flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-sm disabled:opacity-50 dark:border-slate-700"
+          className="flex items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 text-sm text-ink transition-all duration-150 ease-vm hover:border-signal hover:shadow-card disabled:opacity-50 disabled:hover:border-line-strong disabled:hover:shadow-none"
         >
           <span aria-hidden="true">{REACTION_EMOJI[reaction]}</span>
           <span>{reactions[reaction] ?? 0}</span>

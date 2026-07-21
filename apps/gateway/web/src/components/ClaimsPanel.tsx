@@ -14,14 +14,14 @@ export interface ClaimsPanelProps {
 export function ClaimsPanel({ claims }: ClaimsPanelProps): JSX.Element {
   return (
     <section aria-labelledby="claims-heading">
-      <h2 id="claims-heading" className="mb-1 text-lg font-semibold">
+      <h2 id="claims-heading" className="mb-1 text-base font-semibold">
         Provenance claims
       </h2>
-      <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mb-3 text-sm text-muted">
         These are signed assertions with provenance — who said it, and when — not adjudicated or verified truth.
       </p>
       {claims.length === 0 ? (
-        <p role="status" className="py-4 text-sm text-slate-500 dark:text-slate-400">
+        <p role="status" className="py-4 text-sm text-muted">
           No claims have been made about this video.
         </p>
       ) : (
@@ -44,13 +44,13 @@ export function ClaimsPanel({ claims }: ClaimsPanelProps): JSX.Element {
 
 function ClaimBody({ claim }: { claim: ClaimView }): JSX.Element {
   const entries = Object.entries(claim.body);
-  if (entries.length === 0) return <span className="text-slate-500">No further detail.</span>;
+  if (entries.length === 0) return <span className="text-muted">No further detail.</span>;
   return (
     <dl className="grid grid-cols-[max-content_1fr] gap-x-2 gap-y-0.5 text-xs">
       {entries.map(([key, value]) => (
         <div key={key} className="contents">
-          <dt className="font-medium text-slate-500 dark:text-slate-400">{key}</dt>
-          <dd className="break-words">{formatValue(value)}</dd>
+          <dt className="font-medium text-muted">{key}</dt>
+          <dd className="break-words font-mono text-ink">{formatValue(value)}</dd>
         </div>
       ))}
     </dl>
