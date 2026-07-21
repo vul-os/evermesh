@@ -194,3 +194,10 @@ just brand          # re-render the OG card and apple-touch-icon
 
 Code: MIT OR Apache-2.0 (`LICENSE-MIT`, `LICENSE-APACHE`).
 Spec: CC-BY-SA-4.0 (`LICENSE-SPEC`).
+
+---
+
+<p align="center">
+  <a href="https://vulos.org"><img src="docs/assets/vulos-logo.png" alt="vulos" height="20"></a><br>
+  <sub><a href="https://vulos.org"><b>vulos</b></a> — open by design</sub>
+</p>
