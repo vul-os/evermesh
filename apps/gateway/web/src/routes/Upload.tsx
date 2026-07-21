@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { UploadCloudIcon } from "@vidmesh/ui";
 import { useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { getUploadStatus, upload } from "../api.js";
@@ -11,15 +12,15 @@ export function Upload(): JSX.Element {
 
   if (meLoading) {
     return (
-      <p role="status" className="py-10 text-sm text-slate-500 dark:text-slate-400">
+      <p role="status" className="py-10 text-sm text-muted">
         Loading…
       </p>
     );
   }
   if (!me) {
     return (
-      <p role="alert" className="py-10 text-sm">
-        <Link to="/auth" className="font-medium text-brand-700 underline dark:text-brand-200">
+      <p role="alert" className="vm-card px-6 py-10 text-center text-sm text-muted">
+        <Link to="/auth" className="font-medium text-signal hover:underline">
           Sign in
         </Link>{" "}
         to upload a video.
@@ -81,11 +82,11 @@ function UploadForm(): JSX.Element {
   const done = statusQuery.data?.status === "published" || statusQuery.data?.status === "failed";
 
   return (
-    <div className="max-w-xl">
-      <h1 className="mb-4 text-xl font-semibold">Upload a video</h1>
+    <div className="mx-auto max-w-xl">
+      <h1 className="mb-5 text-xl font-semibold">Upload a video</h1>
 
       {!uploadId || !done ? (
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="vm-card space-y-4 p-5">
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -93,50 +94,40 @@ function UploadForm(): JSX.Element {
             }}
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
-            className={`rounded-lg border-2 border-dashed p-6 text-center text-sm ${dragOver ? "border-accent-500 bg-accent-50 dark:bg-accent-950" : "border-slate-300 dark:border-slate-700"}`}
+            className={`rounded-control border-2 border-dashed p-8 text-center transition-colors duration-150 ${dragOver ? "border-accent-500 bg-accent-50 dark:bg-accent-950" : "border-line-strong bg-surface-2/40"}`}
           >
-            <label htmlFor="file-input" className="block cursor-pointer">
-              {file ? `Selected: ${file.name}` : "Drag and drop a video file here, or click to choose one"}
+            <UploadCloudIcon size={28} className="mx-auto mb-2 text-muted" />
+            <label htmlFor="file-input" className="block cursor-pointer text-sm">
+              {file ? (
+                <span className="font-medium text-ink">Selected: {file.name}</span>
+              ) : (
+                <>
+                  <span className="font-medium text-signal">Choose a file</span>{" "}
+                  <span className="text-muted">or drag and drop a video here</span>
+                </>
+              )}
             </label>
-            <input id="file-input" type="file" accept="video/*" onChange={onFileInput} className="mt-2 block w-full text-sm" />
+            <input id="file-input" type="file" accept="video/*" onChange={onFileInput} className="sr-only" />
           </div>
 
-          <label className="block text-sm font-medium">
+          <label className="vm-label">
             Title
-            <input
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-            />
+            <input required value={title} onChange={(e) => setTitle(e.target.value)} className="vm-field" />
           </label>
 
-          <label className="block text-sm font-medium">
+          <label className="vm-label">
             Description
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-            />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="vm-field resize-y" />
           </label>
 
-          <label className="block text-sm font-medium">
+          <label className="vm-label">
             Tags (comma-separated)
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-            />
+            <input value={tags} onChange={(e) => setTags(e.target.value)} className="vm-field" />
           </label>
 
-          <label className="block text-sm font-medium">
+          <label className="vm-label">
             License
-            <select
-              value={license}
-              onChange={(e) => setLicense(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-            >
+            <select value={license} onChange={(e) => setLicense(e.target.value)} className="vm-field">
               {LICENSES.map((l) => (
                 <option key={l} value={l}>
                   {l}
@@ -145,20 +136,12 @@ function UploadForm(): JSX.Element {
             </select>
           </label>
 
-          <label className="block text-sm font-medium">
+          <label className="vm-label">
             Channel id (optional)
-            <input
-              value={channelId}
-              onChange={(e) => setChannelId(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-900"
-            />
+            <input value={channelId} onChange={(e) => setChannelId(e.target.value)} className="vm-field" />
           </label>
 
-          <button
-            type="submit"
-            disabled={!file || !title.trim() || uploadMutation.isPending}
-            className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
+          <button type="submit" disabled={!file || !title.trim() || uploadMutation.isPending} className="vm-btn vm-btn-primary w-full">
             {uploadMutation.isPending ? "Uploading…" : "Upload"}
           </button>
 
@@ -171,12 +154,12 @@ function UploadForm(): JSX.Element {
       ) : null}
 
       {uploadId && (
-        <div className="mt-6 rounded-lg border border-slate-200 p-4 dark:border-slate-700" role="status" aria-live="polite">
+        <div className="vm-card mt-6 p-5" role="status" aria-live="polite">
           <p className="text-sm font-medium">Processing status: {statusQuery.data?.status ?? "checking…"}</p>
           {typeof statusQuery.data?.progress === "number" && (
-            <div className="mt-2 h-2 w-full rounded bg-slate-200 dark:bg-slate-800">
+            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
               <div
-                className="h-2 rounded bg-accent-500"
+                className="h-full rounded-full bg-accent-500 transition-[width] duration-300 ease-vm"
                 style={{ width: `${Math.round(statusQuery.data.progress * 100)}%` }}
               />
             </div>
@@ -184,7 +167,7 @@ function UploadForm(): JSX.Element {
           {statusQuery.data?.status === "published" && statusQuery.data.manifestId && (
             <p className="mt-2 text-sm">
               Published.{" "}
-              <Link to={`/watch/${encodeURIComponent(statusQuery.data.manifestId)}`} className="font-medium text-brand-700 underline dark:text-brand-200">
+              <Link to={`/watch/${encodeURIComponent(statusQuery.data.manifestId)}`} className="font-medium text-signal hover:underline">
                 Watch it now
               </Link>
               .
