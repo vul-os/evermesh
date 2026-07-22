@@ -98,7 +98,7 @@ function ExportSection(): JSX.Element {
   const mutation = useMutation({
     mutationFn: () => exportIdentity(password),
     onSuccess: (result) => {
-      downloadJson(result, "vidmesh-identity-export.json");
+      downloadJson(result, "boloka-identity-export.json");
       setConfirming(false);
       setPassword("");
     },

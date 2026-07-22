@@ -29,15 +29,15 @@ importers:
 
   apps/gateway/server:
     dependencies:
+      '@boloka/kernel':
+        specifier: workspace:*
+        version: link:../../../packages/kernel-ts
       '@fastify/cookie':
         specifier: ^9.4.0
         version: 9.4.0
       '@fastify/multipart':
         specifier: ^8.3.0
         version: 8.3.1
-      '@vidmesh/kernel':
-        specifier: workspace:*
-        version: link:../../../packages/kernel-ts
       argon2:
         specifier: ^0.41.1
         version: 0.41.1
@@ -69,6 +69,12 @@ importers:
 
   apps/gateway/web:
     dependencies:
+      '@boloka/kernel':
+        specifier: workspace:*
+        version: link:../../../packages/kernel-ts
+      '@boloka/ui':
+        specifier: workspace:*
+        version: link:../../../packages/ui
       '@fontsource/hanken-grotesk':
         specifier: ^5.1.0
         version: 5.2.8
@@ -81,12 +87,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.59.0
         version: 5.101.2(react@18.3.1)
-      '@vidmesh/kernel':
-        specifier: workspace:*
-        version: link:../../../packages/kernel-ts
-      '@vidmesh/ui':
-        specifier: workspace:*
-        version: link:../../../packages/ui
       react:
         specifier: ^18.3.1
         version: 18.3.1

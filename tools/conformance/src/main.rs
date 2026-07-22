@@ -1,8 +1,8 @@
-//! `vidmesh-conformance run` — the conformance suite runner (build plan
+//! `boloka-conformance run` — the conformance suite runner (build plan
 //! §11).
 //!
 //! ```text
-//! vidmesh-conformance run --vectors <dir> [--target kernel|node|relay]
+//! boloka-conformance run --vectors <dir> [--target kernel|node|relay]
 //!                          [--node-harness <path>] [--relay-url <ws url>]
 //! ```
 //!
@@ -11,17 +11,17 @@
 //! path is given) against the chosen target, prints a per-group
 //! pass/fail/skip table, and exits nonzero if anything failed. This is
 //! the "golden rule" instrument: the same vectors must pass identically
-//! against the kernel crate, `@vidmesh/kernel` under Node, and a live
+//! against the kernel crate, `@boloka/kernel` under Node, and a live
 //! relay.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use vidmesh_conformance::kernel_target::{self, Outcome};
-use vidmesh_conformance::load_vectors;
-use vidmesh_conformance::node_target::{self, NodeHarness};
-use vidmesh_conformance::relay_target::{self, RelayConn};
-use vidmesh_conformance::vectors::Vector;
+use boloka_conformance::kernel_target::{self, Outcome};
+use boloka_conformance::load_vectors;
+use boloka_conformance::node_target::{self, NodeHarness};
+use boloka_conformance::relay_target::{self, RelayConn};
+use boloka_conformance::vectors::Vector;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Target {
@@ -46,7 +46,7 @@ fn parse_args() -> Result<Args, String> {
     let sub = argv.next().unwrap_or_default();
     if sub != "run" {
         return Err(format!(
-            "usage: vidmesh-conformance run --vectors <dir> [--target kernel|node|relay] \
+            "usage: boloka-conformance run --vectors <dir> [--target kernel|node|relay] \
              [--node-harness <path>] [--relay-url <ws url>]\n(got subcommand {sub:?})"
         ));
     }
@@ -150,7 +150,7 @@ fn run_node(vectors: &[Vector], harness_path: &Path) -> Vec<(Vector, Outcome)> {
         Err(e) => {
             eprintln!(
                 "failed to spawn node harness at {} ({e}). Requires Node >= 22.6 and \
-                 crates/vidmesh-wasm built into packages/kernel-ts/wasm/ (see README).",
+                 crates/boloka-wasm built into packages/kernel-ts/wasm/ (see README).",
                 harness_path.display()
             );
             std::process::exit(2);

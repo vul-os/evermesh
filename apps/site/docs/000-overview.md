@@ -2,9 +2,9 @@
 
 **Status:** Draft 0.2
 **Depends on:** none (this file is the root of the specification)
-**Companion:** [draft-vidmesh-protocol-00.md](draft-vidmesh-protocol-00.md) (single-document rendering)
+**Companion:** [draft-boloka-protocol-00.md](draft-boloka-protocol-00.md) (single-document rendering)
 
-Vidmesh is a protocol for publishing, distributing, and discussing video
+Boloka is a protocol for publishing, distributing, and discussing video
 without a central operator. It divides the system into a minimal, permanent
 **kernel** — signed records and content-addressed blobs, verifiable from
 their bytes alone — and a competitive **edge** of gateways, nodes, and

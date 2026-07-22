@@ -1,4 +1,4 @@
-//! The `relay` runner target: connects to a live `vidmesh-relay`'s
+//! The `relay` runner target: connects to a live `boloka-relay`'s
 //! `WS /sync` (spec 006 §1) and exercises the subset of vectors that
 //! are meaningful over the wire: publishing every `record-valid`
 //! vector (expecting `OK(true)`), publishing every `record-invalid`
@@ -7,7 +7,7 @@
 //! smoke test.
 //!
 //! Frames are canonical CBOR arrays tagged by a leading text element
-//! (spec 006 §1); this module reuses `vidmesh_kernel::codec` for their
+//! (spec 006 §1); this module reuses `boloka_kernel::codec` for their
 //! encoding rather than a second CBOR implementation, exactly as the
 //! kernel's own record envelopes do. This keeps the module compiling at
 //! all times even when no relay is reachable — connection failures
@@ -17,7 +17,7 @@
 
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::Message;
-use vidmesh_kernel::codec::{self, Value};
+use boloka_kernel::codec::{self, Value};
 
 use crate::kernel_target::Outcome;
 use crate::vectors::{Layer, Vector, VectorData};

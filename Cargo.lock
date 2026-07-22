@@ -318,6 +318,73 @@ dependencies = [
 ]
 
 [[package]]
+name = "boloka-conformance"
+version = "0.0.1"
+dependencies = [
+ "boloka-kernel",
+ "futures-util",
+ "hex",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-tungstenite 0.23.1",
+]
+
+[[package]]
+name = "boloka-kernel"
+version = "0.0.1"
+dependencies = [
+ "blake3",
+ "dmtap-core",
+ "ed25519-dalek",
+ "getrandom 0.2.17",
+ "hex",
+ "proptest",
+ "serde_json",
+]
+
+[[package]]
+name = "boloka-node"
+version = "0.0.1"
+dependencies = [
+ "boloka-kernel",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+]
+
+[[package]]
+name = "boloka-relay"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "axum",
+ "blake3",
+ "boloka-kernel",
+ "futures-util",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tokio-tungstenite 0.23.1",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "boloka-wasm"
+version = "0.0.1"
+dependencies = [
+ "blake3",
+ "boloka-kernel",
+ "getrandom 0.2.17",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "brotli"
 version = "8.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4944,73 +5011,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "vidmesh-conformance"
-version = "0.0.1"
-dependencies = [
- "futures-util",
- "hex",
- "serde",
- "serde_json",
- "tokio",
- "tokio-tungstenite 0.23.1",
- "vidmesh-kernel",
-]
-
-[[package]]
-name = "vidmesh-kernel"
-version = "0.0.1"
-dependencies = [
- "blake3",
- "dmtap-core",
- "ed25519-dalek",
- "getrandom 0.2.17",
- "hex",
- "proptest",
- "serde_json",
-]
-
-[[package]]
-name = "vidmesh-node"
-version = "0.0.1"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "vidmesh-kernel",
-]
-
-[[package]]
-name = "vidmesh-relay"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "axum",
- "blake3",
- "futures-util",
- "rusqlite",
- "serde",
- "serde_json",
- "tempfile",
- "tokio",
- "tokio-tungstenite 0.23.1",
- "tracing",
- "tracing-subscriber",
- "vidmesh-kernel",
-]
-
-[[package]]
-name = "vidmesh-wasm"
-version = "0.0.1"
-dependencies = [
- "blake3",
- "getrandom 0.2.17",
- "js-sys",
- "vidmesh-kernel",
- "wasm-bindgen",
-]
 
 [[package]]
 name = "vswhom"

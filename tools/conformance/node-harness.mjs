@@ -1,10 +1,10 @@
 // node-harness.mjs
 //
 // The Node side of the conformance suite's "golden rule": the same
-// vectors that `vidmesh-conformance`'s kernel target checks against
-// `vidmesh-kernel` (Rust) are replayed here against `@vidmesh/kernel`
+// vectors that `boloka-conformance`'s kernel target checks against
+// `boloka-kernel` (Rust) are replayed here against `@boloka/kernel`
 // (packages/kernel-ts), which wraps the same kernel compiled to WASM
-// (crates/vidmesh-wasm). One newline-delimited JSON request/response
+// (crates/boloka-wasm). One newline-delimited JSON request/response
 // pair per op; the protocol is documented in
 // tools/conformance/src/node_target.rs — keep the two in sync.
 //
@@ -14,15 +14,15 @@
 //     (this file imports packages/kernel-ts/src/index.ts directly, a
 //     .ts file, with no separate build step — that flag is what lets
 //     Node load it).
-//   * crates/vidmesh-wasm built into packages/kernel-ts/wasm/ (build
+//   * crates/boloka-wasm built into packages/kernel-ts/wasm/ (build
 //     plan Phase 3: `just wasm`). Until that WASM package exists,
-//     importing @vidmesh/kernel below fails at startup with a "module
+//     importing @boloka/kernel below fails at startup with a "module
 //     not found" error — that is a build prerequisite, not a bug in
-//     this harness, and `vidmesh-conformance run --target node`
+//     this harness, and `boloka-conformance run --target node`
 //     surfaces it as a normal spawn/I/O error.
 //
 // Contest-window finality (RESOLVED): `identity.verifyChain`
-// (packages/kernel-ts/src/index.ts -> crates/vidmesh-wasm/src/lib.rs's
+// (packages/kernel-ts/src/index.ts -> crates/boloka-wasm/src/lib.rs's
 // `verify_chain`) now takes an `observedAt` map (record-id-hex ->
 // first-seen seconds) and forwards it to `Identity::verify_chain`'s
 // `observed_at` closure, so a rotation observed long enough ago becomes
@@ -37,11 +37,11 @@ import * as kernel from "../../packages/kernel-ts/src/index.ts";
 /**
  * Classify a kernel error message into the same vocabulary
  * `tools/conformance/src/vectors.rs::error_class` uses. The WASM
- * bindings (`crates/vidmesh-wasm/src/lib.rs`'s `js_err`) surface every
+ * bindings (`crates/boloka-wasm/src/lib.rs`'s `js_err`) surface every
  * kernel error as `JsError::new(&e.to_string())`, i.e. the exact
- * `Display` string of `vidmesh_kernel::Error` — so classification here
+ * `Display` string of `boloka_kernel::Error` — so classification here
  * is prefix-matching against that Display impl
- * (`crates/vidmesh-kernel/src/error.rs`), duplicated deliberately
+ * (`crates/boloka-kernel/src/error.rs`), duplicated deliberately
  * rather than shared, since JS and Rust can't share one source of
  * truth for a string format.
  */

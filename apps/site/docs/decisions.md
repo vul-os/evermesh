@@ -1,6 +1,6 @@
 # DECISIONS.md
 
-Running log of judgment calls made while building Vidmesh, so work never
+Running log of judgment calls made while building Boloka, so work never
 blocks on questions. Newest entries at the bottom of each section.
 Protocol-level decisions are also recorded in the relevant spec file
 under a "Decisions" heading; this file is the master index plus
@@ -37,7 +37,7 @@ process/product decisions that don't belong in the spec.
 |---|----------|-------|
 | P1 | Envelope = CBOR map, integer keys 1–7; unknown envelope keys reject; bodies are text-keyed and forward-extensible | 001 §1, 003 §2 |
 | P2 | Record id covers keys 1–6 incl. `sig_alg` (downgrade resistance) | 001 §3 |
-| P3 | Signature over domain-separated id: `"vidmesh:record:v1" \|\| id` | 001 §4 |
+| P3 | Signature over domain-separated id: `"boloka:record:v1" \|\| id` | 001 §4 |
 | P4 | `IdentityRef = [identity_id, signing_key]`; genesis uses zero id | 001 §5, 002 §2 |
 | P5 | `Ref = [ref_type, hash]`, 0=record 1=blob | 001 §6 |
 | P6 | Chunk tree: 1 MiB chunks, leaf `0x00\|\|`, interior `0x01\|\|`, odd promoted | 001 §8 |
@@ -48,9 +48,9 @@ process/product decisions that don't belong in the spec.
 | P11 | `feed.takedown` subjects in body (bulk data), not refs | 003 §6.7 |
 | P12 | PoW nonce in transport frame (`PUB`), outside envelope; `BLAKE3-256(id \|\| nonce_le64)` leading zero bits | 006 §6 |
 | P13 | Relay frames are CBOR; `since` cursors are relay-local receipt sequences | 006 §§1–3 |
-| P14 | Bundle = magic `VMSH\x01` + CBOR sequence; 1 MiB blob parts aligned to chunk leaves; salvage-not-abort on corruption; no built-in compression | 007 |
+| P14 | Bundle = magic `BLKA\x01` + CBOR sequence; 1 MiB blob parts aligned to chunk leaves; salvage-not-abort on corruption; no built-in compression | 007 |
 | P15 | Encryption: per-blob random keys wrapped by a per-manifest content key; chunked XChaCha20-Poly1305 with 1 MiB ciphertext chunks; dedicated profile `enc_key` (no Ed25519→X25519 reuse) | 008 §2 |
-| P16 | Derivation statement covers (orig, rendition, codec, w, h, bitrate); prefix `vidmesh:derivation:v1` | 004 §3 |
+| P16 | Derivation statement covers (orig, rendition, codec, w, h, bitrate); prefix `boloka:derivation:v1` | 004 §3 |
 | P17 | Uniform reference UI across gateways is a trademark-level requirement | 009 §7 |
 | P18 | JSON interchange is a strict bijection: `txt:` escape also applies to text map keys that would re-parse as integer keys (codec agent finding) | codec.rs module docs |
 | P19 | Relay edge cases: all-zero id in `OK` for undecodable PUBs; unparseable frames dropped not CLOSED; `X-Expected-Blob-Id` header for PUT 422s; filter keys are text | 006 §§1,3,5.2 |
@@ -89,10 +89,67 @@ suites now run and pass; the fixes made, as decisions:
 | T4 | JS test/dev runners: gateway-server uses `--experimental-transform-types`; kernel-ts expands its one parameter property to a field | Node's strip-only mode rejects TS parameter-property constructors and enums; the gateway uses many parameter properties (a deliberate style), so the flag switch is the least-invasive correct fix there. |
 | T5 | Conformance verdict recorded: kernel 189/0/0, node 142/0/47, relay 115/0/74 — 0 failures; all differences are documented per-runtime skips | The three-runtime golden rule holds. Skips are each runtime checking only what it is responsible for (relay = envelope only; node = no bundle/json/kind-invalid surface). |
 
+**2026-07-19, post-relocation build breakage** (the project was still
+named **Vidmesh** at the time; renamed to Boloka afterward — crate names
+below are quoted as they literally were then) — the repo's move from
+`~/code/vidmesh` to `~/code/vulos/vidmesh` left a *pre-existing,
+gitignored* `target/` directory in place, and two of its cached build
+artifacts kept serving absolute paths from the old location instead of
+being invalidated: `vidmesh-node`'s Tauri build script replayed a stale
+cached `cargo:tauri-core-*-permission-files=/Users/pc/code/vidmesh/target/...`
+line from `target/debug/build/tauri-*/output` (a previous build script
+run's captured stdout, reused because cargo's fingerprint check didn't
+consider it stale), and the `vidmesh-conformance` binary had
+`env!("CARGO_MANIFEST_DIR")` baked in from the last time it was actually
+relinked, pre-move. Neither is a source bug — both are local, gitignored
+build cache. Fix: `cargo clean -p tauri -p vidmesh-node` and
+`cargo clean -p vidmesh-conformance`, then rebuild; both regenerate
+correctly from `CARGO_MANIFEST_DIR` at the new path. No source or absolute
+path was hardcoded anywhere in the tree (repo-wide grep for the old path
+and for `/Users/*` came back empty). While investigating, found
+`crates/vidmesh-node/gen/` (Tauri's regenerated schema/capability JSON)
+was neither committed nor gitignored — added to `.gitignore` so build
+output never accidentally gets committed or relied upon across machines.
+**Same hazard applies to any future relocation, under the current names:**
+`cargo clean -p tauri -p boloka-node -p boloka-conformance` (or a full
+`cargo clean` if that doesn't clear it) before assuming a real regression.
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| T6 | `crates/vidmesh-node/gen/` (now `crates/boloka-node/gen/`) added to `.gitignore`; stale-path build breakage fixed via targeted `cargo clean`, not a hardcoded path | Generated/cached artifacts must never bake in machine-specific absolute paths that outlive a relocation; the correct fix is always "regenerate", never "hardcode the new path" |
+
 **DMTAP-PUB convergence** — recorded as a full decision document at
 [docs/DMTAP-CONVERGENCE.md](docs/DMTAP-CONVERGENCE.md). Recommendation:
-re-base vidmesh's video layer as the DMTAP-PUB §24 video profile (route b),
+re-base boloka's video layer as the DMTAP-PUB §24 video profile (route b),
 contributing range proofs / rotation-log finality / a fetch-hint registry
 upstream. **FOUNDER-GATED** — no substrate byte changes until the founder
 confirms direction, §24 is targetable, and envoir's §22 Rust impl is a
 consumable dependency. Phase 1 stayed non-destructive per this gate.
+
+**2026-07-2x, project renamed Vidmesh → Boloka; rescoped video-only → media**
+— the project's former name was **Vidmesh**; it is now **Boloka** (Sesotho/
+Setswana, "to keep / to preserve"), and its scope widened from video-only to
+**media (video and audio)**. Crates renamed `vidmesh-{kernel,node,relay,wasm}`
+→ `boloka-{kernel,node,relay,wasm}`; npm scope `@vidmesh/*` → `@boloka/*`;
+wire domain-separation prefixes `"vidmesh:record:v1"` / `"vidmesh:derivation:v1"`
+→ `"boloka:record:v1"` / `"boloka:derivation:v1"` (P3, P16); bundle magic
+`VMSH\x01` → `BLKA\x01` (P14); design tokens `--vm-*` → `--bo-*`. Because the
+domain-separation prefixes and the bundle magic are signature-preimage and
+container bytes respectively, every conformance vector and fixture was
+regenerated from the (renamed) generator and re-run against all three
+runtimes to confirm no protocol drift — see T5's 189/0/0, 142/0/47, 115/0/74,
+reconfirmed identical after the rename. The mark (play-triangle-in-a-mesh)
+and the hand-plotted "vidmesh" wordmark glyphs were redrawn rather than
+find-replaced: the mark is now a cairn (three stacked stones, "to preserve"
+read literally) and the wordmark is a freshly hand-plotted "boloka" on the
+same grid — palette and type system (signal/mesh-blue on carbon; Syne/Hanken
+Grotesk/JetBrains Mono) are unchanged. Genuinely historical narrative that
+describes what happened while the project was still named Vidmesh (the
+2026-07-19 build-breakage entry above; CHANGELOG's dated entries; spec/
+CHANGELOG.md's 2026-07-17 entries) intentionally keeps the old name — see
+each for a "former name" note — rather than being rewritten to read as if
+Boloka always existed.
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| T7 | Rename + rescope is a find-and-redraw, not a find-and-replace: wire identifiers/crate names/tokens are mechanical renames (verified byte-for-byte via the conformance suite); the logo mark and wordmark are hand-redrawn because they encode meaning (a video-only play button; letterforms that spell the old name), not just a label | A rename must not silently change what a signature covers or what a container's magic bytes are without re-proving equivalence; a rebrand must not leave a new name inside an unchanged video-shaped mark |

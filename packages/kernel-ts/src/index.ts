@@ -1,7 +1,7 @@
 /**
- * @vidmesh/kernel — typed TypeScript API over the Vidmesh WASM kernel.
+ * @boloka/kernel — typed TypeScript API over the Boloka WASM kernel.
  *
- * Everything here delegates to `crates/vidmesh-wasm` (the same Rust
+ * Everything here delegates to `crates/boloka-wasm` (the same Rust
  * kernel that runs natively), so ids, signatures, and canonical bytes
  * are identical across Rust, Node, and browsers. Call {@link init} once
  * before anything else (all helpers await it internally, so explicit
@@ -13,7 +13,7 @@
  * `"hex:<hex>"` strings.
  */
 
-import initWasm, * as wasm from "../wasm/vidmesh_wasm.js";
+import initWasm, * as wasm from "../wasm/boloka_wasm.js";
 
 let ready: Promise<void> | undefined;
 
@@ -26,7 +26,7 @@ export function init(): Promise<void> {
 async function load(): Promise<void> {
   if (typeof process !== "undefined" && process.versions?.node) {
     const { readFile } = await import("node:fs/promises");
-    const bytes = await readFile(new URL("../wasm/vidmesh_wasm_bg.wasm", import.meta.url));
+    const bytes = await readFile(new URL("../wasm/boloka_wasm_bg.wasm", import.meta.url));
     await initWasm({ module_or_path: bytes });
   } else {
     // Browser: wasm-pack's default relative fetch.
@@ -275,9 +275,21 @@ export async function hashBlob(bytes: Uint8Array): Promise<string> {
 }
 
 /**
- * Sign a rendition derivation statement (spec 004 §3.1). Statement
- * construction happens inside the kernel so all runtimes sign the same
- * bytes. Returns the signature for the manifest's `derivation_sig`.
+ * Sign a rendition derivation statement (DMTAP §24.4.4, superseding
+ * spec 004 §3.1's video-only text). Statement construction happens
+ * inside the kernel so all runtimes sign the same bytes. Returns the
+ * signature for the manifest's `derivation_sig`.
+ *
+ * `width`/`height` are optional (DMTAP §24.4.2): both present means
+ * this rendition carries a video track; both absent means it is
+ * audio-only (a song, a podcast episode, a radio set, or an
+ * audio-only rendition of a work that does have video). Passing
+ * exactly one of them throws — the kernel rejects that as malformed
+ * before it would ever reach signing (VID-16). The kernel encodes an
+ * absent dimension as CBOR `null` at its fixed position in the signed
+ * preimage, never `0` and never by shortening the array (VID-17), so
+ * every video statement this produces is byte-identical to one signed
+ * before dimensions became optional.
  */
 export async function signDerivation(
   keypair: Keypair,
@@ -285,8 +297,8 @@ export async function signDerivation(
     originalBlobId: string;
     renditionBlobId: string;
     codec: string;
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
     bitrate: number;
   },
 ): Promise<Uint8Array> {

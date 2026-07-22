@@ -1,9 +1,9 @@
-# @vidmesh/gateway-web
+# @boloka/gateway-web
 
 The reference gateway frontend: React 18 + TypeScript + Vite + Tailwind
 CSS v3 + TanStack Query v5 + react-router-dom v6. This is **the**
 uniform reference UI (spec [009-gateway.md](../../../spec/009-gateway.md)
-§7) — every gateway that wants Vidmesh trademark compliance deploys this
+§7) — every gateway that wants Boloka trademark compliance deploys this
 same product. Gateways differ by domain, catalog (what they choose to
 index), and branding accents; they do not differ by interface.
 
@@ -18,7 +18,7 @@ Concretely, that means:
   verification badge, the same interaction patterns.
 - A gateway MAY extend the UI (add pages, add features). It MUST NOT
   remove:
-  1. **The verification badge** (`@vidmesh/ui`'s `VerifiedBadge`,
+  1. **The verification badge** (`@boloka/ui`'s `VerifiedBadge`,
      wired up for real in `src/routes/Watch.tsx` via
      `src/hooks/useVerification.ts`) — the client-side proof that a
      manifest's signature and record id were checked in the viewer's
@@ -47,7 +47,7 @@ Concretely, that means:
 
 `src/components/Layout.tsx` provides the header (search, nav, dark-mode
 toggle), the skip link, focus management on route change, and the
-footer ("powered by vidmesh" + policy link) around every page.
+footer ("powered by boloka" + policy link) around every page.
 
 ## Client-side verification (the substance behind the badge)
 
@@ -55,7 +55,7 @@ footer ("powered by vidmesh" + policy link) around every page.
 
 1. Fetches a record's canonical CBOR bytes from
    `GET /api/records/{id}/cbor`.
-2. Runs `@vidmesh/kernel`'s `verifyRecord` (Ed25519 signature + envelope
+2. Runs `@boloka/kernel`'s `verifyRecord` (Ed25519 signature + envelope
    shape) on those bytes, in the browser.
 3. Runs `deriveId` on the same bytes and checks it equals the id the
    page requested.
@@ -64,13 +64,13 @@ Only if both checks pass does the badge say "Verified." No server
 response is trusted for that word. `src/hooks/useVerification.ts` wires
 this into TanStack Query so watch pages get loading/error states for
 free, and the kernel (WASM) is only fetched on pages that actually
-verify something (dynamic `import("@vidmesh/kernel")`).
+verify something (dynamic `import("@boloka/kernel")`).
 
 ## Running against the server
 
 ```bash
-pnpm --filter @vidmesh/gateway-server dev   # apps/gateway/server, port 8600
-pnpm --filter @vidmesh/gateway-web dev      # this app, Vite dev server
+pnpm --filter @boloka/gateway-server dev   # apps/gateway/server, port 8600
+pnpm --filter @boloka/gateway-web dev      # this app, Vite dev server
 ```
 
 `vite.config.ts` proxies `/api` and `/media` to
@@ -82,8 +82,8 @@ together).
 ## Branding-accent extension points
 
 A gateway operator re-skins accents by overriding CSS custom properties
-in `src/styles/index.css` (`--vm-brand-*`, `--vm-accent-*`, plus
-`--vm-bg`/`--vm-surface`/`--vm-fg`/`--vm-muted`/`--vm-border`) — no
+in `src/styles/index.css` (`--bo-brand-*`, `--bo-accent-*`, plus
+`--bo-bg`/`--bo-surface`/`--bo-fg`/`--bo-muted`/`--bo-border`) — no
 Tailwind rebuild, no component edits, no interface changes. Dark mode
 uses Tailwind's `class` strategy; the toggle
 (`src/hooks/useTheme.ts`) persists to `localStorage` with a
@@ -152,14 +152,14 @@ automatically as part of `build`; run explicitly with `pnpm test`.
 | `test/api.test.ts` | The fetch client: query-string building, the `{error}` envelope → `ApiError`, non-JSON error bodies, JSON vs. multipart request bodies. |
 | `test/commentTree.test.ts` | Comment threading: nesting, sibling ordering, orphaned-parent promotion (never silently dropping a subtree), counting. |
 | `test/verifiedBadge.test.tsx` | The verification state machine (`verifyRecordById`) with a mocked kernel — verified/failed/signature-throws/fetch-throws — plus rendering of `VerifiedBadge`'s three states and its expandable detail popover. |
-| `test/playerLogic.test.ts` | The player's keyboard map and reducer, imported straight from `@vidmesh/ui` — every key binding, clamping, buffered-range parsing, sponsor-segment percentage math, clock formatting. |
+| `test/playerLogic.test.ts` | The player's keyboard map and reducer, imported straight from `@boloka/ui` — every key binding, clamping, buffered-range parsing, sponsor-segment percentage math, clock formatting. |
 | `test/routes.smoke.test.tsx` | Every route renders without throwing against mocked queries, with correct empty/error copy for a brand-new, signed-out, empty gateway. |
 
 ## Development
 
 ```bash
-pnpm --filter @vidmesh/gateway-web lint   # tsc --noEmit, strict
-pnpm --filter @vidmesh/gateway-web dev    # Vite dev server
-pnpm --filter @vidmesh/gateway-web build  # tsc -b && vite build
-pnpm --filter @vidmesh/gateway-web test   # vitest run
+pnpm --filter @boloka/gateway-web lint   # tsc --noEmit, strict
+pnpm --filter @boloka/gateway-web dev    # Vite dev server
+pnpm --filter @boloka/gateway-web build  # tsc -b && vite build
+pnpm --filter @boloka/gateway-web test   # vitest run
 ```

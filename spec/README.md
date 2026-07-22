@@ -1,6 +1,6 @@
-# Vidmesh specification
+# Boloka specification
 
-The Vidmesh protocol specification, licensed CC-BY-SA-4.0 (see
+The Boloka protocol specification, licensed CC-BY-SA-4.0 (see
 `../LICENSE-SPEC`).
 
 ## Contents
@@ -25,7 +25,7 @@ The normative specification is the numbered per-concern files
 
 Also here:
 
-- `draft-vidmesh-protocol-00.md` — the single-document rendering of
+- `draft-boloka-protocol-00.md` — the single-document rendering of
   Draft 0.2 (source for the PDF). On conflict, the numbered files win.
 - `CHANGELOG.md` — spec change log.
 - `pandoc-pdf.yaml` — pandoc defaults for the PDF rendering.
@@ -33,7 +33,7 @@ Also here:
 ## Building the PDF
 
 ```sh
-just spec-pdf   # requires pandoc and tectonic; writes dist/vidmesh-protocol-draft-00.pdf
+just spec-pdf   # requires pandoc and tectonic; writes dist/boloka-protocol-draft-00.pdf
 ```
 
 The output is a classic technical-report PDF: Latin Modern type, numbered

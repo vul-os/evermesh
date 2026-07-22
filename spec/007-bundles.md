@@ -18,7 +18,7 @@ A bundle is a byte stream:
 
 ```
 bundle = magic || cbor_sequence
-magic  = 56 4D 53 48 01            ; "VMSH" + format version 0x01
+magic  = 42 4C 4B 41 01            ; "BLKA" + format version 0x01
 ```
 
 followed by a CBOR sequence (RFC 8742) of **items**, each a canonically
@@ -94,7 +94,7 @@ Exporters MUST NOT emit blobs they cannot hash-verify at export time.
   a partially received bundle still yields verifiable ranges.
 * No compression in the container: media blobs don't compress, and
   transparency beats cleverness (Principle 10). Whole-file compression
-  MAY be applied externally (`.vmsh.zst`).
+  MAY be applied externally (`.blka.zst`).
 
 ## Test vectors
 

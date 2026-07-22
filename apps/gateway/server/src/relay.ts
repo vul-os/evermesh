@@ -8,7 +8,7 @@
  */
 import { randomUUID } from "node:crypto";
 import { WebSocket } from "ws";
-import { verifyRecord, deriveId } from "@vidmesh/kernel";
+import { verifyRecord, deriveId } from "@boloka/kernel";
 import { encodeClientFrame, decodeRelayFrame, type RelayFrame } from "./relay-frames.ts";
 import type Database from "better-sqlite3";
 import type { Db } from "./db.ts";

@@ -7,7 +7,7 @@ import {
   keyToAction,
   playerReducer,
   sponsorSegmentStyle,
-} from "@vidmesh/ui";
+} from "@boloka/ui";
 import { describe, expect, it } from "vitest";
 
 describe("keyToAction (the player's keyboard map)", () => {

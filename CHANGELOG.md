@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Vidmesh are documented in this file.
+All notable changes to Boloka are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -10,6 +10,12 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ## [0.1.0] — 2026-07-21
+
+*This project was named **Vidmesh** for most of the work this entry
+describes; it was renamed to **Boloka** (and rescoped from video-only to
+media — video and audio) before this first tag. See DECISIONS.md's
+2026-07-2x entry for the full rationale; component names below are the
+current (Boloka) ones.*
 
 **Status: pre-alpha.** This is the first tagged snapshot, not a shipped
 product: there is no deployment, no swarm/P2P transport, no live-streaming
@@ -30,20 +36,20 @@ spec'd-but-not-built.
   the gateway (including the uniform reference UI requirement), the
   substrate economics, and the threat model. Licensed CC-BY-SA-4.0
   (`LICENSE-SPEC`).
-- **`crates/vidmesh-kernel`** — the protocol kernel: self-certifying signed
+- **`crates/boloka-kernel`** — the protocol kernel: self-certifying signed
   records (CBOR envelope, Ed25519, BLAKE3), all 27 record kinds, identity
   with recovery-precedence key rotation, content-addressed chunked blobs
   with proofs, and the canonical codec. 193 unit tests + 7 property tests.
   Additive, default-off `dmtap-pub` feature consumes `dmtap-core` (Envoir's
   reference crate) to prove byte-for-byte agreement with DMTAP-PUB §22's
   frozen conformance vectors, without touching the native format.
-- **`crates/vidmesh-relay`** — an axum `/sync` websocket relay: envelope
+- **`crates/boloka-relay`** — an axum `/sync` websocket relay: envelope
   validation, SQLite-backed storage, filtered subscriptions, gossip,
   proof-of-work admission, rate-limiting, retention, and an optional blob
   sidecar (PUT / GET-range / proof). 47 tests.
-  - `crates/vidmesh-wasm` — wasm-bindgen bindings over the kernel for
+  - `crates/boloka-wasm` — wasm-bindgen bindings over the kernel for
     browsers and Node.
-  - `crates/vidmesh-node` — a Tauri 2 desktop-node **scaffold** (pins and
+  - `crates/boloka-node` — a Tauri 2 desktop-node **scaffold** (pins and
     seeds nothing yet).
 - **`packages/kernel-ts`** — a typed TypeScript API over the WASM kernel (5
   tests). `packages/ui` — shared React components (player, verification
@@ -56,12 +62,12 @@ spec'd-but-not-built.
   one moderation decision the spec does not leave to gateway policy.
 - **`apps/gateway/web`** — the uniform reference UI (React + Vite +
   Tailwind + TanStack Query) every gateway ships, re-skinnable only through
-  its `--vm-*` design tokens. 45 tests; builds.
-- **`apps/site`** — vidmesh.org: a static landing page and docs viewer,
+  its `--bo-*` design tokens. 45 tests; builds.
+- **`apps/site`** — boloka.org: a static landing page and docs viewer,
   browser-checked (`just site-check`).
 - **`tools/conformance`** — 189 deterministic test vectors replayed
   identically against three independent runtimes (in-process kernel,
-  Node/WASM via `@vidmesh/kernel`, and a live relay over `/sync`); a
+  Node/WASM via `@boloka/kernel`, and a live relay over `/sync`); a
   divergence is treated as a protocol/binding bug, never special-cased.
 - **Dual code license** (MIT OR Apache-2.0) plus a separate CC-BY-SA-4.0
   license for everything under `spec/`.
@@ -78,5 +84,5 @@ spec'd-but-not-built.
 - Non-custodial key flows — the reference gateway custodies keys
   server-side; client-held keys are a later phase.
 
-[Unreleased]: https://github.com/vul-os/vidmesh/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/vul-os/vidmesh/releases/tag/v0.1.0
+[Unreleased]: https://github.com/vul-os/boloka/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/vul-os/boloka/releases/tag/v0.1.0

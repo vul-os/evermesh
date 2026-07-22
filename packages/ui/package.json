@@ -1,7 +1,7 @@
 {
-  "name": "@vidmesh/ui",
+  "name": "@boloka/ui",
   "version": "0.0.1",
-  "description": "Shared React components for Vidmesh gateways: player, verification badge, record cards",
+  "description": "Shared React components for Boloka gateways: player, verification badge, record cards",
   "license": "MIT",
   "type": "module",
   "main": "./src/index.ts",

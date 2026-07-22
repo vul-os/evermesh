@@ -13,7 +13,7 @@ import { kernelTest } from "./kernel-available.ts";
 function testConfig(overrides: Partial<Config> = {}): Config {
   return parseConfig({
     dbPath: ":memory:",
-    blobDir: "/tmp/vidmesh-test-blobs",
+    blobDir: "/tmp/boloka-test-blobs",
     policyFilePath: "/dev/null",
     sessionSecret: "a".repeat(32),
     custody: { secret: "b".repeat(32), contestWindowSeconds: 604_800 },
@@ -22,7 +22,7 @@ function testConfig(overrides: Partial<Config> = {}): Config {
 }
 
 function permissivePolicy(db: Db): PolicyEngine {
-  const dir = mkdtempSync(join(tmpdir(), "vidmesh-custody-test-"));
+  const dir = mkdtempSync(join(tmpdir(), "boloka-custody-test-"));
   const path = join(dir, "policy.json");
   writeFileSync(
     path,
@@ -75,7 +75,7 @@ await kernelTest("duplicate handle registration is rejected", async () => {
 });
 
 await kernelTest("signRecord signs as the custodied identity and verifies", async () => {
-  const { verifyRecord } = await import("@vidmesh/kernel");
+  const { verifyRecord } = await import("@boloka/kernel");
   const { custody } = buildCustody();
   const { userId } = await custody.register("carol", "hunter2hunter2");
 

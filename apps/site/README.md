@@ -1,6 +1,6 @@
 # apps/site
 
-vidmesh.org: a static landing page and a hash-routed docs viewer. No
+boloka.org: a static landing page and a hash-routed docs viewer. No
 framework, no build step, no CDN. Deployable as a directory.
 
 ```
@@ -50,13 +50,13 @@ MIT), and the documents themselves.
 
 Before going live, check `<link rel="canonical">`, the `og:` URLs,
 `robots.txt` and `sitemap.xml` — they all assume the
-`https://vidmesh.org/` origin.
+`https://boloka.org/` origin.
 
 ## Design
 
 The brand is documented in [`assets/README.md`](../../assets/README.md):
 "signal on carbon", Syne / Hanken Grotesk / JetBrains Mono, and the
-`--vm-*` tokens in `assets/tokens.css` that this stylesheet and the
+`--bo-*` tokens in `assets/tokens.css` that this stylesheet and the
 gateway's reference UI both read from.
 
 - Both themes come from `prefers-color-scheme` — no toggle, no JavaScript,

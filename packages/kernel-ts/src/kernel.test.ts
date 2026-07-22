@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 
-const wasmBuilt = existsSync(new URL("../wasm/vidmesh_wasm_bg.wasm", import.meta.url));
+const wasmBuilt = existsSync(new URL("../wasm/boloka_wasm_bg.wasm", import.meta.url));
 
 const t = wasmBuilt
   ? test
@@ -85,6 +85,51 @@ t("blob stream hashing matches whole-blob hashing", async () => {
   assert.equal(summary.size, data.length);
   assert.equal(summary.nChunks, 2);
   assert.notEqual(summary.chunkRoot, null);
+});
+
+t("signDerivation: audio-only (dimensions absent) signs and verifies via a fresh statement", async () => {
+  const kernel = await import("./index.ts");
+  const kp = await kernel.Keypair.fromSecret(new Uint8Array(32).fill(3));
+  const originalBlobId = "01".repeat(32);
+  const renditionBlobId = "02".repeat(32);
+
+  // Audio-only: width/height both omitted (DMTAP §24.4.2).
+  const sig = await kernel.signDerivation(kp, {
+    originalBlobId,
+    renditionBlobId,
+    codec: "opus",
+    bitrate: 128_000,
+  });
+  assert.equal(sig.length, 64);
+
+  // A video rendition (both present) also signs fine, and produces a
+  // different signature than the audio-only statement above — proof
+  // the wasm boundary is actually threading width/height through
+  // rather than always signing the same six-element shape.
+  const videoSig = await kernel.signDerivation(kp, {
+    originalBlobId,
+    renditionBlobId,
+    codec: "avc1.640028",
+    width: 1280,
+    height: 720,
+    bitrate: 2_800_000,
+  });
+  assert.equal(videoSig.length, 64);
+  assert.notDeepEqual(sig, videoSig);
+});
+
+t("signDerivation: exactly one of width/height rejects (VID-16)", async () => {
+  const kernel = await import("./index.ts");
+  const kp = await kernel.Keypair.fromSecret(new Uint8Array(32).fill(4));
+  await assert.rejects(
+    kernel.signDerivation(kp, {
+      originalBlobId: "01".repeat(32),
+      renditionBlobId: "02".repeat(32),
+      codec: "avc1.640028",
+      width: 1280,
+      bitrate: 2_800_000,
+    }),
+  );
 });
 
 t("hex helpers round-trip and reject junk", async () => {

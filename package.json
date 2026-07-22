@@ -1,8 +1,8 @@
 {
-  "name": "vidmesh-monorepo",
+  "name": "boloka-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Vidmesh monorepo root. See README.md.",
+  "description": "Boloka monorepo root. See README.md.",
   "scripts": {
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",

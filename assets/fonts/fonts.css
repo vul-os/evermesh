@@ -1,5 +1,5 @@
 /*
- * Vidmesh type — vendored woff2, latin subset. No CDN, no runtime network
+ * Boloka type — vendored woff2, latin subset. No CDN, no runtime network
  * request to a third party: every face below is a file that ships next to
  * this stylesheet (extracted from the @fontsource packages, SIL OFL 1.1;
  * see the LICENSE-*.txt files in this directory).
@@ -10,7 +10,7 @@
  *
  * `font-display: swap` so text paints immediately in the fallback stack
  * and reflows once; the fallbacks are listed in the consuming stylesheet's
- * --vm-font-* tokens, not here.
+ * --bo-font-* tokens, not here.
  */
 
 @font-face {

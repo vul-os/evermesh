@@ -1,9 +1,9 @@
-//! The Vidmesh conformance suite (build plan §11): a shared vector
+//! The Boloka conformance suite (build plan §11): a shared vector
 //! format plus per-target execution logic, used by both the vector
 //! generator (`src/bin/generate.rs`) and the runner (`src/main.rs`).
 //!
 //! This crate is deliberately thin: all protocol behavior comes from
-//! `vidmesh-kernel`. What lives here is the vector format itself
+//! `boloka-kernel`. What lives here is the vector format itself
 //! ([`vectors`]) and the three ways to replay a vector set against a
 //! runtime ([`kernel_target`], [`node_target`], [`relay_target`]).
 

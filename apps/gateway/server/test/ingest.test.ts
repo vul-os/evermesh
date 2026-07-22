@@ -9,7 +9,7 @@ import { processRecord, type IngestDeps } from "../src/ingest.ts";
 import { kernelTest } from "./kernel-available.ts";
 
 function permissivePolicy(db: Db): PolicyEngine {
-  const dir = mkdtempSync(join(tmpdir(), "vidmesh-ingest-"));
+  const dir = mkdtempSync(join(tmpdir(), "boloka-ingest-"));
   const path = join(dir, "policy.json");
   writeFileSync(
     path,
@@ -30,7 +30,7 @@ function permissivePolicy(db: Db): PolicyEngine {
 
 function deps(): IngestDeps {
   const db = openDb(":memory:");
-  return { db, policy: permissivePolicy(db), csam: new StubMatcher(), blobDir: mkdtempSync(join(tmpdir(), "vidmesh-blobs-")) };
+  return { db, policy: permissivePolicy(db), csam: new StubMatcher(), blobDir: mkdtempSync(join(tmpdir(), "boloka-blobs-")) };
 }
 
 function fakeBlobHex(): string {
@@ -38,7 +38,7 @@ function fakeBlobHex(): string {
 }
 
 await kernelTest("indexes a manifest into the videos table", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);
@@ -63,7 +63,7 @@ await kernelTest("indexes a manifest into the videos table", async () => {
 });
 
 await kernelTest("comment threading: valid reply indexes, cross-subject reply is rejected", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);
@@ -103,7 +103,7 @@ await kernelTest("comment threading: valid reply indexes, cross-subject reply is
 });
 
 await kernelTest("a later reaction supersedes an earlier one for counting", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);
@@ -123,7 +123,7 @@ await kernelTest("a later reaction supersedes an earlier one for counting", asyn
 });
 
 await kernelTest("follow then unfollow via retract", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);
@@ -153,7 +153,7 @@ await kernelTest("follow then unfollow via retract", async () => {
 });
 
 await kernelTest("supersede replaces the body but keeps the original id as the key", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);
@@ -179,7 +179,7 @@ await kernelTest("supersede replaces the body but keeps the original id as the k
 });
 
 await kernelTest("retract by a different author is rejected", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const authorKp = await Keypair.generate();
   const { identityId: authorId } = await identity.genesis(authorKp);
@@ -205,7 +205,7 @@ await kernelTest("retract by a different author is rejected", async () => {
 });
 
 await kernelTest("a record is only ever indexed once (dedup by id)", async () => {
-  const { Keypair, identity, createRecord } = await import("@vidmesh/kernel");
+  const { Keypair, identity, createRecord } = await import("@boloka/kernel");
   const d = deps();
   const kp = await Keypair.generate();
   const { identityId } = await identity.genesis(kp);

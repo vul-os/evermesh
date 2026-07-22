@@ -1,6 +1,6 @@
 # assets
 
-The Vidmesh brand: a hand-written SVG mark and wordmark, the design tokens
+The Boloka brand: a hand-written SVG mark and wordmark, the design tokens
 every surface reads from, the vendored type, an architecture diagram, and a
 social share card.
 
@@ -8,7 +8,7 @@ social share card.
 
 | File | Purpose |
 |---|---|
-| `logo.svg` | Full lockup (mark + "vidmesh" wordmark) for light backgrounds. `viewBox="0 0 960 256"`. |
+| `logo.svg` | Full lockup (mark + "boloka" wordmark) for light backgrounds. `viewBox="0 0 960 256"`. |
 | `logo-dark.svg` | Same geometry, recolored for dark backgrounds. |
 | `mark.svg` | Mark only, structure drawn in `currentColor` so it can be inlined into a UI and inherit the text color. |
 | `favicon.svg` | Mark only, thickened to stay legible at 16px; structure follows `prefers-color-scheme`. `viewBox="0 0 256 256"`. |
@@ -29,7 +29,7 @@ whole thesis in one glyph: a record is playable on its own, and it is never
 only in one place.
 
 Everything is drawn by hand as `<path>`/`<circle>`: no raster effects, no
-gradients, no filters. The "vidmesh" wordmark is built the same way, on a
+gradients, no filters. The "boloka" wordmark is built the same way, on a
 shared grid (baseline 180, x-height 100, ascender 30, stroke 22, round
 caps), with circular bowls drawn as béziers. There is no `<text>` and no
 `font-family` anywhere in `logo.svg` or `logo-dark.svg` — the lockup renders
@@ -46,25 +46,25 @@ bright; that restraint is what makes the lime mean something.
 
 | Role | Token | Light surfaces | Dark surfaces |
 |---|---|---|---|
-| Signal (brand) | `--vm-brand-*` | `#4F6E09` (700) for marks, `#3B5208` (800) for text | `#A8E01F` (400) for marks, `#BCEC4D` (300) for text |
-| Mesh (accent) | `--vm-accent-*` | `#126595` (600) | `#93D2F0` (200) |
-| Surface | `--vm-bg` / `--vm-surface` | `#FAFBF7` / `#F0F2EC` | `#0A0C0B` / `#121614` |
-| Text | `--vm-fg` / `--vm-muted` | `#10140F` / `#4C554D` | `#E9F0EA` / `#9FB0A6` |
-| Live / record | `--vm-live` | `#C42A1C` | `#FF4D3D` |
+| Signal (brand) | `--bo-brand-*` | `#4F6E09` (700) for marks, `#3B5208` (800) for text | `#A8E01F` (400) for marks, `#BCEC4D` (300) for text |
+| Mesh (accent) | `--bo-accent-*` | `#126595` (600) | `#93D2F0` (200) |
+| Surface | `--bo-bg` / `--bo-surface` | `#FAFBF7` / `#F0F2EC` | `#0A0C0B` / `#121614` |
+| Text | `--bo-fg` / `--bo-muted` | `#10140F` / `#4C554D` | `#E9F0EA` / `#9FB0A6` |
+| Live / record | `--bo-live` | `#C42A1C` | `#FF4D3D` |
 
 Measured contrast (WCAG relative luminance) for every pairing that carries
 meaning:
 
 | Pairing | Ratio | Floor |
 |---|---:|---|
-| `--vm-fg` on `--vm-bg`, light | 17.9:1 | 4.5 |
-| `--vm-fg` on `--vm-bg`, dark | 16.9:1 | 4.5 |
-| `--vm-muted` on `--vm-bg`, light / dark | 7.5:1 / 8.6:1 | 4.5 |
-| link `brand-800` on light `--vm-surface` | 7.0:1 | 4.5 |
-| link `brand-300` on dark `--vm-surface` | 13.3:1 | 4.5 |
-| verified `accent-600` on light `--vm-surface` | 5.6:1 | 4.5 |
-| verified `accent-200` on dark `--vm-surface` | 11.1:1 | 4.5 |
-| live red on `--vm-bg`, light / dark | 5.5:1 / 6.0:1 | 4.5 |
+| `--bo-fg` on `--bo-bg`, light | 17.9:1 | 4.5 |
+| `--bo-fg` on `--bo-bg`, dark | 16.9:1 | 4.5 |
+| `--bo-muted` on `--bo-bg`, light / dark | 7.5:1 / 8.6:1 | 4.5 |
+| link `brand-800` on light `--bo-surface` | 7.0:1 | 4.5 |
+| link `brand-300` on dark `--bo-surface` | 13.3:1 | 4.5 |
+| verified `accent-600` on light `--bo-surface` | 5.6:1 | 4.5 |
+| verified `accent-200` on dark `--bo-surface` | 11.1:1 | 4.5 |
+| live red on `--bo-bg`, light / dark | 5.5:1 / 6.0:1 | 4.5 |
 | ink on a `brand-400` button fill | 12.5:1 | 4.5 |
 
 Acid lime `#A8E01F` on paper is **1.5:1** — under even the 3:1 non-text

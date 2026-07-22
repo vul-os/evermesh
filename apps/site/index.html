@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vidmesh — many gateways, one substrate</title>
-<meta name="description" content="Vidmesh is a decentralized video protocol: a self-certifying substrate of signed records and content-addressed blobs, served by independent gateways. No servers of record, no token, no mandatory dependencies.">
-<link rel="canonical" href="https://vidmesh.org/">
+<title>Boloka — many gateways, one substrate</title>
+<meta name="description" content="Boloka is a decentralized media protocol: a self-certifying substrate of signed records and content-addressed blobs, served by independent gateways. No servers of record, no token, no mandatory dependencies.">
+<link rel="canonical" href="https://boloka.org/">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://vidmesh.org/">
-<meta property="og:title" content="Vidmesh — many gateways, one substrate">
-<meta property="og:description" content="A decentralized video protocol built on signed records and content-addressed blobs. Independent gateways index and serve their own selection. No token, no servers of record.">
-<meta property="og:image" content="https://vidmesh.org/assets/og-image.png">
+<meta property="og:url" content="https://boloka.org/">
+<meta property="og:title" content="Boloka — many gateways, one substrate">
+<meta property="og:description" content="A decentralized media protocol built on signed records and content-addressed blobs. Independent gateways index and serve their own selection. No token, no servers of record.">
+<meta property="og:image" content="https://boloka.org/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Vidmesh — many gateways, one substrate">
-<meta name="twitter:description" content="A decentralized video protocol built on signed records and content-addressed blobs. No token, no servers of record.">
-<meta name="twitter:image" content="https://vidmesh.org/assets/og-image.png">
+<meta name="twitter:title" content="Boloka — many gateways, one substrate">
+<meta name="twitter:description" content="A decentralized media protocol built on signed records and content-addressed blobs. No token, no servers of record.">
+<meta name="twitter:image" content="https://boloka.org/assets/og-image.png">
 
 <!-- Theme + icons -->
 <meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
@@ -38,10 +38,10 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="./" aria-label="Vidmesh home">
+    <a class="brand" href="./" aria-label="Boloka home">
       <picture>
         <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="assets/logo.svg" alt="Vidmesh" width="98" height="26">
+        <img src="assets/logo.svg" alt="Boloka" width="98" height="26">
       </picture>
     </a>
     <nav aria-label="Sections">
@@ -51,7 +51,7 @@
         <li><a href="#roles">Roles</a></li>
         <li><a href="#status">Status</a></li>
         <li><a href="docs.html">Docs</a></li>
-        <li><a class="nav-cta" href="https://github.com/vul-os/vidmesh">GitHub</a></li>
+        <li><a class="nav-cta" href="https://github.com/vul-os/boloka">GitHub</a></li>
       </ul>
     </nav>
   </div>
@@ -80,39 +80,45 @@
       <circle class="signal c" r="4.5" style="offset-path: path('M420,540 L420,240 L720,80')"/>
     </svg>
 
-    <div class="wrap">
-      <p class="eyebrow">Pre-alpha &middot; protocol first, product later</p>
-      <h1>Many gateways.<br>One substrate.<br><em>Video that outlives its platforms.</em></h1>
-      <p class="hero-sub">
-        Vidmesh splits video into a small, permanent <strong>substrate</strong> — signed
-        records and content-addressed blobs that verify from their own bytes — and a
-        competitive <strong>edge</strong> of gateways, nodes, and viewers that decides
-        everything contested: moderation, discovery, monetization. No servers of record.
-        No token. No company you have to trust, including ours.
-      </p>
-      <div class="cta-row">
-        <a class="btn btn-primary" href="docs.html#000-overview">Read the spec</a>
-        <a class="btn btn-secondary" href="https://github.com/vul-os/vidmesh#development">Run a gateway</a>
+    <div class="wrap hero-grid">
+      <div class="hero-main">
+        <p class="eyebrow">Pre-alpha &middot; protocol first, product later</p>
+        <h1>Many gateways.<br>One substrate.<br><em>Media that outlives its platforms.</em></h1>
+        <p class="hero-sub">
+          Boloka splits media into a small, permanent <strong>substrate</strong> — signed
+          records and content-addressed blobs that verify from their own bytes — and a
+          competitive <strong>edge</strong> of gateways, nodes, and viewers that decides
+          everything contested: moderation, discovery, monetization. No servers of record.
+          No token. No company you have to trust, including ours.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="docs.html#000-overview">Read the spec</a>
+          <a class="btn btn-secondary" href="https://github.com/vul-os/boloka#development">Run a gateway</a>
+        </div>
       </div>
 
-      <dl class="stat-strip">
-        <div>
-          <dt>Spec files</dt>
-          <dd>12 <span class="mono" style="font-size:14px;color:var(--vm-faint)">+ draft</span></dd>
-        </div>
-        <div>
-          <dt>Record kinds</dt>
-          <dd>27</dd>
-        </div>
-        <div>
-          <dt>Conformance vectors</dt>
-          <dd>189</dd>
-        </div>
-        <div>
-          <dt>Independent runtimes</dt>
-          <dd>3</dd>
-        </div>
-      </dl>
+      <aside class="hero-telemetry corner-frame" aria-label="Repository metrics">
+        <p class="telemetry-head mono">Counted from this repository</p>
+        <dl class="telemetry-list">
+          <div>
+            <dt>Spec files</dt>
+            <dd>12 <span>+ draft</span></dd>
+          </div>
+          <div>
+            <dt>Record kinds</dt>
+            <dd>27</dd>
+          </div>
+          <div>
+            <dt>Conformance vectors</dt>
+            <dd>189</dd>
+          </div>
+          <div>
+            <dt>Independent runtimes</dt>
+            <dd>3</dd>
+          </div>
+        </dl>
+        <p class="telemetry-foot mono">0 failures across kernel, WASM, and relay</p>
+      </aside>
     </div>
   </section>
 
@@ -125,7 +131,7 @@
         </div>
         <div>
           <p class="lede">
-            Every design decision in Vidmesh answers one question:
+            Every design decision in Boloka answers one question:
             <strong>does the network still work after every organization involved
             dies or betrays it?</strong>
           </p>
@@ -139,63 +145,69 @@
         </div>
       </div>
 
-      <div class="section-body survival">
-        <article class="death">
-          <p class="strike">The gateway shuts down</p>
-          <h3>Your videos were never in it</h3>
-          <p>
-            A gateway is an index and a cache with a domain name and a legal
-            posture. It holds a selection of the substrate, not the original of
-            anything.
-          </p>
-          <p class="survives">
-            <b>Still works</b>
-            The records and blobs are just as valid on any other gateway that
-            chooses to index them, and any node that pinned the blobs can
-            re-seed them. Nothing needs to be migrated, because nothing was
-            ever owned.
-          </p>
-        </article>
+      <div class="section-body">
+        <div class="filmstrip">
+          <div class="sprocket" aria-hidden="true"></div>
+          <div class="filmstrip-grid">
+            <article class="reel">
+              <p class="strike">The gateway shuts down</p>
+              <h3>Your videos were never in it</h3>
+              <p>
+                A gateway is an index and a cache with a domain name and a legal
+                posture. It holds a selection of the substrate, not the original of
+                anything.
+              </p>
+              <p class="survives">
+                <b>Still works</b>
+                The records and blobs are just as valid on any other gateway that
+                chooses to index them, and any node that pinned the blobs can
+                re-seed them. Nothing needs to be migrated, because nothing was
+                ever owned.
+              </p>
+            </article>
 
-        <article class="death">
-          <p class="strike">The foundation dies</p>
-          <h3>It operated nothing to lose</h3>
-          <p>
-            The steward publishes a spec, a kind registry, and a conformance
-            suite. It runs no servers, holds no keys, and has no ability to
-            revoke, delist, or authorize anyone.
-          </p>
-          <p class="survives">
-            <b>Still works</b>
-            A frozen spec is a working spec. The registry is a file you can
-            fork; the conformance suite is 189 vectors you can replay. The
-            two-implementations rule exists so nothing in the protocol depends
-            on one group's code surviving.
-          </p>
-        </article>
+            <article class="reel">
+              <p class="strike">The foundation dies</p>
+              <h3>It operated nothing to lose</h3>
+              <p>
+                The steward publishes a spec, a kind registry, and a conformance
+                suite. It runs no servers, holds no keys, and has no ability to
+                revoke, delist, or authorize anyone.
+              </p>
+              <p class="survives">
+                <b>Still works</b>
+                A frozen spec is a working spec. The registry is a file you can
+                fork; the conformance suite is 189 vectors you can replay. The
+                two-implementations rule exists so nothing in the protocol depends
+                on one group's code surviving.
+              </p>
+            </article>
 
-        <article class="death">
-          <p class="strike">The network splits</p>
-          <h3>There was no consensus to lose</h3>
-          <p>
-            No chain, no global ordering, no quorum, no firehose everyone must
-            reach. Records are signed and content-addressed, which is enough to
-            verify them alone in a room.
-          </p>
-          <p class="survives">
-            <b>Still works</b>
-            Both sides of a partition keep publishing and keep verifying.
-            Offline bundles move content across an air gap on a disk. When the
-            link comes back, the two halves merge — there is nothing to
-            reconcile because nothing was ever a vote.
-          </p>
-        </article>
+            <article class="reel">
+              <p class="strike">The network splits</p>
+              <h3>There was no consensus to lose</h3>
+              <p>
+                No chain, no global ordering, no quorum, no firehose everyone must
+                reach. Records are signed and content-addressed, which is enough to
+                verify them alone in a room.
+              </p>
+              <p class="survives">
+                <b>Still works</b>
+                Both sides of a partition keep publishing and keep verifying.
+                Offline bundles move content across an air gap on a disk. When the
+                link comes back, the two halves merge — there is nothing to
+                reconcile because nothing was ever a vote.
+              </p>
+            </article>
+          </div>
+          <div class="sprocket" aria-hidden="true"></div>
+        </div>
+
+        <p class="pull">
+          A protocol that needs its authors to stay alive is a product with
+          extra steps.
+        </p>
       </div>
-
-      <p class="pull">
-        A protocol that needs its authors to stay alive is a product with
-        extra steps.
-      </p>
     </div>
   </section>
 
@@ -214,12 +226,12 @@
       </div>
 
       <div class="section-body">
-        <div class="flow">
-          <article class="layer">
+        <div class="chain">
+          <article class="stage">
             <p class="tag">Layer 1 — publish</p>
             <h3>A record is signed bytes</h3>
             <p class="body">
-              A creator's key signs a canonical CBOR envelope. Video itself
+              A creator's key signs a canonical CBOR envelope. Media itself
               lives in blobs addressed by BLAKE3 chunk trees, so a byte range
               can be proven without fetching the file.
             </p>
@@ -229,7 +241,8 @@
               <li>27 record kinds: manifests, claims, comments, live, more</li>
             </ul>
           </article>
-          <article class="layer">
+          <span class="chain-hop" aria-hidden="true"></span>
+          <article class="stage">
             <p class="tag">Layer 2 — carry</p>
             <h3>Relays move records; nobody owns them</h3>
             <p class="body">
@@ -243,7 +256,8 @@
               <li>Offline bundles carry the same records with no network</li>
             </ul>
           </article>
-          <article class="layer">
+          <span class="chain-hop" aria-hidden="true"></span>
+          <article class="stage">
             <p class="tag">Layer 3 — serve</p>
             <h3>Gateways compete on judgement</h3>
             <p class="body">
@@ -259,7 +273,7 @@
           </article>
         </div>
 
-        <figure class="diagram">
+        <figure class="diagram corner-frame">
           <img src="assets/architecture.svg" alt="Creators publish signed manifests into a substrate of records and content-addressed blobs; independent gateways index and serve their own selection of it; viewers and nodes verify signatures and hashes and re-seed the blobs." width="1000" height="380">
         </figure>
       </div>
@@ -280,48 +294,54 @@
         </p>
       </div>
 
-      <div class="section-body ladder">
-        <article class="rung">
-          <p class="step">rung 01</p>
+      <ol class="section-body staircase">
+        <li class="step">
+          <span class="step-num">01</span>
           <div>
-            <h3>Viewer</h3>
-            <span class="runs">runs: a browser</span>
+            <div class="step-head">
+              <h3>Viewer</h3>
+              <span class="runs">runs: a browser</span>
+            </div>
+            <p>
+              Watches. Verifies signatures and hashes client-side while the video
+              plays, so a hostile or careless gateway cannot quietly substitute
+              different bytes. No account, no setup, no commitment.
+            </p>
           </div>
-          <p>
-            Watches. Verifies signatures and hashes client-side while the video
-            plays, so a hostile or careless gateway cannot quietly substitute
-            different bytes. No account, no setup, no commitment.
-          </p>
-        </article>
-        <article class="rung">
-          <p class="step">rung 02</p>
+        </li>
+        <li class="step">
+          <span class="step-num">02</span>
           <div>
-            <h3>Node</h3>
-            <span class="runs">runs: a background app</span>
+            <div class="step-head">
+              <h3>Node</h3>
+              <span class="runs">runs: a background app</span>
+            </div>
+            <p>
+              Pins what you choose — your own videos first, subscriptions second —
+              and re-seeds it to others inside budgets you set. This is the rung
+              that makes "outlives its platforms" literally true. No public-facing
+              duties, no domain, no legal exposure.
+            </p>
           </div>
-          <p>
-            Pins what you choose — your own videos first, subscriptions second —
-            and re-seeds it to others inside budgets you set. This is the rung
-            that makes "outlives its platforms" literally true. No public-facing
-            duties, no domain, no legal exposure.
-          </p>
-        </article>
-        <article class="rung">
-          <p class="step">rung 03</p>
+        </li>
+        <li class="step">
+          <span class="step-num">03</span>
           <div>
-            <h3>Gateway</h3>
-            <span class="runs">runs: a public website</span>
+            <div class="step-head">
+              <h3>Gateway</h3>
+              <span class="runs">runs: a public website</span>
+            </div>
+            <p>
+              An independent site on its own domain that indexes and serves its
+              own selection of the substrate, under its own moderation policy and
+              its own jurisdiction. Gateways are where the contested decisions
+              live, on purpose, so that the substrate never has to make them.
+            </p>
           </div>
-          <p>
-            An independent site on its own domain that indexes and serves its
-            own selection of the substrate, under its own moderation policy and
-            its own jurisdiction. Gateways are where the contested decisions
-            live, on purpose, so that the substrate never has to make them.
-          </p>
-        </article>
-      </div>
+        </li>
+      </ol>
 
-      <p class="lede" style="margin-top:24px">
+      <p class="lede roles-note">
         A creator is not a separate piece of infrastructure — it is any keyholder
         who publishes a video manifest, and creators may run a node and a gateway
         too. A foundation stewards the spec, the registries, and the conformance
@@ -347,77 +367,79 @@
 
       <div class="section-body">
         <p class="status-note">
-          <strong>Vidmesh is pre-alpha.</strong> There is no deployment, no
+          <strong>Boloka is pre-alpha.</strong> There is no deployment, no
           public gateway, and no app you can install. What exists is a normative
           spec, a protocol kernel, a relay, a reference gateway, and a
           conformance suite whose tests pass. Where code and spec disagree, the
           spec wins.
         </p>
 
-        <div class="table-scroll">
-          <table class="status">
-            <caption class="mono" style="text-align:left;padding:14px 20px;color:var(--vm-faint);font-size:12.5px">Component status</caption>
-            <thead>
-              <tr><th scope="col">Path</th><th scope="col">What it is</th><th scope="col">State</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="path">spec/</td>
-                <td>Normative protocol spec (000–011 + IETF draft)</td>
-                <td><span class="pill pill-built">Complete for v1</span></td>
-              </tr>
-              <tr>
-                <td class="path">vidmesh-kernel</td>
-                <td>Records, identity rotation, blobs and chunk proofs, bundles, all 27 kinds</td>
-                <td><span class="pill pill-built">Implemented, tested</span></td>
-              </tr>
-              <tr>
-                <td class="path">vidmesh-relay</td>
-                <td>Sync websocket, storage, subscriptions, gossip, PoW, retention, blob sidecar</td>
-                <td><span class="pill pill-built">Implemented, tested</span></td>
-              </tr>
-              <tr>
-                <td class="path">vidmesh-wasm / kernel-ts</td>
-                <td>WASM bindings and the typed TS API over them</td>
-                <td><span class="pill pill-built">Implemented, tested</span></td>
-              </tr>
-              <tr>
-                <td class="path">gateway/server</td>
-                <td>Index, policy engine, key custody, ingest, upload, JSON API</td>
-                <td><span class="pill pill-built">Implemented, tested</span></td>
-              </tr>
-              <tr>
-                <td class="path">gateway/web</td>
-                <td>The uniform reference UI: player, verification, channels, upload</td>
-                <td><span class="pill pill-built">Implemented, tested</span></td>
-              </tr>
-              <tr>
-                <td class="path">tools/conformance</td>
-                <td>189 deterministic vectors replayed against three runtimes</td>
-                <td><span class="pill pill-built">Green</span></td>
-              </tr>
-              <tr>
-                <td class="path">swarm / P2P</td>
-                <td>WebRTC / BitTorrent-style retrieval described in the spec</td>
-                <td><span class="pill pill-none">Spec only — not built</span></td>
-              </tr>
-              <tr>
-                <td class="path">live streaming</td>
-                <td><code>live.manifest</code> / <code>live.chat</code> kinds validate in the kernel</td>
-                <td><span class="pill pill-none">Spec only — no ingest, no player</span></td>
-              </tr>
-              <tr>
-                <td class="path">non-custodial keys</td>
-                <td>Client-held keys; the reference gateway custodies keys server-side today</td>
-                <td><span class="pill pill-spec">Later phase</span></td>
-              </tr>
-              <tr>
-                <td class="path">vidmesh-node</td>
-                <td>Desktop node (Tauri 2) — pins and seeds nothing yet</td>
-                <td><span class="pill pill-none">Scaffold only</span></td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="monitor">
+          <p class="monitor-bar mono">Component status</p>
+          <div class="table-scroll">
+            <table class="status">
+              <thead>
+                <tr><th scope="col">Path</th><th scope="col">What it is</th><th scope="col">State</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="path">spec/</td>
+                  <td>Normative protocol spec (000–011 + IETF draft)</td>
+                  <td><span class="pill pill-built">Complete for v1</span></td>
+                </tr>
+                <tr>
+                  <td class="path">boloka-kernel</td>
+                  <td>Records, identity rotation, blobs and chunk proofs, bundles, all 27 kinds</td>
+                  <td><span class="pill pill-built">Implemented, tested</span></td>
+                </tr>
+                <tr>
+                  <td class="path">boloka-relay</td>
+                  <td>Sync websocket, storage, subscriptions, gossip, PoW, retention, blob sidecar</td>
+                  <td><span class="pill pill-built">Implemented, tested</span></td>
+                </tr>
+                <tr>
+                  <td class="path">boloka-wasm / kernel-ts</td>
+                  <td>WASM bindings and the typed TS API over them</td>
+                  <td><span class="pill pill-built">Implemented, tested</span></td>
+                </tr>
+                <tr>
+                  <td class="path">gateway/server</td>
+                  <td>Index, policy engine, key custody, ingest, upload, JSON API</td>
+                  <td><span class="pill pill-built">Implemented, tested</span></td>
+                </tr>
+                <tr>
+                  <td class="path">gateway/web</td>
+                  <td>The uniform reference UI: player, verification, channels, upload</td>
+                  <td><span class="pill pill-built">Implemented, tested</span></td>
+                </tr>
+                <tr>
+                  <td class="path">tools/conformance</td>
+                  <td>189 deterministic vectors replayed against three runtimes</td>
+                  <td><span class="pill pill-built">Green</span></td>
+                </tr>
+                <tr>
+                  <td class="path">swarm / P2P</td>
+                  <td>WebRTC / BitTorrent-style retrieval described in the spec</td>
+                  <td><span class="pill pill-none">Spec only — not built</span></td>
+                </tr>
+                <tr>
+                  <td class="path">live streaming</td>
+                  <td><code>live.manifest</code> / <code>live.chat</code> kinds validate in the kernel</td>
+                  <td><span class="pill pill-none">Spec only — no ingest, no player</span></td>
+                </tr>
+                <tr>
+                  <td class="path">non-custodial keys</td>
+                  <td>Client-held keys; the reference gateway custodies keys server-side today</td>
+                  <td><span class="pill pill-spec">Later phase</span></td>
+                </tr>
+                <tr>
+                  <td class="path">boloka-node</td>
+                  <td>Desktop node (Tauri 2) — pins and seeds nothing yet</td>
+                  <td><span class="pill pill-none">Scaffold only</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <h3 class="subhead">Conformance: the golden rule</h3>
@@ -429,22 +451,25 @@
           differing counts are documented per-runtime skips — each runtime only
           checks what it is responsible for.
         </p>
-        <div class="table-scroll">
-          <table class="status">
-            <thead>
-              <tr>
-                <th scope="col">Target</th>
-                <th scope="col" class="num">Pass</th>
-                <th scope="col" class="num">Fail</th>
-                <th scope="col" class="num">Skip</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td class="path">kernel</td><td class="num">189</td><td class="num">0</td><td class="num">0</td></tr>
-              <tr><td class="path">node (WASM / kernel-ts)</td><td class="num">142</td><td class="num">0</td><td class="num">47</td></tr>
-              <tr><td class="path">relay (/sync)</td><td class="num">115</td><td class="num">0</td><td class="num">74</td></tr>
-            </tbody>
-          </table>
+        <div class="monitor">
+          <p class="monitor-bar mono">Conformance matrix</p>
+          <div class="table-scroll">
+            <table class="status">
+              <thead>
+                <tr>
+                  <th scope="col">Target</th>
+                  <th scope="col" class="num">Pass</th>
+                  <th scope="col" class="num">Fail</th>
+                  <th scope="col" class="num">Skip</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="path">kernel</td><td class="num">189</td><td class="num">0</td><td class="num">0</td></tr>
+                <tr><td class="path">node (WASM / kernel-ts)</td><td class="num">142</td><td class="num">0</td><td class="num">47</td></tr>
+                <tr><td class="path">relay (/sync)</td><td class="num">115</td><td class="num">0</td><td class="num">74</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -464,20 +489,20 @@
         </p>
       </div>
 
-      <ol class="section-body spec-list">
-        <li><a href="docs.html#000-overview">000-overview</a><span>principles, roles, and the map of the spec</span></li>
-        <li><a href="docs.html#001-kernel">001-kernel</a><span>record envelope, canonical CBOR, ids, algorithm registry, blobs, chunk trees</span></li>
-        <li><a href="docs.html#002-identity">002-identity</a><span>rotation log, recovery precedence, delegation, profiles</span></li>
-        <li><a href="docs.html#003-kinds-registry">003-kinds-registry</a><span>the numeric registry of record kinds and their schemas</span></li>
-        <li><a href="docs.html#004-manifest">004-manifest</a><span>video manifests, renditions, deduplication, live streams</span></li>
-        <li><a href="docs.html#005-claims">005-claims</a><span>authorship and license claims, disputes, provenance</span></li>
-        <li><a href="docs.html#006-relay">006-relay</a><span>relay sync protocol, blob sidecar, anti-spam, gossip</span></li>
-        <li><a href="docs.html#007-bundles">007-bundles</a><span>the offline bundle container format and partition posture</span></li>
-        <li><a href="docs.html#008-privacy">008-privacy</a><span>encryption modes, key grants, metadata privacy</span></li>
-        <li><a href="docs.html#009-gateway">009-gateway</a><span>gateway selection, compliance, legal toolkit, the uniform reference UI</span></li>
-        <li><a href="docs.html#010-economics">010-economics</a><span>payment pointers, receipts, disclosures</span></li>
-        <li><a href="docs.html#011-threat-model">011-threat-model</a><span>adversaries, attack surfaces, mitigations, residual risk</span></li>
-        <li><a href="docs.html#draft-vidmesh-protocol-00">IETF draft</a><span>the same protocol as an Internet-Draft</span></li>
+      <ol class="section-body index-list">
+        <li><a href="docs.html#000-overview">000-overview</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">principles, roles, and the map of the spec</span></li>
+        <li><a href="docs.html#001-kernel">001-kernel</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">record envelope, canonical CBOR, ids, algorithm registry, blobs, chunk trees</span></li>
+        <li><a href="docs.html#002-identity">002-identity</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">rotation log, recovery precedence, delegation, profiles</span></li>
+        <li><a href="docs.html#003-kinds-registry">003-kinds-registry</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">the numeric registry of record kinds and their schemas</span></li>
+        <li><a href="docs.html#004-manifest">004-manifest</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">video manifests, renditions, deduplication, live streams</span></li>
+        <li><a href="docs.html#005-claims">005-claims</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">authorship and license claims, disputes, provenance</span></li>
+        <li><a href="docs.html#006-relay">006-relay</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">relay sync protocol, blob sidecar, anti-spam, gossip</span></li>
+        <li><a href="docs.html#007-bundles">007-bundles</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">the offline bundle container format and partition posture</span></li>
+        <li><a href="docs.html#008-privacy">008-privacy</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">encryption modes, key grants, metadata privacy</span></li>
+        <li><a href="docs.html#009-gateway">009-gateway</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">gateway selection, compliance, legal toolkit, the uniform reference UI</span></li>
+        <li><a href="docs.html#010-economics">010-economics</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">payment pointers, receipts, disclosures</span></li>
+        <li><a href="docs.html#011-threat-model">011-threat-model</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">adversaries, attack surfaces, mitigations, residual risk</span></li>
+        <li><a href="docs.html#draft-boloka-protocol-00">IETF draft</a><span class="index-leader" aria-hidden="true"></span><span class="index-desc">the same protocol as an Internet-Draft</span></li>
       </ol>
     </div>
   </section>
@@ -495,75 +520,75 @@
         </p>
       </div>
 
-      <dl class="section-body faq-list">
-        <div class="faq-item">
-          <dt>How is this different from PeerTube, Nostr, or Bluesky?</dt>
-          <dd>
+      <div class="section-body faq-list">
+        <details class="faq-item" open>
+          <summary>How is this different from PeerTube, Nostr, or Bluesky?</summary>
+          <div class="faq-body">
             <p><strong>PeerTube</strong> federates independent servers, but each server still
             owns the identity and data of its own users — moving off one means
-            starting over. Vidmesh keeps identity and content self-certifying and
+            starting over. Boloka keeps identity and content self-certifying and
             portable; gateways select and serve rather than own.</p>
             <p><strong>Nostr</strong> shares the substrate spirit — signed events distributed
-            through relays you choose. Vidmesh is built specifically for video on
+            through relays you choose. Boloka is built specifically for media on
             top of that idea: native manifests, renditions, authorship claims, and
             offline bundles that a plain event feed does not define.</p>
             <p><strong>Bluesky / AT Protocol</strong> also uses rotation-based portable identity,
-            similar in spirit to Vidmesh's identity log. The difference is that
-            Vidmesh has no required global relay or app-view: every gateway builds
+            similar in spirit to Boloka's identity log. The difference is that
+            Boloka has no required global relay or app-view: every gateway builds
             its own view from scratch, and the protocol is designed to keep working
             partitioned, not just when everyone can reach a central firehose.</p>
-          </dd>
-        </div>
-        <div class="faq-item">
-          <dt>Is there a token?</dt>
-          <dd>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Is there a token?</summary>
+          <div class="faq-body">
             <p>No, permanently. The spec carries optional payment primitives so
             creators and gateways can charge for things if they want to, but it
             takes no position on business models, and no protocol token exists or
             will exist.</p>
-          </dd>
-        </div>
-        <div class="faq-item">
-          <dt>Is this a blockchain?</dt>
-          <dd>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Is this a blockchain?</summary>
+          <div class="faq-body">
             <p>No. No chain, no mining, no global consensus of any kind. Records are
             signed and content-addressed, which is enough to make them
             independently verifiable — and that verification never depends on
             everyone agreeing on a shared ledger.</p>
-          </dd>
-        </div>
-        <div class="faq-item">
-          <dt>So anything can be published and nothing can be removed?</dt>
-          <dd>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>So anything can be published and nothing can be removed?</summary>
+          <div class="faq-body">
             <p>The substrate does not delete, and pretending otherwise would be a
             lie. Removal happens where it can actually be enforced: at the
             gateway that chooses to serve, in the jurisdiction it operates in.
             The reference gateway ships a policy engine, signed and subscribable
             takedown feeds, geo-blocking, and a legal toolkit — because
             moderation is a real operational job, not a protocol keyword.</p>
-          </dd>
-        </div>
-        <div class="faq-item">
-          <dt>Who is in charge?</dt>
-          <dd>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Who is in charge?</summary>
+          <div class="faq-body">
             <p>No one operationally. A foundation stewards the spec, the kind
             registry, and the conformance suite; it runs no servers and holds no
             user data. The design goal is that the network keeps working after
             the foundation is gone — see the survival test above.</p>
-          </dd>
-        </div>
-        <div class="faq-item">
-          <dt>Is Vidmesh converging with another protocol?</dt>
-          <dd>
+          </div>
+        </details>
+        <details class="faq-item">
+          <summary>Is Boloka converging with another protocol?</summary>
+          <div class="faq-body">
             <p>Re-basing the substrate on a shared publish/subscribe layer
             (DMTAP §24) is <strong>under decision</strong> and has not been adopted. The
             analysis is public in
             <a href="docs.html#dmtap-convergence">DMTAP convergence</a> and the
             reasoning log in <a href="docs.html#decisions">DECISIONS</a>. Until it
             is decided, the spec in this repository is the protocol.</p>
-          </dd>
-        </div>
-      </dl>
+          </div>
+        </details>
+      </div>
     </div>
   </section>
 
@@ -574,7 +599,7 @@
     <div>
       <picture>
         <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="assets/logo.svg" alt="Vidmesh" width="90" height="24">
+        <img src="assets/logo.svg" alt="Boloka" width="90" height="24">
       </picture>
     </div>
     <div>
@@ -582,13 +607,13 @@
         <li><a href="docs.html">Docs</a></li>
         <li><a href="docs.html#000-overview">Spec</a></li>
         <li><a href="docs.html#changelog">Changelog</a></li>
-        <li><a href="https://github.com/vul-os/vidmesh">GitHub</a></li>
+        <li><a href="https://github.com/vul-os/boloka">GitHub</a></li>
       </ul>
       <p class="footer-note">
         Code: MIT OR Apache-2.0. Specification: CC-BY-SA-4.0.
       </p>
       <p class="footer-note">
-        Vidmesh is stewarded by a foundation that operates nothing and publishes
+        Boloka is stewarded by a foundation that operates nothing and publishes
         the spec, registries, and conformance suite in the open. If that
         foundation disappears, this page is the only thing that stops working.
       </p>

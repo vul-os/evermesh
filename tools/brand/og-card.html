@@ -4,7 +4,7 @@
 
   It is HTML rather than SVG on purpose: an <img>-embedded SVG cannot load
   the vendored woff2 faces, so an SVG card would always export with a
-  fallback system font and stop looking like Vidmesh. Render it with:
+  fallback system font and stop looking like Boloka. Render it with:
 
       node tools/brand/render.mjs
 
@@ -14,7 +14,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Vidmesh OG card</title>
+<title>Boloka OG card</title>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="/assets/tokens.css">
 <style>
@@ -22,20 +22,20 @@
   body {
     width: 1200px; height: 630px; overflow: hidden; position: relative;
     background: #0a0c0b; color: #e9f0ea;
-    font-family: var(--vm-font-sans);
+    font-family: var(--bo-font-sans);
   }
   /* the mesh, at the edge of visibility */
   .lattice { position: absolute; inset: 0; }
   .content { position: relative; padding: 88px 96px; }
   .lockup { display: block; width: 420px; }
   h1 {
-    font-family: var(--vm-font-display); font-weight: 700;
+    font-family: var(--bo-font-display); font-weight: 700;
     font-size: 54px; line-height: 1.16; letter-spacing: -0.035em;
     margin: 78px 0 0; max-width: 1010px;
   }
   h1 em { font-style: normal; color: #a8e01f; }
   .strap {
-    font-family: var(--vm-font-mono); font-size: 21px; color: #9fb0a6;
+    font-family: var(--bo-font-mono); font-size: 21px; color: #9fb0a6;
     margin-top: 34px; letter-spacing: -0.01em;
   }
   .rule { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: #a8e01f; }
@@ -55,8 +55,8 @@
     </g>
   </svg>
   <div class="content">
-    <img class="lockup" src="/assets/logo-dark.svg" alt="Vidmesh">
-    <h1>Many gateways. One substrate.<br><em>Video that outlives its platforms.</em></h1>
+    <img class="lockup" src="/assets/logo-dark.svg" alt="Boloka">
+    <h1>Many gateways. One substrate.<br><em>Media that outlives its platforms.</em></h1>
     <p class="strap">signed records &middot; content-addressed blobs &middot; no token &middot; no servers of record</p>
   </div>
   <div class="rule"></div>

@@ -57,7 +57,7 @@ vi.mock("../src/api.js", () => ({
   getComplianceNotice: vi.fn(),
 }));
 
-vi.mock("@vidmesh/kernel", () => ({
+vi.mock("@boloka/kernel", () => ({
   verifyRecord: vi.fn().mockResolvedValue(undefined),
   deriveId: vi.fn().mockResolvedValue("id"),
 }));

@@ -7,7 +7,7 @@ import type { Config } from "tailwindcss";
  *
  * `brand` is signal lime — live, verified, actionable. `accent` is mesh
  * blue — identity, verification, the substrate. Crucially `slate` and
- * `red` are remapped too: components across this app and @vidmesh/ui reach
+ * `red` are remapped too: components across this app and @boloka/ui reach
  * for stock `slate-*` neutrals and `red-*` errors, so overriding them here
  * means the whole interface re-skins from the token layer with no
  * component edits — which is exactly the constraint spec 009 §7 puts on a
@@ -18,17 +18,17 @@ import type { Config } from "tailwindcss";
  * `prefers-color-scheme`) rather than relying purely on the media query.
  */
 const ramp = (name: string) => ({
-  50: `var(--vm-${name}-50)`,
-  100: `var(--vm-${name}-100)`,
-  200: `var(--vm-${name}-200)`,
-  300: `var(--vm-${name}-300)`,
-  400: `var(--vm-${name}-400)`,
-  500: `var(--vm-${name}-500)`,
-  600: `var(--vm-${name}-600)`,
-  700: `var(--vm-${name}-700)`,
-  800: `var(--vm-${name}-800)`,
-  900: `var(--vm-${name}-900)`,
-  950: `var(--vm-${name}-950)`,
+  50: `var(--bo-${name}-50)`,
+  100: `var(--bo-${name}-100)`,
+  200: `var(--bo-${name}-200)`,
+  300: `var(--bo-${name}-300)`,
+  400: `var(--bo-${name}-400)`,
+  500: `var(--bo-${name}-500)`,
+  600: `var(--bo-${name}-600)`,
+  700: `var(--bo-${name}-700)`,
+  800: `var(--bo-${name}-800)`,
+  900: `var(--bo-${name}-900)`,
+  950: `var(--bo-${name}-950)`,
 });
 
 export default {
@@ -36,49 +36,49 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{ts,tsx}",
-    // @vidmesh/ui ships .tsx sources with no build step; Tailwind's JIT
+    // @boloka/ui ships .tsx sources with no build step; Tailwind's JIT
     // scanner must see them directly or their classes get purged.
     "../../../packages/ui/src/**/*.{ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        brand: { ...ramp("brand"), DEFAULT: "var(--vm-brand-600)" },
-        accent: { ...ramp("accent"), DEFAULT: "var(--vm-accent-600)" },
+        brand: { ...ramp("brand"), DEFAULT: "var(--bo-brand-600)" },
+        accent: { ...ramp("accent"), DEFAULT: "var(--bo-accent-600)" },
         // neutrals: one paper-to-carbon ramp, used with `dark:` variants
         slate: ramp("neutral"),
         // errors and record state
         red: ramp("live"),
         // semantic shorthands for new code
         surface: {
-          DEFAULT: "var(--vm-surface)",
-          2: "var(--vm-surface-2)",
-          base: "var(--vm-bg)",
+          DEFAULT: "var(--bo-surface)",
+          2: "var(--bo-surface-2)",
+          base: "var(--bo-bg)",
         },
-        line: "var(--vm-border)",
-        "line-strong": "var(--vm-border-strong)",
-        ink: "var(--vm-fg)",
-        muted: "var(--vm-muted)",
-        faint: "var(--vm-faint)",
-        signal: "var(--vm-signal)",
-        verified: "var(--vm-verified)",
-        live: "var(--vm-live)",
+        line: "var(--bo-border)",
+        "line-strong": "var(--bo-border-strong)",
+        ink: "var(--bo-fg)",
+        muted: "var(--bo-muted)",
+        faint: "var(--bo-faint)",
+        signal: "var(--bo-signal)",
+        verified: "var(--bo-verified)",
+        live: "var(--bo-live)",
       },
       fontFamily: {
-        display: "var(--vm-font-display)",
-        sans: "var(--vm-font-sans)",
-        mono: "var(--vm-font-mono)",
+        display: "var(--bo-font-display)",
+        sans: "var(--bo-font-sans)",
+        mono: "var(--bo-font-mono)",
       },
       borderRadius: {
-        card: "var(--vm-radius)",
-        control: "var(--vm-radius-sm)",
+        card: "var(--bo-radius)",
+        control: "var(--bo-radius-sm)",
       },
       boxShadow: {
-        card: "var(--vm-shadow)",
-        elevated: "var(--vm-shadow-lg)",
+        card: "var(--bo-shadow)",
+        elevated: "var(--bo-shadow-lg)",
       },
       transitionTimingFunction: {
-        vm: "var(--vm-ease)",
+        vm: "var(--bo-ease)",
       },
     },
   },

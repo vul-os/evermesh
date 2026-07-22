@@ -5,8 +5,8 @@
  * gateways: an operator re-skins *accents*, never the interface itself.
  * These custom properties are that seam. Every colour in every component
  * resolves through them — including the neutrals and the error red, which
- * tailwind.config.ts remaps onto `--vm-neutral-*` / `--vm-live-*` so that
- * a stock `text-slate-500` is already a Vidmesh colour and no component
+ * tailwind.config.ts remaps onto `--bo-neutral-*` / `--bo-live-*` so that
+ * a stock `text-slate-500` is already a Boloka colour and no component
  * has to be edited to re-skin the app.
  *
  * The values are the reference brand, "signal on carbon", and they are
@@ -37,119 +37,127 @@
 
 :root {
   /* ---- signal (brand): live, verified, actionable ---- */
-  --vm-brand-50: #f4fce0;
-  --vm-brand-100: #e7f9be;
-  --vm-brand-200: #d2f387;
-  --vm-brand-300: #bcec4d;
-  --vm-brand-400: #a8e01f;
-  --vm-brand-500: #8fc212;
-  --vm-brand-600: #74a00c;
-  --vm-brand-700: #4f6e09;
-  --vm-brand-800: #3b5208;
-  --vm-brand-900: #2a3a07;
-  --vm-brand-950: #172004;
+  --bo-brand-50: #f4fce0;
+  --bo-brand-100: #e7f9be;
+  --bo-brand-200: #d2f387;
+  --bo-brand-300: #bcec4d;
+  --bo-brand-400: #a8e01f;
+  --bo-brand-500: #8fc212;
+  --bo-brand-600: #74a00c;
+  --bo-brand-700: #4f6e09;
+  --bo-brand-800: #3b5208;
+  --bo-brand-900: #2a3a07;
+  --bo-brand-950: #172004;
 
   /* ---- mesh (accent): identity, verification, substrate ---- */
-  --vm-accent-50: #e6f4fb;
-  --vm-accent-100: #c6e7f7;
-  --vm-accent-200: #93d2f0;
-  --vm-accent-300: #5cb8e6;
-  --vm-accent-400: #2e9bd8;
-  --vm-accent-500: #187eb8;
-  --vm-accent-600: #126595;
-  --vm-accent-700: #0f5075;
-  --vm-accent-800: #0d3d59;
-  --vm-accent-900: #0a2a3d;
-  --vm-accent-950: #061722;
+  --bo-accent-50: #e6f4fb;
+  --bo-accent-100: #c6e7f7;
+  --bo-accent-200: #93d2f0;
+  --bo-accent-300: #5cb8e6;
+  --bo-accent-400: #2e9bd8;
+  --bo-accent-500: #187eb8;
+  --bo-accent-600: #126595;
+  --bo-accent-700: #0f5075;
+  --bo-accent-800: #0d3d59;
+  --bo-accent-900: #0a2a3d;
+  --bo-accent-950: #061722;
 
   /* ---- neutrals: paper at one end, carbon at the other ----
      One ramp, not two themes: components pair `text-slate-600` with
      `dark:text-slate-300` and both must land on the right surface. */
-  --vm-neutral-50: #fafbf7;
-  --vm-neutral-100: #f0f2ec;
-  --vm-neutral-200: #e1e5dc;
-  --vm-neutral-300: #cbd1c6;
-  --vm-neutral-400: #9faa9f;
-  --vm-neutral-500: #5e6a62;
-  --vm-neutral-600: #4c554d;
-  --vm-neutral-700: #333b35;
-  --vm-neutral-800: #1e2620;
-  --vm-neutral-900: #121614;
-  --vm-neutral-950: #0a0c0b;
+  --bo-neutral-50: #fafbf7;
+  --bo-neutral-100: #f0f2ec;
+  --bo-neutral-200: #e1e5dc;
+  --bo-neutral-300: #cbd1c6;
+  --bo-neutral-400: #9faa9f;
+  --bo-neutral-500: #5e6a62;
+  --bo-neutral-600: #4c554d;
+  --bo-neutral-700: #333b35;
+  --bo-neutral-800: #1e2620;
+  --bo-neutral-900: #121614;
+  --bo-neutral-950: #0a0c0b;
 
   /* ---- live: record state and errors ---- */
-  --vm-live-50: #fdecea;
-  --vm-live-100: #fad8d3;
-  --vm-live-200: #f5b3aa;
-  --vm-live-300: #ff8d7e;
-  --vm-live-400: #ff6b5c;
-  --vm-live-500: #e23d2b;
-  --vm-live-600: #c42a1c;
-  --vm-live-700: #9e1f13;
-  --vm-live-800: #6e150d;
-  --vm-live-900: #420c07;
-  --vm-live-950: #260603;
+  --bo-live-50: #fdecea;
+  --bo-live-100: #fad8d3;
+  --bo-live-200: #f5b3aa;
+  --bo-live-300: #ff8d7e;
+  --bo-live-400: #ff6b5c;
+  --bo-live-500: #e23d2b;
+  --bo-live-600: #c42a1c;
+  --bo-live-700: #9e1f13;
+  --bo-live-800: #6e150d;
+  --bo-live-900: #420c07;
+  --bo-live-950: #260603;
 
   /* ---- surfaces + semantics (light) ---- */
-  --vm-bg: var(--vm-neutral-50);
-  --vm-surface: var(--vm-neutral-100);
-  --vm-surface-2: var(--vm-neutral-200);
-  --vm-fg: var(--vm-neutral-950);
-  --vm-muted: var(--vm-neutral-600);
-  --vm-faint: #6d7a70;
-  --vm-border: var(--vm-neutral-200);
-  --vm-border-strong: #b9c2b2;
-  --vm-link: var(--vm-brand-800);
-  --vm-link-hover: var(--vm-brand-700);
-  --vm-signal: var(--vm-brand-700);
-  --vm-verified: var(--vm-accent-600);
-  --vm-live: var(--vm-live-600);
-  --vm-focus-ring: var(--vm-accent-600);
-  --vm-on-signal: #10140f;
+  --bo-bg: var(--bo-neutral-50);
+  --bo-surface: var(--bo-neutral-100);
+  --bo-surface-2: var(--bo-neutral-200);
+  --bo-fg: var(--bo-neutral-950);
+  --bo-muted: var(--bo-neutral-600);
+  --bo-faint: #6d7a70;
+  --bo-border: var(--bo-neutral-200);
+  --bo-border-strong: #b9c2b2;
+  --bo-link: var(--bo-brand-800);
+  --bo-link-hover: var(--bo-brand-700);
+  --bo-signal: var(--bo-brand-700);
+  --bo-verified: var(--bo-accent-600);
+  --bo-live: var(--bo-live-600);
+  --bo-focus-ring: var(--bo-accent-600);
+  --bo-on-signal: #10140f;
 
   /* ---- shape + elevation (mirrors assets/tokens.css — the app was
      missing this half of the token layer, which is why it read flatter
-     than vidmesh.org: every card/input/button here was falling back to
+     than boloka.org: every card/input/button here was falling back to
      stock Tailwind rounded-md/border with no radius or shadow scale of
      its own). Two-stop shadows — a tight contact layer plus a soft
      ambient one — so surfaces read as resting material, not a flat
      rectangle with a border. ---- */
-  --vm-radius: 14px;
-  --vm-radius-sm: 8px;
-  --vm-radius-pill: 999px;
-  --vm-shadow: 0 1px 2px rgba(16, 20, 15, 0.06), 0 8px 24px -12px rgba(16, 20, 15, 0.18);
-  --vm-shadow-lg: 0 24px 60px -28px rgba(16, 20, 15, 0.4);
+  --bo-radius: 14px;
+  --bo-radius-sm: 8px;
+  --bo-radius-pill: 999px;
+  --bo-shadow: 0 1px 2px rgba(16, 20, 15, 0.06), 0 8px 24px -12px rgba(16, 20, 15, 0.18);
+  --bo-shadow-lg: 0 24px 60px -28px rgba(16, 20, 15, 0.4);
 
   /* ---- motion ---- */
-  --vm-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --vm-duration: 160ms;
+  --bo-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --bo-duration: 160ms;
 
   /* ---- type ---- */
-  --vm-font-display: "Syne", "Hanken Grotesk", -apple-system, BlinkMacSystemFont,
+  --bo-font-display: "Syne", "Hanken Grotesk", -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
-  --vm-font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
+  --bo-font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
-  --vm-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+  --bo-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
     Consolas, monospace;
 }
 
 :root.dark {
-  --vm-bg: var(--vm-neutral-950);
-  --vm-surface: var(--vm-neutral-900);
-  --vm-surface-2: var(--vm-neutral-800);
-  --vm-fg: #e9f0ea;
-  --vm-muted: var(--vm-neutral-400);
-  --vm-faint: #74857a;
-  --vm-border: var(--vm-neutral-700);
-  --vm-border-strong: #3a4741;
-  --vm-link: var(--vm-brand-300);
-  --vm-link-hover: var(--vm-brand-200);
-  --vm-signal: var(--vm-brand-400);
-  --vm-verified: var(--vm-accent-200);
-  --vm-live: var(--vm-live-400);
-  --vm-focus-ring: var(--vm-brand-300);
-  --vm-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
-  --vm-shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+  --bo-bg: var(--bo-neutral-950);
+  --bo-surface: var(--bo-neutral-900);
+  --bo-surface-2: var(--bo-neutral-800);
+  --bo-fg: #e9f0ea;
+  --bo-muted: var(--bo-neutral-400);
+  --bo-faint: #74857a;
+  --bo-border: var(--bo-neutral-700);
+  --bo-border-strong: #3a4741;
+  --bo-link: var(--bo-brand-300);
+  --bo-link-hover: var(--bo-brand-200);
+  --bo-signal: var(--bo-brand-400);
+  --bo-verified: var(--bo-accent-200);
+  --bo-live: var(--bo-live-400);
+  --bo-focus-ring: var(--bo-brand-300);
+  /* A drop shadow is a *dark* mark on a *lighter* surface — on a near-
+     black page it has nothing to contrast against, so cards floated on
+     shadow alone (the light-theme technique) read as flush with the
+     background. Dark-mode elevation instead needs a lightening: a thin
+     inset highlight along the top edge, the standard "raised glass edge"
+     read for dark UI, stacked with the same contact/ambient shadow so
+     the card still grounds itself on the page. */
+  --bo-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --bo-shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 html {
@@ -161,9 +169,9 @@ html {
 }
 
 body {
-  background: var(--vm-bg);
-  color: var(--vm-fg);
-  font-family: var(--vm-font-sans);
+  background: var(--bo-bg);
+  color: var(--bo-fg);
+  font-family: var(--bo-font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -172,7 +180,7 @@ body {
    it reads as decoration rather than content. */
 h1,
 h2 {
-  font-family: var(--vm-font-display);
+  font-family: var(--bo-font-display);
   letter-spacing: -0.03em;
 }
 
@@ -183,7 +191,7 @@ kbd,
 samp,
 pre,
 .vm-data {
-  font-family: var(--vm-font-mono);
+  font-family: var(--bo-font-mono);
 }
 
 /*
@@ -192,7 +200,7 @@ pre,
  * and need to see where they are.
  */
 :focus-visible {
-  outline: 3px solid var(--vm-focus-ring);
+  outline: 3px solid var(--bo-focus-ring);
   outline-offset: 2px;
   border-radius: 3px;
 }
@@ -220,8 +228,8 @@ pre,
   left: -9999px;
   top: 0;
   z-index: 100;
-  background: var(--vm-signal);
-  color: var(--vm-bg);
+  background: var(--bo-signal);
+  color: var(--bo-bg);
   padding: 10px 16px;
   font-weight: 600;
   border-radius: 0 0 6px 0;
@@ -240,55 +248,66 @@ pre,
  * of its own even after the token layer above gained one. These classes
  * are that system made concrete: one input, one card, one chip, one small
  * family of buttons, applied everywhere instead of re-derived per file.
+ *
+ * Wrapped in Tailwind's `components` layer (rather than left as plain
+ * trailing CSS) so these rules land *before* `@tailwind utilities` in the
+ * generated stylesheet: a one-off `pl-10`/`ml-auto` alongside `vm-field`/
+ * `vm-btn` on a single element must win over this shorthand, and with
+ * plain source-order CSS the later-in-file class (this one) was winning
+ * instead — e.g. `.vm-field`'s `padding: 0.5rem 0.75rem` shorthand was
+ * silently overriding the header search input's `pl-10`, pulling the
+ * placeholder text back under the search icon.
  */
 
+@layer components {
+
 .vm-card {
-  border-radius: var(--vm-radius);
-  border: 1px solid var(--vm-border);
-  background: var(--vm-surface);
-  box-shadow: var(--vm-shadow);
+  border-radius: var(--bo-radius);
+  border: 1px solid var(--bo-border);
+  background: var(--bo-surface);
+  box-shadow: var(--bo-shadow);
 }
 
 .vm-field {
   display: block;
   width: 100%;
-  border-radius: var(--vm-radius-sm);
-  border: 1px solid var(--vm-border-strong);
-  background: var(--vm-bg);
+  border-radius: var(--bo-radius-sm);
+  border: 1px solid var(--bo-border-strong);
+  background: var(--bo-bg);
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  color: var(--vm-fg);
+  color: var(--bo-fg);
   transition:
-    border-color var(--vm-duration) var(--vm-ease),
-    box-shadow var(--vm-duration) var(--vm-ease);
+    border-color var(--bo-duration) var(--bo-ease),
+    box-shadow var(--bo-duration) var(--bo-ease);
 }
 
 .vm-field::placeholder {
-  color: var(--vm-faint);
+  color: var(--bo-faint);
 }
 
 .vm-field:hover {
-  border-color: var(--vm-muted);
+  border-color: var(--bo-muted);
 }
 
 .vm-field:focus-visible {
   outline: none;
-  border-color: var(--vm-focus-ring);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vm-focus-ring) 25%, transparent);
+  border-color: var(--bo-focus-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bo-focus-ring) 25%, transparent);
 }
 
 .vm-label {
   display: block;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--vm-muted);
+  color: var(--bo-muted);
 }
 
 .vm-label > .vm-field,
 .vm-label > .vm-field-wrap {
   margin-top: 0.375rem;
   font-weight: 400;
-  color: var(--vm-fg);
+  color: var(--bo-fg);
 }
 
 .vm-btn {
@@ -296,18 +315,18 @@ pre,
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  border-radius: var(--vm-radius-sm);
+  border-radius: var(--bo-radius-sm);
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
   transition:
-    transform var(--vm-duration) var(--vm-ease),
-    box-shadow var(--vm-duration) var(--vm-ease),
-    border-color var(--vm-duration) var(--vm-ease),
-    background-color var(--vm-duration) var(--vm-ease),
-    opacity var(--vm-duration) var(--vm-ease);
+    transform var(--bo-duration) var(--bo-ease),
+    box-shadow var(--bo-duration) var(--bo-ease),
+    border-color var(--bo-duration) var(--bo-ease),
+    background-color var(--bo-duration) var(--bo-ease),
+    opacity var(--bo-duration) var(--bo-ease);
 }
 
 .vm-btn:active {
@@ -320,71 +339,71 @@ pre,
   transform: none;
 }
 
-/* --vm-bg is the correct label colour in both themes (measured in
+/* --bo-bg is the correct label colour in both themes (measured in
    assets/README.md): paper on the deep signal in light (5.2:1), carbon
-   on acid lime in dark (12.5:1). --vm-on-signal is calibrated for the
+   on acid lime in dark (12.5:1). --bo-on-signal is calibrated for the
    *bright* end of the ramp only — using it here on the darker "safe on
-   paper" signal shade under-contrasts, so button fills use --vm-bg. */
+   paper" signal shade under-contrasts, so button fills use --bo-bg. */
 .vm-btn-primary {
-  background: var(--vm-signal);
-  color: var(--vm-bg);
-  box-shadow: var(--vm-shadow);
+  background: var(--bo-signal);
+  color: var(--bo-bg);
+  box-shadow: var(--bo-shadow);
 }
 
 .vm-btn-primary:hover:not(:disabled) {
-  background: var(--vm-brand-600);
-  box-shadow: var(--vm-shadow-lg);
+  background: var(--bo-brand-600);
+  box-shadow: var(--bo-shadow-lg);
   transform: translateY(-1px);
 }
 
 :root.dark .vm-btn-primary:hover:not(:disabled) {
-  background: var(--vm-brand-300);
+  background: var(--bo-brand-300);
 }
 
 .vm-btn-accent {
-  background: var(--vm-verified);
-  color: var(--vm-bg);
-  box-shadow: var(--vm-shadow);
+  background: var(--bo-verified);
+  color: var(--bo-bg);
+  box-shadow: var(--bo-shadow);
 }
 
 .vm-btn-accent:hover:not(:disabled) {
-  box-shadow: var(--vm-shadow-lg);
+  box-shadow: var(--bo-shadow-lg);
   transform: translateY(-1px);
 }
 
 .vm-btn-secondary {
   background: transparent;
-  border-color: var(--vm-border-strong);
-  color: var(--vm-fg);
+  border-color: var(--bo-border-strong);
+  color: var(--bo-fg);
 }
 
 .vm-btn-secondary:hover:not(:disabled) {
-  border-color: var(--vm-signal);
-  color: var(--vm-signal);
+  border-color: var(--bo-signal);
+  color: var(--bo-signal);
 }
 
 .vm-btn-ghost {
   background: transparent;
   border-color: transparent;
-  color: var(--vm-muted);
+  color: var(--bo-muted);
   padding: 0.375rem 0.625rem;
 }
 
 .vm-btn-ghost:hover:not(:disabled) {
-  background: var(--vm-surface-2);
-  color: var(--vm-fg);
+  background: var(--bo-surface-2);
+  color: var(--bo-fg);
 }
 
 .vm-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  border-radius: var(--vm-radius-pill);
+  border-radius: var(--bo-radius-pill);
   padding: 0.2rem 0.65rem;
   font-size: 0.75rem;
   font-weight: 500;
-  background: var(--vm-surface-2);
-  color: var(--vm-muted);
+  background: var(--bo-surface-2);
+  color: var(--bo-muted);
 }
 
 /* Round icon-only control (theme toggle, close buttons, player transport)
@@ -396,21 +415,23 @@ pre,
   justify-content: center;
   height: 2.25rem;
   width: 2.25rem;
-  border-radius: var(--vm-radius-pill);
-  border: 1px solid var(--vm-border-strong);
-  color: var(--vm-fg);
+  border-radius: var(--bo-radius-pill);
+  border: 1px solid var(--bo-border-strong);
+  color: var(--bo-fg);
   background: transparent;
   transition:
-    background-color var(--vm-duration) var(--vm-ease),
-    border-color var(--vm-duration) var(--vm-ease),
-    color var(--vm-duration) var(--vm-ease);
+    background-color var(--bo-duration) var(--bo-ease),
+    border-color var(--bo-duration) var(--bo-ease),
+    color var(--bo-duration) var(--bo-ease);
 }
 
 .vm-icon-btn:hover {
-  border-color: var(--vm-signal);
-  color: var(--vm-signal);
-  background: var(--vm-surface-2);
+  border-color: var(--bo-signal);
+  color: var(--bo-signal);
+  background: var(--bo-surface-2);
 }
+
+} /* @layer components */
 
 @keyframes vm-fade-up {
   from {
@@ -424,7 +445,7 @@ pre,
 }
 
 .vm-fade-up {
-  animation: vm-fade-up 260ms var(--vm-ease) both;
+  animation: vm-fade-up 260ms var(--bo-ease) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vidmesh docs</title>
-<meta name="description" content="The Vidmesh protocol specification, the IETF draft, and the project's decision log — rendered in the browser from the same markdown that ships in the repository.">
-<link rel="canonical" href="https://vidmesh.org/docs.html">
+<title>Boloka docs</title>
+<meta name="description" content="The Boloka protocol specification, the IETF draft, and the project's decision log — rendered in the browser from the same markdown that ships in the repository.">
+<link rel="canonical" href="https://boloka.org/docs.html">
 <meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0C0B" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -18,19 +18,20 @@
 
 <header class="site-header">
   <div class="wrap header-inner">
-    <a class="brand" href="./" aria-label="Vidmesh home">
+    <a class="brand" href="./" aria-label="Boloka home">
       <picture>
         <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
-        <img src="assets/logo.svg" alt="Vidmesh" width="98" height="26">
+        <img src="assets/logo.svg" alt="Boloka" width="98" height="26">
       </picture>
     </a>
     <nav aria-label="Sections">
       <ul>
         <li><a href="./#survival">Survival test</a></li>
         <li><a href="./#how">How it works</a></li>
+        <li><a href="./#roles">Roles</a></li>
         <li><a href="./#status">Status</a></li>
         <li><a href="docs.html">Docs</a></li>
-        <li><a class="nav-cta" href="https://github.com/vul-os/vidmesh">GitHub</a></li>
+        <li><a class="nav-cta" href="https://github.com/vul-os/boloka">GitHub</a></li>
       </ul>
     </nav>
   </div>
@@ -83,7 +84,7 @@ const GROUPS = [
   {
     label: "Reference",
     docs: [
-      ["draft-vidmesh-protocol-00", "IETF draft"],
+      ["draft-boloka-protocol-00", "IETF draft"],
       ["changelog", "Spec changelog"],
     ],
   },
@@ -143,16 +144,107 @@ function setActive(slug) {
   }
 }
 
-async function load(slug) {
-  const doc = SLUGS.has(slug) ? slug : DEFAULT_SLUG;
+/**
+ * "Phase 2 specification: the cutover — NOT STARTED" ->
+ * "phase-2-specification-the-cutover--not-started".
+ *
+ * Several spec/decision docs hand-write anchors in GitHub's slug style
+ * (strip disallowed punctuation, turn each remaining space into its own
+ * hyphen, never collapse runs) to link to their own later headings —
+ * e.g. docs/DMTAP-CONVERGENCE.md's "Jump to" line. Matching that
+ * algorithm, rather than a simpler collapse-all-non-alnum one, is what
+ * keeps those already-written anchors from going dangling.
+ */
+function slugifyHeading(text, used) {
+  let base = text
+    .toLowerCase()
+    .replace(/[^\w\- ]+/g, "")
+    .trim()
+    .replace(/ /g, "-");
+  if (!base) base = "section";
+  let slug = base;
+  let n = 2;
+  while (used.has(slug)) slug = base + "-" + n++;
+  used.add(slug);
+  return slug;
+}
+
+/**
+ * marked does not assign heading ids, so cross-references and deep links
+ * have nothing to land on. Give every h1/h2/h3 in the freshly-rendered
+ * document a stable id (several of these files use more than one h1 as
+ * a top-level section, not just the title), then build an "on this
+ * page" table of contents from everything but the document's own title
+ * and drop it right after that title. Collapsed by default once a
+ * document has enough headings that an open list would dominate the
+ * page (the IETF draft and a couple of the longer spec files run past
+ * thirty).
+ */
+function buildToc() {
+  const used = new Set();
+  const all = [...content.querySelectorAll("h1, h2, h3")];
+  const title = content.querySelector("h1");
+  for (const h of all) h.id = slugifyHeading(h.textContent, used);
+
+  const headings = all.filter((h) => h !== title);
+  if (!headings.length) return;
+
+  const toc = document.createElement("details");
+  toc.className = "docs-toc";
+  toc.open = headings.length <= 8;
+  const summary = document.createElement("summary");
+  summary.textContent = "On this page (" + headings.length + ")";
+  toc.append(summary);
+
+  const list = document.createElement("ol");
+  for (const h of headings) {
+    const li = document.createElement("li");
+    if (h.tagName === "H3") li.className = "toc-sub";
+    const a = document.createElement("a");
+    a.href = "#" + h.id;
+    a.textContent = h.textContent;
+    li.append(a);
+    list.append(li);
+  }
+  toc.append(list);
+
+  if (title) title.after(toc);
+  else content.prepend(toc);
+}
+
+/** Wraps every table in its own scroll container so a wide spec table (or
+ * one packed with hex ids) scrolls in place instead of widening the page. */
+function wrapTables() {
+  for (const table of content.querySelectorAll("table")) {
+    const wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    table.replaceWith(wrap);
+    wrap.append(table);
+  }
+}
+
+/**
+ * draft-boloka-protocol-00.md opens with a pandoc YAML frontmatter block
+ * (title/author/date/abstract — consumed by `just spec-pdf`, not by this
+ * viewer). Left in, marked reads the closing `---` as a Setext heading
+ * underline for everything above it and renders the whole block as one
+ * heading. Strip it before parsing; nothing here needs that metadata,
+ * and the crumb + nav already carry the document's title.
+ */
+function stripFrontmatter(text) {
+  const m = /^---\r?\n[\s\S]*?\r?\n---[ \t]*\r?\n/.exec(text);
+  return m ? text.slice(m[0].length) : text;
+}
+
+async function load(doc) {
   setActive(doc);
   crumb.textContent = TITLES[doc];
-  document.title = TITLES[doc] + " — Vidmesh docs";
+  document.title = TITLES[doc] + " — Boloka docs";
   content.textContent = "Loading…";
   try {
     const res = await fetch("docs/" + doc + ".md", { cache: "no-cache" });
     if (!res.ok) throw new Error("HTTP " + res.status);
-    content.innerHTML = marked.parse(await res.text());
+    content.innerHTML = marked.parse(stripFrontmatter(await res.text()));
     for (const a of content.querySelectorAll("a[href]")) {
       const href = a.getAttribute("href");
       if (/^(https?:|mailto:|#)/i.test(href)) {
@@ -171,11 +263,13 @@ async function load(slug) {
       } else {
         // A relative link to something the site does not carry (a source
         // file, say): send it to the repository rather than 404.
-        a.setAttribute("href", "https://github.com/vul-os/vidmesh/blob/main/" + href.replace(/^\.\//, ""));
+        a.setAttribute("href", "https://github.com/vul-os/boloka/blob/main/" + href.replace(/^\.\//, ""));
         a.target = "_blank";
         a.rel = "noopener";
       }
     }
+    wrapTables();
+    buildToc();
     window.scrollTo({ top: 0 });
   } catch (err) {
     content.innerHTML = "";
@@ -186,12 +280,29 @@ async function load(slug) {
   }
 }
 
-function current() {
-  return (location.hash || "").replace(/^#/, "") || DEFAULT_SLUG;
+/**
+ * The hash is the route, but it also has to serve as the target for the
+ * per-document table of contents built above — two things one fragment
+ * cannot both be across a reload. So: a hash that names a document loads
+ * it; a hash that doesn't (a heading id from the TOC on the document
+ * already showing) just scrolls, leaving the loaded document alone.
+ */
+function route() {
+  const raw = (location.hash || "").replace(/^#/, "") || DEFAULT_SLUG;
+  if (SLUGS.has(raw)) {
+    load(raw);
+    return;
+  }
+  const target = document.getElementById(raw);
+  if (target) {
+    target.scrollIntoView({ block: "start" });
+    return;
+  }
+  load(DEFAULT_SLUG);
 }
 
-window.addEventListener("hashchange", () => load(current()));
-load(current());
+window.addEventListener("hashchange", route);
+route();
 </script>
 </body>
 </html>

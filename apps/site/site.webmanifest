@@ -1,7 +1,7 @@
 {
-  "name": "Vidmesh",
-  "short_name": "Vidmesh",
-  "description": "Many gateways. One substrate. Video that outlives its platforms.",
+  "name": "Boloka",
+  "short_name": "Boloka",
+  "description": "Many gateways. One substrate. Media that outlives its platforms.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0C0B",

@@ -1,10 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/vidmesh-kernel",
-    "crates/vidmesh-relay",
-    "crates/vidmesh-wasm",
-    "crates/vidmesh-node",
+    "crates/boloka-kernel",
+    "crates/boloka-relay",
+    "crates/boloka-wasm",
+    "crates/boloka-node",
     "tools/conformance",
 ]
 
@@ -12,11 +12,11 @@ members = [
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/vidmesh/vidmesh"
-authors = ["Vidmesh contributors"]
+repository = "https://github.com/vul-os/boloka"
+authors = ["Boloka contributors"]
 
 [workspace.dependencies]
-vidmesh-kernel = { path = "crates/vidmesh-kernel" }
+boloka-kernel = { path = "crates/boloka-kernel" }
 
 [profile.release]
 lto = true
