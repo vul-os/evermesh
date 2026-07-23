@@ -133,6 +133,17 @@ renditions (skipping any target taller than the source), signs a
 derivation statement per rendition (spec 004 §3.1, see below), and
 packages each rendition into fMP4 HLS segments.
 
+When ffprobe reports no video stream at all (spec 004 §2 / DMTAP
+§24.4.2: audio), the pipeline takes a parallel, simpler path instead:
+`original.width`/`height` are omitted from the manifest entirely (never
+written as `0`/`0` — that would claim a real, zero-pixel video track,
+not "no video track"), no thumbnail is extracted (there's no frame —
+`POST /api/upload`'s optional `coverArt` field is the only source of
+one), a single 128 kbps Opus rendition is transcoded, and no HLS
+packaging runs (`playback.hlsUrl` stays `null`; v1 audio playback is
+whole-file via `mp4Url`, same fallback path as the no-ffmpeg case
+above).
+
 ### HLS packaging is a serving-layer concern, not substrate state
 
 Spec 004's `Rendition` type (§3) names exactly **one blob per rendition**
@@ -234,8 +245,11 @@ manifests until it landed. **That assumption doesn't hold in this repo**:
 `packages/kernel-ts/src/index.ts` already exports `signDerivation()`, and
 cross-checking it against `crates/evermesh-wasm/src/lib.rs`'s
 `sign_derivation` confirms it builds exactly the spec 004 §3.1 statement
-(`canonical_cbor([original, rendition, codec, width, height, bitrate])`)
-and signs `"evermesh:derivation:v1" || BLAKE3-256(stmt)`. So this gateway
+(`canonical_cbor([original, rendition, codec, width_or_null,
+height_or_null, bitrate])` — always six elements, `width`/`height` CBOR
+`null` rather than omitted when the rendition is audio-only, spec 004
+§2 / DMTAP §24.4.2) and signs `"evermesh:derivation:v1" ||
+BLAKE3-256(stmt)`. So this gateway
 signs and publishes real renditions with real `derivation_sig`s
 (`upload.ts` → `custody.signDerivationFor()`, which is kept as one
 isolated function per the build plan's structural intent even though

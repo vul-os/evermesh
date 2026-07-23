@@ -15,10 +15,15 @@ import { promisify } from "node:util";
 const execFileAsync = promisify(execFile);
 
 export interface ProbeResult {
+  /** The video stream's codec when `hasVideo`; otherwise the audio stream's. */
   codec: string;
+  /** 0 when `!hasVideo` — an audio file carries no pixel dimensions. */
   width: number;
   height: number;
   durationMs: number;
+  /** Whether ffprobe found a video stream at all (spec 004 §2, DMTAP §24.4.2):
+   *  false means this file is audio-only. */
+  hasVideo: boolean;
 }
 
 export interface RenditionTarget {
@@ -30,6 +35,15 @@ export const RENDITION_TARGETS: RenditionTarget[] = [
   { name: "720p", height: 720 },
   { name: "480p", height: 480 },
 ];
+
+export interface AudioRenditionTarget {
+  name: string;
+  bitrateKbps: number;
+}
+
+/** v1 audio ladder: a single 128 kbps Opus rendition (build-plan "keep the
+ *  matrix small"; more tiers are a follow-up, not a v1 requirement). */
+export const RENDITION_TARGETS_AUDIO: AudioRenditionTarget[] = [{ name: "128k", bitrateKbps: 128 }];
 
 /**
  * Derive the ffprobe path alongside ffmpeg if not configured explicitly:
@@ -46,27 +60,36 @@ export function defaultFfprobePath(ffmpegPath: string, configured?: string): str
   return join(dir, probeBase);
 }
 
+/**
+ * Probes every stream (not just `v:0`) so `hasVideo` reflects whether a
+ * video stream exists at all, rather than assuming one. Audio-only files
+ * (mp3, flac, opus, …) report no video stream; `codec`/`width`/`height`
+ * fall back to the first audio stream / zero accordingly, and the upload
+ * pipeline (upload.ts) uses `hasVideo` to omit `width`/`height` from the
+ * manifest entirely, per spec 004 §2's both-present-or-absent rule.
+ */
 export async function probe(ffprobePath: string, filePath: string): Promise<ProbeResult> {
   const { stdout } = await execFileAsync(ffprobePath, [
     "-v",
     "error",
-    "-select_streams",
-    "v:0",
     "-show_entries",
-    "stream=codec_name,width,height:format=duration",
+    "stream=codec_name,codec_type,width,height:format=duration",
     "-of",
     "json",
     filePath,
   ]);
   const parsed = JSON.parse(stdout) as {
-    streams?: { codec_name?: string; width?: number; height?: number }[];
+    streams?: { codec_name?: string; codec_type?: string; width?: number; height?: number }[];
     format?: { duration?: string };
   };
-  const stream = parsed.streams?.[0];
+  const streams = parsed.streams ?? [];
+  const videoStream = streams.find((s) => s.codec_type === "video");
+  const audioStream = streams.find((s) => s.codec_type === "audio");
   return {
-    codec: stream?.codec_name ?? "unknown",
-    width: stream?.width ?? 0,
-    height: stream?.height ?? 0,
+    codec: (videoStream ?? audioStream)?.codec_name ?? "unknown",
+    width: videoStream?.width ?? 0,
+    height: videoStream?.height ?? 0,
+    hasVideo: Boolean(videoStream),
     durationMs: Math.round(parseFloat(parsed.format?.duration ?? "0") * 1000),
   };
 }
@@ -101,6 +124,44 @@ export async function transcodeRendition(
   return { ...result, bitrate };
 }
 
+/**
+ * Transcode to a single-bitrate Opus rendition; returns the probed result.
+ * No `-vf scale` here (there is no video track to scale) and no HLS
+ * packaging call in the upload pipeline for audio — v1 audio playback is
+ * whole-file (`<audio src>`), not segmented (see README "HLS packaging").
+ */
+export async function transcodeAudioRendition(
+  ffmpegPath: string,
+  ffprobePath: string,
+  srcPath: string,
+  outPath: string,
+  bitrateKbps: number,
+): Promise<ProbeResult & { bitrate: number }> {
+  mkdirSync(dirname(outPath), { recursive: true });
+  await execFileAsync(ffmpegPath, [
+    "-y",
+    "-i",
+    srcPath,
+    "-vn",
+    "-c:a",
+    "libopus",
+    "-b:a",
+    `${bitrateKbps}k`,
+    outPath,
+  ]);
+  const result = await probe(ffprobePath, outPath);
+  const sizeBytes = readFileSync(outPath).length;
+  const bitrate =
+    result.durationMs > 0 ? Math.round((sizeBytes * 8) / (result.durationMs / 1000)) : bitrateKbps * 1000;
+  return { ...result, bitrate };
+}
+
+/**
+ * A single representative frame as a thumbnail. Only ever called for
+ * video (`ProbeResult.hasVideo`) — the upload pipeline substitutes an
+ * optional user-supplied cover-art image for audio instead (upload.ts),
+ * since there is no frame to extract from an audio-only file.
+ */
 export async function generateThumbnail(ffmpegPath: string, srcPath: string, outPath: string): Promise<void> {
   mkdirSync(dirname(outPath), { recursive: true });
   await execFileAsync(ffmpegPath, [

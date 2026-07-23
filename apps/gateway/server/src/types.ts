@@ -10,11 +10,22 @@ export interface AuthorRef {
   avatarUrl?: string;
 }
 
+export type MediaKind = "video" | "audio";
+
 export interface VideoSummary {
   id: string;
   title: string;
   author: AuthorRef;
   thumbnailUrl: string | null;
+  /** video: both `original.width`/`height` present; audio: both absent
+   *  (spec 004 §2, DMTAP §24.4.2) — derived at index time, not restated
+   *  per row from `body_json`. */
+  mediaKind: MediaKind;
+  /** Cover art for an audio manifest — currently the same blob as
+   *  `thumbnailUrl` (a user-supplied image, or absent), exposed under its
+   *  own name so audio-facing UI doesn't have to know it's reusing the
+   *  video thumbnail slot. */
+  coverArtUrl?: string;
   durationMs: number;
   createdAt: number;
   channelId?: string;
@@ -83,6 +94,21 @@ export interface ReceiptView {
   payee: string;
   message?: string;
   proof?: string;
+}
+
+export interface PlaylistView {
+  id: string;
+  title: string;
+  description: string;
+  author: AuthorRef;
+  createdAt: number;
+  /** Total entries the playlist record lists, including any this gateway
+   *  can't currently resolve (retracted/denylisted/unknown manifest) —
+   *  `entries.length` may be smaller. */
+  entryCount: number;
+  /** Resolved manifests, in the playlist's order; unresolvable entries are
+   *  silently omitted rather than breaking the whole list. */
+  entries: VideoSummary[];
 }
 
 export interface Channel {

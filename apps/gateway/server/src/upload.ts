@@ -18,7 +18,17 @@ import type { CsamMatcher } from "./csam.ts";
 import type { CustodyService } from "./custody.ts";
 import type { RelayManager } from "./relay.ts";
 import { blobPath, commitBlob, recordBlob, markBlobChecked, toWebStream } from "./blobstore.ts";
-import { probe, defaultFfprobePath, generateThumbnail, transcodeRendition, packageHls, RENDITION_TARGETS } from "./transcode.ts";
+import {
+  probe,
+  defaultFfprobePath,
+  generateThumbnail,
+  transcodeRendition,
+  transcodeAudioRendition,
+  packageHls,
+  RENDITION_TARGETS,
+  RENDITION_TARGETS_AUDIO,
+  type ProbeResult,
+} from "./transcode.ts";
 import { processRecord, type IngestDeps } from "./ingest.ts";
 
 function hexField(hex: string): string {
@@ -122,6 +132,14 @@ interface PendingRendition {
   segments: { blobId: string; durationMs: number; isInit: boolean }[];
 }
 
+/** An optional cover-art image temp file (API.md's `coverArt` multipart
+ *  field) used as an audio upload's thumbnail, in place of the
+ *  video-frame extraction there's no frame to take. */
+export interface CoverArtInput {
+  path: string;
+  mime: string | null;
+}
+
 /** Runs the full pipeline; never throws — failures are recorded on the row. */
 export async function runUploadPipeline(
   deps: UploadDeps,
@@ -129,14 +147,22 @@ export async function runUploadPipeline(
   userId: number,
   tempPath: string,
   fields: UploadFormFields,
+  coverArt?: CoverArtInput,
 ): Promise<void> {
   try {
-    await runPipelineInner(deps, uploadId, userId, tempPath, fields);
+    await runPipelineInner(deps, uploadId, userId, tempPath, fields, coverArt);
   } catch (err) {
     updateUpload(deps.db, uploadId, { status: "failed", error: (err as Error).message });
     if (existsSync(tempPath)) {
       try {
         unlinkSync(tempPath);
+      } catch {
+        /* best-effort cleanup */
+      }
+    }
+    if (coverArt && existsSync(coverArt.path)) {
+      try {
+        unlinkSync(coverArt.path);
       } catch {
         /* best-effort cleanup */
       }
@@ -150,6 +176,7 @@ async function runPipelineInner(
   userId: number,
   tempPath: string,
   fields: UploadFormFields,
+  coverArt?: CoverArtInput,
 ): Promise<void> {
   const size = statSync(tempPath).size;
   if (size > deps.config.uploadMaxBytes) {
@@ -166,7 +193,13 @@ async function runPipelineInner(
   const original = await hashAndStore(deps.db, deps.config.blobDir, tempPath, null);
   updateUpload(deps.db, uploadId, { progress: 25 });
 
-  let probed = { codec: "unknown", width: 0, height: 0, durationMs: 0 };
+  // Default when there's no ffprobe to ask: preserves the pre-audio
+  // fallback behavior (an unprobeable file still publishes as a
+  // whole-file-only "video" manifest, matching the historical width:0/
+  // height:0 shape) — this default is deliberately unrelated to the
+  // `!hasVideo` fix below, which only fires once ffprobe has positively
+  // identified a file as carrying no video stream.
+  let probed: ProbeResult = { codec: "unknown", width: 0, height: 0, durationMs: 0, hasVideo: true };
   const ffmpegPath = deps.config.ffmpegPath;
   const ffprobePath = ffmpegPath ? defaultFfprobePath(ffmpegPath, deps.config.ffprobePath) : undefined;
   if (ffprobePath) {
@@ -183,17 +216,29 @@ async function runPipelineInner(
     size: original.size,
     codec: probed.codec,
     duration: probed.durationMs,
-    width: probed.width,
-    height: probed.height,
   };
+  // spec 004 §2: width/height are both-present-or-both-absent. Previously
+  // this always wrote width/height (0/0 for an audio file with no video
+  // stream), which is a bogus zero-pixel *video* claim, not "no video
+  // track" — omit the pair entirely when ffprobe found no video stream.
+  if (probed.hasVideo) {
+    originalBody.width = probed.width;
+    originalBody.height = probed.height;
+  }
   if (original.chunkRoot) originalBody.chunk_root = hexField(original.chunkRoot);
 
   let thumbnailBlobId: string | undefined;
   const renditionsBody: Record<string, unknown>[] = [];
   const pendingHls: PendingRendition[] = [];
 
-  if (ffmpegPath && ffprobePath) {
-    thumbnailBlobId = await tryGenerateThumbnail(deps, uploadId, ffmpegPath, original.path);
+  if (coverArt) {
+    thumbnailBlobId = await tryStoreCoverArt(deps, uploadId, coverArt.path, coverArt.mime);
+  }
+
+  if (ffmpegPath && ffprobePath && probed.hasVideo) {
+    if (!thumbnailBlobId) {
+      thumbnailBlobId = await tryGenerateThumbnail(deps, uploadId, ffmpegPath, original.path);
+    }
     updateUpload(deps.db, uploadId, { progress: 50 });
 
     let step = 0;
@@ -250,6 +295,49 @@ async function runPipelineInner(
         deps.log(`rendition ${target.name} failed, skipping: ${(err as Error).message}`);
       }
       updateUpload(deps.db, uploadId, { progress: 50 + step * 10 });
+    }
+  } else if (ffmpegPath && ffprobePath) {
+    // !probed.hasVideo: audio path. No thumbnail extraction (there is no
+    // frame — coverArtPath above is the only source of cover art) and no
+    // HLS packaging (v1 audio playback is whole-file, per transcodeAudioRendition's
+    // doc comment).
+    updateUpload(deps.db, uploadId, { progress: 50 });
+
+    let step = 0;
+    for (const target of RENDITION_TARGETS_AUDIO) {
+      step++;
+      try {
+        const outPath = join(deps.config.blobDir, "tmp", `${uploadId}-${target.name}.opus`);
+        const transcoded = await transcodeAudioRendition(ffmpegPath, ffprobePath, original.path, outPath, target.bitrateKbps);
+        if (!(await checkCsam(deps, outPath, `upload:${uploadId}:${target.name}`))) {
+          unlinkSync(outPath);
+          continue;
+        }
+        const stored = await hashAndStore(deps.db, deps.config.blobDir, outPath, "audio/opus");
+
+        const derivation = await deps.custody.signDerivationFor(userId, {
+          originalBlobId: original.id,
+          renditionBlobId: stored.id,
+          codec: transcoded.codec || "opus",
+          bitrate: transcoded.bitrate,
+          // width/height omitted: both-absent is the audio-only signal
+          // (spec 004 §2) the kernel signs as CBOR null, never 0.
+        });
+
+        renditionsBody.push({
+          blob: hexField(stored.id),
+          size: stored.size,
+          ...(stored.chunkRoot ? { chunk_root: hexField(stored.chunkRoot) } : {}),
+          codec: transcoded.codec || "opus",
+          duration: transcoded.durationMs,
+          bitrate: transcoded.bitrate,
+          produced_by: [hexField(derivation.identityId), hexField(derivation.publicKeyHex)],
+          derivation_sig: hexField(derivation.signatureHex),
+        });
+      } catch (err) {
+        deps.log(`audio rendition ${target.name} failed, skipping: ${(err as Error).message}`);
+      }
+      updateUpload(deps.db, uploadId, { progress: 50 + step * 30 });
     }
   }
 
@@ -318,6 +406,32 @@ async function tryGenerateThumbnail(
     return stored.id;
   } catch (err) {
     deps.log(`thumbnail generation failed, continuing without one: ${(err as Error).message}`);
+    return undefined;
+  }
+}
+
+/**
+ * Store a user-supplied cover-art image (API.md's optional `coverArt`
+ * multipart field) as the manifest's `thumbnail` blob — the audio
+ * equivalent of `tryGenerateThumbnail`'s video-frame extraction, since
+ * there is no frame to take from an audio-only file. Runs the same CSAM
+ * gate as every other blob before it's hashed and stored.
+ */
+async function tryStoreCoverArt(
+  deps: UploadDeps,
+  uploadId: string,
+  coverArtPath: string,
+  mime: string | null = "image/jpeg",
+): Promise<string | undefined> {
+  try {
+    if (!(await checkCsam(deps, coverArtPath, `upload:${uploadId}:cover`))) {
+      unlinkSync(coverArtPath);
+      return undefined;
+    }
+    const stored = await hashAndStore(deps.db, deps.config.blobDir, coverArtPath, mime);
+    return stored.id;
+  } catch (err) {
+    deps.log(`cover art storage failed, continuing without one: ${(err as Error).message}`);
     return undefined;
   }
 }

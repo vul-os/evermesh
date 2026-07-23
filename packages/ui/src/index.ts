@@ -23,6 +23,18 @@ export {
 } from "./player/playerLogic.js";
 export type { PlayerAction, PlayerState, SponsorSegment } from "./player/playerLogic.js";
 
+export { TransportBar } from "./player/TransportBar.js";
+export type { TransportBarProps, TransportBarSponsorMark } from "./player/TransportBar.js";
+
+export { AudioPlayer } from "./player/AudioPlayer.js";
+export type { AudioPlayerProps } from "./player/AudioPlayer.js";
+
+export { useQueue, QueueProvider, useQueuePlayback } from "./player/useQueue.js";
+export type { QueueApi, QueueTrack, RepeatMode } from "./player/useQueue.js";
+
+export { NowPlayingBar } from "./player/NowPlayingBar.js";
+export type { NowPlayingBarProps } from "./player/NowPlayingBar.js";
+
 export { VerifiedBadge } from "./VerifiedBadge.js";
 export type { VerifiedState, VerifiedBadgeProps } from "./VerifiedBadge.js";
 
@@ -52,5 +64,11 @@ export {
   SearchIcon,
   CaptionsIcon,
   UploadCloudIcon,
+  SkipNextIcon,
+  SkipPrevIcon,
+  QueueIcon,
+  MusicNoteIcon,
+  ShuffleIcon,
+  RepeatIcon,
 } from "./Icon.js";
 export type { IconProps } from "./Icon.js";

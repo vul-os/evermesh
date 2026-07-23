@@ -15,7 +15,7 @@ import { z } from "zod";
 import type { AppDeps } from "../app-deps.ts";
 import { ApiError, invalid, notFound } from "../errors.ts";
 import { requireUserId } from "../session.ts";
-import { createUploadRow, getUploadRow, runUploadPipeline, type UploadFormFields } from "../upload.ts";
+import { createUploadRow, getUploadRow, runUploadPipeline, type CoverArtInput, type UploadFormFields } from "../upload.ts";
 
 const FieldsSchema = z.object({
   title: z.string().min(1).max(512),
@@ -35,12 +35,27 @@ export function registerUploadRoutes(app: FastifyInstance, deps: AppDeps): void 
     const tmpDir = join(config.blobDir, "tmp");
     await mkdir(tmpDir, { recursive: true });
     const tempPath = join(tmpDir, randomUUID());
+    let coverArt: CoverArtInput | undefined;
 
     const rawFields: Record<string, string> = {};
     let sawFile = false;
 
     for await (const part of request.parts()) {
       if (part.type === "file") {
+        // Optional cover-art image (API.md), used as an audio upload's
+        // thumbnail in place of the video-frame extraction there's no
+        // frame to take from — a separate multipart field, not the main
+        // `file` part.
+        if (part.fieldname === "coverArt") {
+          const coverArtPath = join(tmpDir, `${randomUUID()}-cover`);
+          try {
+            await pipeline(part.file, createWriteStream(coverArtPath));
+          } catch (err) {
+            throw new ApiError("upload_failed", `failed to receive cover art: ${(err as Error).message}`);
+          }
+          coverArt = { path: coverArtPath, mime: part.mimetype ?? null };
+          continue;
+        }
         sawFile = true;
         try {
           await pipeline(part.file, createWriteStream(tempPath));
@@ -73,6 +88,7 @@ export function registerUploadRoutes(app: FastifyInstance, deps: AppDeps): void 
       userId,
       tempPath,
       fields,
+      coverArt,
     );
     return { uploadId };
   });

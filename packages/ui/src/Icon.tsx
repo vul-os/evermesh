@@ -129,6 +129,60 @@ export function CaptionsIcon({ size = 20, ...props }: IconProps): JSX.Element {
   );
 }
 
+export function SkipNextIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M5.5 5v10l7-5-7-5Z" fill="currentColor" stroke="none" />
+      <path d="M14 5v10" />
+    </svg>
+  );
+}
+
+export function SkipPrevIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M14.5 5v10l-7-5 7-5Z" fill="currentColor" stroke="none" />
+      <path d="M6 5v10" />
+    </svg>
+  );
+}
+
+export function QueueIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M3.5 5.5h9M3.5 10h9M3.5 14.5h5.5" />
+      <path d="M14 8.5v6.5l3-2-3-4.5Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function MusicNoteIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <circle cx="6" cy="15" r="2.2" />
+      <circle cx="13.5" cy="13" r="2.2" />
+      <path d="M8.2 15V5.8L15.7 4v9" />
+    </svg>
+  );
+}
+
+export function ShuffleIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M3.5 6h2.7l8.8 8H17.5M3.5 14h2.7l2.6-2.4M13 6h4.5v0M14.6 4.4 17.5 6l-2.9 1.6M14.6 15.6 17.5 14l-2.9-1.6" />
+    </svg>
+  );
+}
+
+export function RepeatIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M4.5 8V6.5a2 2 0 0 1 2-2h9M15.5 12v1.5a2 2 0 0 1-2 2h-9" />
+      <path d="M13 2.5 15.5 4.5 13 6.5M7 17.5 4.5 15.5 7 13.5" />
+    </svg>
+  );
+}
+
 export function UploadCloudIcon({ size = 20, ...props }: IconProps): JSX.Element {
   return (
     <svg {...base(size, props)}>

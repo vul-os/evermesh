@@ -41,6 +41,18 @@ function firstRecordRef(refs: Ref[], index = 0): string | null {
 // manifest (16)
 // ---------------------------------------------------------------------------
 
+/**
+ * A manifest's `original.width`/`height` presence is the only media-kind
+ * signal (spec 004 §2, DMTAP §24.4.2): both present means video, both
+ * absent means audio-only. The kernel already rejects exactly-one-present
+ * as malformed before a record ever reaches indexing, so by the time we're
+ * here it's a plain presence check — no separate discriminator to trust or
+ * distrust.
+ */
+function mediaKindOf(original: Record<string, unknown>): "video" | "audio" {
+  return original.width !== undefined && original.width !== null ? "video" : "audio";
+}
+
 export function indexManifest(
   db: Db,
   recordId: string,
@@ -52,16 +64,20 @@ export function indexManifest(
 ): void {
   const original = bodyMap(body.original);
   const channelId = firstRecordRef(refs);
+  const mediaKind = mediaKindOf(original);
   db.prepare(
     `INSERT INTO videos (manifest_id, author, title, description, tags_json, language,
-       duration_ms, thumbnail_blob, channel_id, license, created_at, received_at, body_json, retracted)
+       duration_ms, thumbnail_blob, channel_id, license, created_at, received_at, body_json, retracted,
+       width, height, media_kind)
      VALUES (@id, @author, @title, @description, @tags, @language,
-       @duration, @thumb, @channel, @license, @createdAt, @receivedAt, @bodyJson, 0)
+       @duration, @thumb, @channel, @license, @createdAt, @receivedAt, @bodyJson, 0,
+       @width, @height, @mediaKind)
      ON CONFLICT(manifest_id) DO UPDATE SET
        author=excluded.author, title=excluded.title, description=excluded.description,
        tags_json=excluded.tags_json, language=excluded.language, duration_ms=excluded.duration_ms,
        thumbnail_blob=excluded.thumbnail_blob, channel_id=excluded.channel_id, license=excluded.license,
-       body_json=excluded.body_json, retracted=0`,
+       body_json=excluded.body_json, retracted=0, width=excluded.width, height=excluded.height,
+       media_kind=excluded.media_kind`,
   ).run({
     id: recordId,
     author: authorId,
@@ -76,6 +92,9 @@ export function indexManifest(
     createdAt,
     receivedAt,
     bodyJson: JSON.stringify(body),
+    width: mediaKind === "video" ? num(original.width) : null,
+    height: mediaKind === "video" ? num(original.height) : null,
+    mediaKind,
   });
 }
 
@@ -167,6 +186,39 @@ export function indexFollow(
      VALUES (@id, @author, @target, @createdAt, @receivedAt, 0)
      ON CONFLICT(record_id) DO UPDATE SET retracted=0`,
   ).run({ id: recordId, author: authorId, target, createdAt, receivedAt });
+}
+
+// ---------------------------------------------------------------------------
+// playlist (35) — refs MUST be empty (spec 003 §5.4); entries live in the
+// body precisely so that reordering is an ordinary `supersede` with a
+// replacement body (registered in SUPERSEDE_HANDLERS below), the same as
+// `manifest`/`comment`/`channel`.
+// ---------------------------------------------------------------------------
+
+export function indexPlaylist(
+  db: Db,
+  recordId: string,
+  authorId: string,
+  _refs: Ref[],
+  body: Record<string, unknown>,
+  createdAt: number,
+  receivedAt: number,
+): void {
+  const entries = strArray(body.entries).map(unhex);
+  db.prepare(
+    `INSERT INTO playlists (record_id, author, title, description, entries_json, created_at, received_at, retracted)
+     VALUES (@id, @author, @title, @description, @entries, @createdAt, @receivedAt, 0)
+     ON CONFLICT(record_id) DO UPDATE SET
+       title=excluded.title, description=excluded.description, entries_json=excluded.entries_json, retracted=0`,
+  ).run({
+    id: recordId,
+    author: authorId,
+    title: str(body.title, "untitled playlist"),
+    description: str(body.description),
+    entries: JSON.stringify(entries),
+    createdAt,
+    receivedAt,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -343,6 +395,7 @@ const RETRACTABLE: Record<number, { table: string; keyColumn: string }> = {
   16: { table: "videos", keyColumn: "manifest_id" },
   32: { table: "comments", keyColumn: "record_id" },
   34: { table: "follows", keyColumn: "record_id" },
+  35: { table: "playlists", keyColumn: "record_id" },
   36: { table: "channels", keyColumn: "record_id" },
   48: { table: "claims", keyColumn: "record_id" },
   49: { table: "claims", keyColumn: "record_id" },
@@ -379,6 +432,7 @@ export const SUPERSEDE_HANDLERS: Record<number, IndexFn> = {
   16: indexManifest,
   32: (db, id, author, refs, body, c, r) => void indexComment(db, id, author, refs, body, c, r),
   34: indexFollow,
+  35: indexPlaylist,
   36: indexChannel,
   2: indexProfile,
   48: (db, id, author, refs, body, c, r) => indexClaim(db, id, 48, author, refs, body, c, r),

@@ -14,10 +14,13 @@ import type {
   ComplianceAck,
   ComplianceCounterInput,
   ComplianceNoticeInput,
+  CreatePlaylistInput,
   ExportResponse,
   InfoResponse,
+  MediaKind,
   MeResponse,
   Page,
+  PlaylistView,
   PolicyPageData,
   RawRecord,
   ReceiptView,
@@ -85,7 +88,9 @@ function query(params: Record<string, string | number | undefined>): string {
 
 // ---------- Public read API ----------
 
-export function getVideos(params: { limit?: number; cursor?: string; channel?: string; author?: string } = {}): Promise<Page<VideoSummary>> {
+export function getVideos(
+  params: { limit?: number; cursor?: string; channel?: string; author?: string; mediaKind?: MediaKind } = {},
+): Promise<Page<VideoSummary>> {
   return request(`/api/videos${query(params)}`);
 }
 
@@ -168,6 +173,7 @@ export function updateProfile(fields: { name: string; about?: string; avatarBlob
 export function upload(file: File, fields: UploadFields): Promise<UploadStarted> {
   const form = new FormData();
   form.set("file", file);
+  if (fields.coverArt) form.set("coverArt", fields.coverArt);
   form.set("title", fields.title);
   if (fields.description) form.set("description", fields.description);
   if (fields.tags?.length) form.set("tags", fields.tags.join(","));
@@ -210,4 +216,14 @@ export function postComplianceCounter(input: ComplianceCounterInput): Promise<Co
 
 export function getComplianceNotice(id: string): Promise<RawRecord> {
   return request(`/api/compliance/notices/${encodeURIComponent(id)}`);
+}
+
+// ---------- Playlists ----------
+
+export function getPlaylist(recordId: string): Promise<PlaylistView> {
+  return request(`/api/playlists/${encodeURIComponent(recordId)}`);
+}
+
+export function createPlaylist(input: CreatePlaylistInput): Promise<PlaylistView> {
+  return request("/api/playlists", { method: "POST", body: JSON.stringify(input) });
 }

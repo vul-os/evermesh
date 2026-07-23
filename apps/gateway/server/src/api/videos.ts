@@ -23,6 +23,7 @@ const ListQuerySchema = z.object({
   cursor: z.string().optional(),
   channel: z.string().optional(),
   author: z.string().optional(),
+  mediaKind: z.enum(["video", "audio"]).optional(),
 });
 
 export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
@@ -31,7 +32,7 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
   app.get("/api/videos", async (request) => {
     const query = ListQuerySchema.safeParse(request.query);
     if (!query.success) throw invalid(query.error.message);
-    const { limit, cursor, channel, author } = query.data;
+    const { limit, cursor, channel, author, mediaKind } = query.data;
     const since = decodeCursor(cursor);
 
     const conditions = ["v.retracted = 0", "NOT EXISTS (SELECT 1 FROM policy_denylist pd WHERE pd.scope = 'record' AND pd.value = v.manifest_id)"];
@@ -43,6 +44,10 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
     if (author) {
       conditions.push("v.author = ?");
       params.push(author);
+    }
+    if (mediaKind) {
+      conditions.push("v.media_kind = ?");
+      params.push(mediaKind);
     }
     if (since !== undefined) {
       conditions.push("v.received_at < ?");

@@ -24,6 +24,7 @@ import {
   indexComment,
   indexReaction,
   indexFollow,
+  indexPlaylist,
   indexChannel,
   indexProfile,
   indexClaim,
@@ -41,6 +42,7 @@ const KIND_RETRACT = 18;
 const KIND_COMMENT = 32;
 const KIND_REACTION = 33;
 const KIND_FOLLOW = 34;
+const KIND_PLAYLIST = 35;
 const KIND_CHANNEL = 36;
 const KIND_CLAIM_AUTHOR = 48;
 const KIND_CLAIM_LICENSE = 49;
@@ -245,6 +247,9 @@ export async function processRecord(deps: IngestDeps, bytes: Uint8Array): Promis
     case KIND_FOLLOW:
       indexFollow(deps.db, recordId, authorId, refs, body, createdAt, receivedAt);
       break;
+    case KIND_PLAYLIST:
+      indexPlaylist(deps.db, recordId, authorId, refs, body, createdAt, receivedAt);
+      break;
     case KIND_CHANNEL:
       indexChannel(deps.db, recordId, authorId, refs, body, createdAt, receivedAt);
       break;
@@ -265,7 +270,7 @@ export async function processRecord(deps: IngestDeps, bytes: Uint8Array): Promis
     default:
       // Envelope+kind valid, policy allows it, but no product surface
       // consumes this kind (e.g. rotation, delegate, mirror, similarity,
-      // endorse.gateway, attest, anchor, keygrant, playlist, live.*).
+      // endorse.gateway, attest, anchor, keygrant, live.*).
       // Still stored generically so /api/records/{id} can serve it.
       break;
   }

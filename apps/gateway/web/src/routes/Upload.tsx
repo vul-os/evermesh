@@ -32,6 +32,7 @@ export function Upload(): JSX.Element {
 
 function UploadForm(): JSX.Element {
   const [file, setFile] = useState<File | null>(null);
+  const [coverArt, setCoverArt] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,6 +44,12 @@ function UploadForm(): JSX.Element {
   const [channelId, setChannelId] = useState("");
   const [uploadId, setUploadId] = useState<string | null>(null);
 
+  // The client can only guess media kind from the file's MIME type before
+  // upload (the gateway's own ffprobe pass, upload.ts, is the source of
+  // truth once the file arrives) — good enough to decide whether to show
+  // the cover-art picker, which is the only UI decision that hinges on it.
+  const isAudio = file?.type.startsWith("audio/") ?? false;
+
   const uploadMutation = useMutation({
     mutationFn: () => {
       if (!file) throw new Error("choose a file first");
@@ -50,7 +57,14 @@ function UploadForm(): JSX.Element {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-      return upload(file, { title, description: description || undefined, tags: tagList.length ? tagList : undefined, channelId: channelId || undefined, license });
+      return upload(file, {
+        title,
+        description: description || undefined,
+        tags: tagList.length ? tagList : undefined,
+        channelId: channelId || undefined,
+        license,
+        coverArt: coverArt ?? undefined,
+      });
     },
     onSuccess: (res) => setUploadId(res.uploadId),
   });
@@ -73,6 +87,10 @@ function UploadForm(): JSX.Element {
     setFile(e.target.files?.[0] ?? null);
   };
 
+  const onCoverArtInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setCoverArt(e.target.files?.[0] ?? null);
+  };
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!file || !title.trim()) return;
@@ -83,7 +101,7 @@ function UploadForm(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-5 text-xl font-semibold">Upload a video</h1>
+      <h1 className="mb-5 text-xl font-semibold">Upload video or audio</h1>
 
       {!uploadId || !done ? (
         <form onSubmit={onSubmit} className="vm-card space-y-4 p-5">
@@ -103,12 +121,22 @@ function UploadForm(): JSX.Element {
               ) : (
                 <>
                   <span className="font-medium text-signal">Choose a file</span>{" "}
-                  <span className="text-muted">or drag and drop a video here</span>
+                  <span className="text-muted">or drag and drop a video or audio file here</span>
                 </>
               )}
             </label>
-            <input id="file-input" type="file" accept="video/*" onChange={onFileInput} className="sr-only" />
+            <input id="file-input" type="file" accept="video/*,audio/*" onChange={onFileInput} className="sr-only" />
           </div>
+
+          {isAudio && (
+            <label className="vm-label">
+              Cover art (optional)
+              <input type="file" accept="image/*" onChange={onCoverArtInput} className="vm-field" />
+              <span className="mt-1 block text-xs font-normal text-muted">
+                Audio has no video frame to make a thumbnail from — pick an image, or this track ships without one.
+              </span>
+            </label>
+          )}
 
           <label className="vm-label">
             Title

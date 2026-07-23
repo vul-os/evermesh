@@ -16,9 +16,18 @@ export type PlayerAction =
   | { type: "set-volume"; volume: number }
   | { type: "sync-time"; time: number }
   | { type: "sync-duration"; duration: number }
-  | { type: "sync-playing"; playing: boolean };
+  | { type: "sync-playing"; playing: boolean }
+  | { type: "next" }
+  | { type: "prev" };
 
-/** Maps a `KeyboardEvent.key` to a player action, or null if unhandled. */
+/**
+ * Maps a `KeyboardEvent.key` to a player action, or null if unhandled.
+ * `next`/`prev` are signal actions the same way `toggle-fullscreen` is:
+ * [`playerReducer`] is a no-op for them because queue position isn't
+ * part of [`PlayerState`] — the host component (`useQueue`) intercepts
+ * them before dispatch, exactly as `Player.tsx` already intercepts
+ * `toggle-fullscreen`.
+ */
 export function keyToAction(key: string): PlayerAction | null {
   switch (key) {
     case " ":
@@ -43,6 +52,12 @@ export function keyToAction(key: string): PlayerAction | null {
     case "c":
     case "C":
       return { type: "toggle-captions" };
+    case "n":
+    case "N":
+      return { type: "next" };
+    case "p":
+    case "P":
+      return { type: "prev" };
     default:
       return null;
   }
@@ -108,6 +123,10 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case "sync-playing":
       return { ...state, playing: action.playing };
     case "toggle-fullscreen":
+    case "next":
+    case "prev":
+      // Queue navigation is owned by the host component (useQueue), the
+      // same split as toggle-fullscreen (owned by the browser).
       return state;
     default:
       return state;

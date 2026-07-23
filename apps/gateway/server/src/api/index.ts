@@ -13,6 +13,7 @@ import { registerMeRoutes } from "./me.ts";
 import { registerUploadRoutes } from "./upload.ts";
 import { registerSocialRoutes } from "./social.ts";
 import { registerComplianceRoutes } from "./compliance.ts";
+import { registerPlaylistRoutes } from "./playlists.ts";
 
 export function registerApiRoutes(app: FastifyInstance, deps: AppDeps): void {
   registerVideoRoutes(app, deps);
@@ -25,4 +26,5 @@ export function registerApiRoutes(app: FastifyInstance, deps: AppDeps): void {
   registerUploadRoutes(app, deps);
   registerSocialRoutes(app, deps);
   registerComplianceRoutes(app, deps);
+  registerPlaylistRoutes(app, deps);
 }

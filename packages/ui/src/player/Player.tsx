@@ -1,8 +1,9 @@
 import Hls from "hls.js";
 import { useEffect, useMemo, useReducer, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { cn } from "../cn.js";
-import { FullscreenExitIcon, FullscreenIcon, MuteIcon, PauseIcon, PlayIcon, VolumeIcon } from "../Icon.js";
+import { FullscreenExitIcon, FullscreenIcon, PlayIcon } from "../Icon.js";
 import { CaptionsMenu } from "./CaptionsMenu.js";
+import { TransportBar } from "./TransportBar.js";
 import {
   bufferedRanges,
   formatClockTime,
@@ -211,89 +212,32 @@ export function Player({ hls, mp4, captions = [], poster, sponsorSegments = [], 
         </ul>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-8 text-white">
-        <div className="relative h-1.5 w-full">
-          <div className="absolute inset-0 rounded-full bg-white/20" />
-          {buffered.map(([start, end], i) => (
-            <div
-              key={i}
-              className="absolute inset-y-0 rounded-full bg-white/35"
-              style={{ left: `${(start / (state.duration || 1)) * 100}%`, width: `${((end - start) / (state.duration || 1)) * 100}%` }}
-            />
-          ))}
-          <div
-            className="pointer-events-none absolute inset-y-0 rounded-full bg-brand-400"
-            style={{ width: `${(state.currentTime / (state.duration || 1)) * 100}%` }}
-          />
-          {sponsorMarks.map((seg, i) => (
-            <div
-              key={i}
-              title={`Sponsored: ${seg.label}`}
-              className="absolute inset-y-0 rounded-full bg-accent-300"
-              style={{ left: `${seg.style.leftPct}%`, width: `${Math.max(seg.style.widthPct, 0.5)}%` }}
-            />
-          ))}
-          <input
-            type="range"
-            aria-label="Seek"
-            min={0}
-            max={state.duration || 0}
-            step={0.1}
-            value={state.currentTime}
-            onChange={(e) => dispatch({ type: "seek-to", time: Number(e.target.value) })}
-            className="absolute inset-0 h-4 w-full -translate-y-[5px] cursor-pointer appearance-none bg-transparent accent-brand-400"
-          />
-        </div>
-
-        <div className="flex items-center gap-1">
+      <TransportBar
+        className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-2.5 pt-8 text-white"
+        playing={state.playing}
+        currentTime={state.currentTime}
+        duration={state.duration}
+        muted={state.muted}
+        volume={state.volume}
+        buffered={buffered}
+        sponsorMarks={sponsorMarks.map((seg) => ({ leftPct: seg.style.leftPct, widthPct: seg.style.widthPct, label: seg.label }))}
+        onTogglePlay={() => dispatch({ type: "toggle-play" })}
+        onSeek={(time) => dispatch({ type: "seek-to", time })}
+        onToggleMute={() => dispatch({ type: "toggle-mute" })}
+        onSetVolume={(volume) => dispatch({ type: "set-volume", volume })}
+        before={<CaptionsMenu captions={captions} captionsOn={state.captionsOn} activeLanguage={activeCaption} onSelect={selectCaption} />}
+        after={
           <button
             type="button"
-            aria-label={state.playing ? "Pause" : "Play"}
-            onClick={() => dispatch({ type: "toggle-play" })}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            aria-pressed={isFullscreen}
+            onClick={toggleFullscreen}
             className="rounded-full p-1.5 transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-brand-300"
           >
-            {state.playing ? <PauseIcon /> : <PlayIcon />}
+            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
           </button>
-
-          <span className="min-w-[5.5rem] px-1 font-mono text-xs tabular-nums text-white/85">
-            {formatClockTime(state.currentTime)} / {formatClockTime(state.duration)}
-          </span>
-
-          <button
-            type="button"
-            aria-label={state.muted || state.volume === 0 ? "Unmute" : "Mute"}
-            aria-pressed={state.muted}
-            onClick={() => dispatch({ type: "toggle-mute" })}
-            className="rounded-full p-1.5 transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-brand-300"
-          >
-            {state.muted || state.volume === 0 ? <MuteIcon /> : <VolumeIcon />}
-          </button>
-          <input
-            type="range"
-            aria-label="Volume"
-            min={0}
-            max={1}
-            step={0.05}
-            value={state.muted ? 0 : state.volume}
-            onChange={(e) => dispatch({ type: "set-volume", volume: Number(e.target.value) })}
-            className="h-2 w-16 cursor-pointer accent-brand-400"
-          />
-
-          <div className="relative ml-auto flex items-center gap-1">
-            <CaptionsMenu captions={captions} captionsOn={state.captionsOn} activeLanguage={activeCaption} onSelect={selectCaption} />
-
-            <button
-              type="button"
-              aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              aria-pressed={isFullscreen}
-              onClick={toggleFullscreen}
-              className="rounded-full p-1.5 transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-brand-300"
-            >
-              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-            </button>
-          </div>
-        </div>
-      </div>
+        }
+      />
     </div>
   );
 }

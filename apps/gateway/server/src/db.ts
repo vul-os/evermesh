@@ -260,6 +260,31 @@ const MIGRATIONS: string[] = [
     created_at     INTEGER NOT NULL
   );
   `,
+  // v2: first-class audio/music (DMTAP §24.4.2, spec 004 §2). `videos`
+  // gains nullable `width`/`height` (an audio-only manifest's `original`
+  // carries neither — spec 004 §2's both-present-or-absent rule) plus a
+  // `media_kind` column derived at index time so list/filter queries don't
+  // need to re-inspect `body_json` per row. `playlist` (35) is fully
+  // specified and kernel-validated (spec 003 §5.4) but was never indexed —
+  // this adds its table.
+  `
+  ALTER TABLE videos ADD COLUMN width INTEGER;
+  ALTER TABLE videos ADD COLUMN height INTEGER;
+  ALTER TABLE videos ADD COLUMN media_kind TEXT NOT NULL DEFAULT 'video';
+  CREATE INDEX idx_videos_media_kind ON videos(media_kind);
+
+  CREATE TABLE playlists (
+    record_id    TEXT PRIMARY KEY,
+    author       TEXT NOT NULL,
+    title        TEXT NOT NULL,
+    description  TEXT NOT NULL DEFAULT '',
+    entries_json TEXT NOT NULL DEFAULT '[]',
+    created_at   INTEGER NOT NULL,
+    received_at  INTEGER NOT NULL,
+    retracted    INTEGER NOT NULL DEFAULT 0
+  );
+  CREATE INDEX idx_playlists_author ON playlists(author);
+  `,
 ];
 
 /** Open (creating parent dirs) and migrate the SQLite index database. */

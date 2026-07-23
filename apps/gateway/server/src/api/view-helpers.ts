@@ -10,7 +10,7 @@
  */
 import type { Db } from "../db.ts";
 import { unhex } from "../ingest-kinds.ts";
-import type { Comment, ClaimView, ReceiptView, VideoSummary, Video, AuthorRef } from "../types.ts";
+import type { Comment, ClaimView, ReceiptView, VideoSummary, Video, AuthorRef, MediaKind, PlaylistView } from "../types.ts";
 
 export function encodeCursor(receivedAt: number): string {
   return Buffer.from(String(receivedAt), "utf-8").toString("base64url");
@@ -41,6 +41,7 @@ interface VideoRow {
   created_at: number;
   received_at: number;
   body_json: string;
+  media_kind: MediaKind;
 }
 
 interface ProfileRow {
@@ -60,11 +61,14 @@ function authorRef(db: Db, identityId: string): AuthorRef {
 }
 
 export function videoRowToSummary(db: Db, row: VideoRow): VideoSummary {
+  const thumbnailUrl = row.thumbnail_blob ? `/media/thumb/${row.thumbnail_blob}` : null;
   return {
     id: row.manifest_id,
     title: row.title,
     author: authorRef(db, row.author),
-    thumbnailUrl: row.thumbnail_blob ? `/media/thumb/${row.thumbnail_blob}` : null,
+    thumbnailUrl,
+    mediaKind: row.media_kind,
+    coverArtUrl: thumbnailUrl ?? undefined,
     durationMs: row.duration_ms,
     createdAt: row.created_at,
     channelId: row.channel_id ?? undefined,
@@ -192,5 +196,41 @@ export function receiptRowToView(row: ReceiptRow): ReceiptView {
     payee: row.payee,
     message: row.message ?? undefined,
     proof: row.proof ?? undefined,
+  };
+}
+
+export interface PlaylistRow {
+  record_id: string;
+  author: string;
+  title: string;
+  description: string;
+  entries_json: string;
+  created_at: number;
+  received_at: number;
+}
+
+/**
+ * Resolves each entry against `videos` (spec 003 §5.4: entries are
+ * manifest record ids), skipping any that are retracted, denylisted, or
+ * simply not indexed here yet (partition tolerance — an entry can name a
+ * manifest this gateway hasn't seen) rather than failing the whole list.
+ */
+export function playlistRowToView(db: Db, row: PlaylistRow): PlaylistView {
+  const entryIds = JSON.parse(row.entries_json) as string[];
+  const entries: VideoSummary[] = [];
+  for (const id of entryIds) {
+    if (isRecordDenylisted(db, id)) continue;
+    const videoRow = db.prepare("SELECT * FROM videos WHERE manifest_id = ? AND retracted = 0").get(id) as VideoRow | undefined;
+    if (!videoRow) continue;
+    entries.push(videoRowToSummary(db, videoRow));
+  }
+  return {
+    id: row.record_id,
+    title: row.title,
+    description: row.description,
+    author: authorRef(db, row.author),
+    createdAt: row.created_at,
+    entryCount: entryIds.length,
+    entries,
   };
 }

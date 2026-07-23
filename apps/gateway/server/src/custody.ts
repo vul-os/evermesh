@@ -166,13 +166,16 @@ export class CustodyService {
    * uploader (spec 004-manifest.md §3.1). Kept as one isolated function
    * per the build plan, even though `@evermesh/kernel` already exposes
    * `signDerivation` (verified against crates/evermesh-wasm/src/lib.rs:
-   * it builds the exact `[original, rendition, codec, width, height,
-   * bitrate]` statement and signs `"evermesh:derivation:v1" ||
-   * BLAKE3-256(stmt)` — no gap to work around here).
+   * it builds the exact six-element `[original, rendition, codec,
+   * width_or_null, height_or_null, bitrate]` statement and signs
+   * `"evermesh:derivation:v1" || BLAKE3-256(stmt)` — no gap to work around
+   * here). `width`/`height` are optional and MUST be both given or both
+   * omitted (spec 004 §2, DMTAP §24.4.2): omitted means this rendition is
+   * audio-only; the kernel encodes the absent pair as CBOR `null`, not `0`.
    */
   async signDerivationFor(
     userId: number,
-    opts: { originalBlobId: string; renditionBlobId: string; codec: string; width: number; height: number; bitrate: number },
+    opts: { originalBlobId: string; renditionBlobId: string; codec: string; width?: number; height?: number; bitrate: number },
   ): Promise<{ identityId: string; publicKeyHex: string; signatureHex: string }> {
     const user = this.getUserById(userId);
     if (!user) throw new ApiError("unauthorized", "unknown user");

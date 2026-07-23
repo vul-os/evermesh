@@ -135,6 +135,14 @@ design, since both processes are built from the same locked contract.
 - **Comment/reaction POST response bodies are undocumented.** Treated
   as fire-and-forget; the caller invalidates the relevant query
   (`["comments", id]`) instead of trusting a return value.
+- **`VideoSummary` (the list-endpoint shape) carries no playable URL** —
+  only the detail endpoint's `playback.mp4Url` does. Queueing an audio
+  track straight from a grid card (`MediaCard`'s "add to queue", and
+  `Playlist`'s "Play all") therefore costs one extra `GET
+  /api/videos/{id}` per track rather than reading a URL already in
+  hand. Acceptable at reference-gateway/playlist scale; a `playableUrl`
+  (or similar) on `VideoSummary` would remove it if this ever needs to
+  scale to large playlists.
 
 None of these are inventions of new endpoints — every request in
 `src/api.ts` targets an endpoint API.md documents; the gaps above are

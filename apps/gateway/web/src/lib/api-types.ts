@@ -15,11 +15,20 @@ export interface AuthorRef {
   avatarUrl?: string;
 }
 
+export type MediaKind = "video" | "audio";
+
 export interface VideoSummary {
   id: string;
   title: string;
   author: AuthorRef;
   thumbnailUrl: string | null;
+  /** video: manifest's original carries width/height; audio: it doesn't
+   *  (spec 004 §2, DMTAP §24.4.2) — there is no separate media-kind field
+   *  on the wire, this is derived server-side at index time. */
+  mediaKind: MediaKind;
+  /** Cover art for an audio manifest (currently the same blob as
+   *  `thumbnailUrl`, exposed under its own name for audio-facing UI). */
+  coverArtUrl?: string;
   durationMs: number;
   createdAt: number;
   channelId?: string;
@@ -88,6 +97,26 @@ export interface ReceiptView {
   payee: string;
   message?: string;
   proof?: string;
+}
+
+/** `GET /api/playlists/{id}`, `POST /api/playlists` (API.md). */
+export interface PlaylistView {
+  id: string;
+  title: string;
+  description: string;
+  author: AuthorRef;
+  createdAt: number;
+  /** Total entries the playlist record lists; `entries.length` may be
+   *  smaller when this gateway can't resolve one (retracted, denylisted,
+   *  or simply unknown here) — such entries are omitted, not errored. */
+  entryCount: number;
+  entries: VideoSummary[];
+}
+
+export interface CreatePlaylistInput {
+  title: string;
+  description?: string;
+  entries: string[];
 }
 
 export interface ChannelProfile {
@@ -171,6 +200,10 @@ export interface UploadFields {
   tags?: string[];
   channelId?: string;
   license: string;
+  /** Optional cover-art image — required-in-spirit for audio (there's no
+   *  video frame to extract a thumbnail from) but accepted for either
+   *  media kind. */
+  coverArt?: File;
 }
 
 export interface ComplianceNoticeInput {

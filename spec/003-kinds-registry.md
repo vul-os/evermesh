@@ -138,11 +138,14 @@ Validation: a revocation's author MUST equal the grant's author;
 
 ### 4.1 `manifest` (16)
 
-The canonical identity of a video. Schema, rendition rules, and
-validation are specified in [004-manifest.md](004-manifest.md) §§1–4.
+The canonical identity of a work — video or audio; see
+[004-manifest.md](004-manifest.md) §2 for how `Media.width`/`height`
+being both present or both absent distinguishes the two. Schema,
+rendition rules, and validation are specified in
+[004-manifest.md](004-manifest.md) §§1–4.
 
-Refs: MAY contain one `[0, <channel record id>]` placing the video in a
-channel; the channel's author MUST equal the manifest's author.
+Refs: MAY contain one `[0, <channel record id>]` placing the manifest in
+a channel; the channel's author MUST equal the manifest's author.
 
 ### 4.2 `supersede` (17)
 

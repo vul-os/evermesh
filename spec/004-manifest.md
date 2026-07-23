@@ -4,11 +4,15 @@
 **Depends on:** [001-kernel.md](001-kernel.md), [002-identity.md](002-identity.md), [003-kinds-registry.md](003-kinds-registry.md)
 **Depended on by:** [005](005-claims.md), [008](008-privacy.md), [009](009-gateway.md)
 
-Kind `manifest` (16) is the canonical identity of a video: comments,
-claims, receipts, playlists, and similarity assertions all reference the
-manifest record, never raw blobs. This file specifies the manifest body,
-the verifiable-derivation rule that lets untrusted parties transcode,
-the license field, deduplication via `mirror` and `similarity`, and the
+Kind `manifest` (16) is the canonical identity of a work — video or
+audio: comments, claims, receipts, playlists, and similarity assertions
+all reference the manifest record, never raw blobs. A manifest's
+`original.width`/`height` (§2) being both present or both absent is
+what distinguishes a video work from an audio one; there is no separate
+media-kind field, and nothing else about the manifest's shape changes
+between the two. This file specifies the manifest body, the
+verifiable-derivation rule that lets untrusted parties transcode, the
+license field, deduplication via `mirror` and `similarity`, and the
 live-streaming flow.
 
 ## 1. Manifest body
@@ -56,6 +60,26 @@ Worked example (conventions of [003](003-kinds-registry.md) §2):
               [3, "https://relay.example.net/blob"]] } }
 ```
 
+An audio-only work carries the same shape; every `Media` structure it
+references simply omits `width`/`height` (§2):
+
+```json
+{ "kind": 16, "refs": [],
+  "body": {
+    "title": "Breede — field recording, dawn chorus",
+    "language": "en",
+    "original": { "blob": "hex:7c31…", "size": 84213760,
+                  "chunk_root": "hex:9b02…", "codec": "flac",
+                  "duration": 2734000 },
+    "renditions": [
+      { "blob": "hex:5e88…", "size": 8912340, "chunk_root": "hex:1a4f…",
+        "codec": "opus", "bitrate": 128000,
+        "produced_by": ["hex:77d0…", "hex:4f2a…"],
+        "derivation_sig": "hex:cafe…" } ],
+    "license": "CC-BY-4.0",
+    "payment": [[1, "asha@ln.example.net"]] } }
+```
+
 ## 2. Media, Caption structures
 
 ```
@@ -63,14 +87,25 @@ Media = {
   blob:       bytes(32)      ; the encoded file
   size:       uint           ; bytes
   chunk_root: bytes(32)      ; required when size > 1 MiB (001 §8)
-  codec:      text           ; RFC 6381 codecs string, e.g. "av01.0.08M.08"
+  codec:      text           ; RFC 6381 codecs string, e.g. "av01.0.08M.08",
+                              ; or an audio codec string, e.g. "opus", "flac"
   duration:   uint           ; milliseconds
-  width:      uint
-  height:     uint
+  width:      uint           ; optional — see below
+  height:     uint           ; optional — see below
 }
 
 Caption = { blob: bytes(32), language: text (BCP 47), format: text ("vtt") }
 ```
+
+`width`/`height` are OPTIONAL and MUST be both present or both absent.
+Both present means this encoding carries a video track of those pixel
+dimensions; both absent means it is audio-only — a song, a podcast
+episode, a radio set, or an audio-only rendition of a work that also
+has video. There is deliberately no separate media-kind field: the
+presence of `width`/`height` *is* the signal. A `Media` structure
+carrying exactly one of `width`/`height` is malformed and MUST be
+rejected — before any signature verification a caller might run over a
+containing `Rendition` (§3).
 
 Validation: `chunk_root` MUST be present when `size` exceeds one chunk;
 consumers MUST verify received ranges against it
@@ -91,9 +126,23 @@ The producer signs the derivation statement:
 
 ```
 stmt = canonical_cbor( [ original.blob, rendition.blob, codec,
-                         width, height, bitrate: uint ] )
+                         width_or_null, height_or_null, bitrate: uint ] )
 derivation_sig = Sign( producer_key, "evermesh:derivation:v1" || BLAKE3-256(stmt) )
 ```
+
+This is **always a six-element array**, in this order, whatever the
+media kind. An absent dimension (§2) MUST be encoded as CBOR `null`
+(the single byte `0xf6`) at its fixed position — never omitted, never a
+shortened array, and never a `0` sentinel: `0` is a valid pixel width,
+so a `0`-sentinel would make "no video track" and "0 × 0 pixels" the
+same signed statement and let a signature replay between them.
+Verifiers reconstruct exactly this six-element/`null` encoding and MUST
+NOT accept a shortened array or a `0`-substituted statement as an
+alternate valid form — a second acceptable encoding would reopen the
+exact signature ambiguity this rule closes. Because `width`/`height`
+were previously mandatory, every statement producible before this rule
+existed is byte-identical under it; only the audio-only case (both
+positions `null`) gains a representation.
 
 A rendition is **authorized** if `produced_by` is the manifest's author,
 or an identity holding an unrevoked, unexpired `delegate` grant with
@@ -108,7 +157,7 @@ remedy is revocation plus edge reputation, consistent with the honesty
 requirement of [005](005-claims.md) §2.
 
 The rendition family shares the manifest's identity: byte-different
-encodings of one video do not fragment into separate "videos."
+encodings of one work do not fragment into separate manifests.
 
 ## 4. License
 
@@ -161,17 +210,24 @@ aggressively by relays.
 
 * The derivation statement covers the codec/resolution/bitrate tuple so
   a signature cannot be replayed onto a different quality claim for the
-  same blob pair.
+  same blob pair; the tuple's width/height positions are fixed-arity
+  (`null` when absent, §3.1) so the same holds across video and audio.
 * `chunk_root` is mandatory above one chunk — "optional integrity" for
   streaming-sized media would make range verification unreliable
   exactly where it matters.
+* `width`/`height` are optional rather than the manifest carrying a
+  separate media-kind field — one less field to keep consistent with
+  the dimensions themselves, and no way for the two to disagree.
 
 ## Test vectors
 
 * `kinds/manifest/` — valid plaintext, valid with renditions and
-  delegated producer, valid encrypted; invalids per
+  delegated producer, valid encrypted, valid audio-only (original and
+  renditions omit `width`/`height`); invalids per
   [003](003-kinds-registry.md) plus: missing `chunk_root` on large
-  media, bad `derivation_sig`, rendition by revoked delegate.
+  media, bad `derivation_sig`, rendition by revoked delegate, `Media`
+  with exactly one of `width`/`height` present.
 * `kinds/live.manifest/` — stream open/append/final triple; invalid:
   later record with empty refs.
-* `derivation/` — statement construction fixtures (bytes-exact).
+* `derivation/` — statement construction fixtures (bytes-exact),
+  including the audio-only (`null`/`null`) case.
