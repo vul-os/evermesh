@@ -10,6 +10,21 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`crates/evermesh-node`** promoted from a Phase 8 UI scaffold to a real
+  Tauri 2 desktop media client: browses a user-configured gateway's public
+  catalog (`gateway_client.rs`, native `reqwest`), verifies every
+  manifest's signature/kind-validity/derivation signatures natively
+  (`verify.rs` — no WASM, `evermesh-kernel` is linked directly), and pins
+  chosen content for offline playback with a re-verifying, rusqlite-backed
+  `PinStore` (`pinning.rs`: `pins`, `budget`, `manifest_cache` tables).
+  Frontend rebuilt as `apps/node-web` (React + Vite, reusing
+  `@evermesh/ui`'s `Player`/`AudioPlayer`/`NowPlayingBar`/`useQueue`/
+  `VerifiedBadge`) with Browse/Library/Watch/Listen/Settings views.
+  P2P/swarm retrieval remains out of scope — playback is gateway-HTTP plus
+  an offline cache, never a second implementation of transport.
+
 ## [0.1.0] — 2026-07-21
 
 *This project was named **Vidmesh** for most of the work this entry

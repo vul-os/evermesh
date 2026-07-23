@@ -4,7 +4,16 @@
   "version": "0.0.1",
   "identifier": "org.evermesh.node",
   "build": {
-    "frontendDist": "./ui"
+    "frontendDist": "./ui",
+    "devUrl": "http://localhost:5183",
+    "beforeDevCommand": {
+      "script": "pnpm dev",
+      "cwd": "../../apps/node-web"
+    },
+    "beforeBuildCommand": {
+      "script": "pnpm build",
+      "cwd": "../../apps/node-web"
+    }
   },
   "app": {
     "windows": [

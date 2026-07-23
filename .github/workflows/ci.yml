@@ -18,6 +18,22 @@ jobs:
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+      # crates/evermesh-node embeds its frontend at compile time
+      # (`tauri::generate_context!()`, `frontendDist: "./ui"`) — unlike
+      # packages/kernel-ts's WASM build or apps/gateway/web's `dist/`
+      # (both gitignored, built fresh by the `js`/`wasm` jobs below),
+      # `ui/` has no run-time fallback if it's empty, so this job needs
+      # Node/pnpm too, purely to produce it before any `cargo` command
+      # below touches evermesh-node.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @evermesh/node-web build
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace

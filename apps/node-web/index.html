@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Evermesh Node</title>
+    <meta name="description" content="Evermesh node: browse a gateway's catalog, verify manifests locally, and play back pinned media offline." />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAFBF7" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0C0B" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Applied synchronously, before first paint — mirrors
+      // apps/gateway/web/index.html's inline theme script (and
+      // src/hooks/useTheme.ts, which owns the toggle after mount).
+      (function () {
+        try {
+          var stored = localStorage.getItem("evermesh-node:theme");
+          var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (_e) {
+          /* localStorage/matchMedia unavailable: default to light. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
+</html>

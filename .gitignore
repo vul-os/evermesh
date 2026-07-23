@@ -10,6 +10,15 @@ dist/
 # WASM build output (generated into packages/kernel-ts)
 packages/kernel-ts/wasm/
 
+# evermesh-node's frontend build output (apps/node-web's `vite build`
+# writes here — see crates/evermesh-node/tauri.conf.json's frontendDist
+# and vite.config.ts's build.outDir). Not source; rebuilt by
+# `pnpm --filter @evermesh/node-web build` before any `cargo build`/
+# `check`/`test`/`clippy` touching evermesh-node (its
+# `tauri::generate_context!()` embeds this directory at compile time —
+# see .github/workflows/ci.yml's `rust` job).
+crates/evermesh-node/ui/
+
 # Tauri-generated schemas/capability manifests (regenerated on every
 # build by tauri-build; machine/build-local, never hand-edited or
 # committed — see DECISIONS.md T6)

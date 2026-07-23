@@ -11,14 +11,20 @@ setup:
 # Run all Rust and JS tests
 test: test-rust test-js
 
-test-rust:
+# crates/evermesh-node embeds its frontend at compile time
+# (`tauri::generate_context!()`, `frontendDist: "./ui"`, gitignored —
+# see .gitignore); build it before any cargo command touches that crate.
+node-web-build:
+    pnpm --filter @evermesh/node-web build
+
+test-rust: node-web-build
     cargo test --workspace
 
 test-js:
     pnpm -r --if-present test
 
 # Lint everything (rustfmt, clippy, JS lint)
-lint:
+lint: node-web-build
     cargo fmt --all --check
     cargo clippy --workspace --all-targets -- -D warnings
     pnpm -r --if-present lint

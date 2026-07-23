@@ -1,81 +1,99 @@
 # evermesh-node
 
-The Evermesh node app: a background desktop app (Tauri 2) that pins and
-seeds the content its owner chooses — their own videos first, subscriptions
-second — while honoring its own disk and bandwidth budgets. Per spec
+The Evermesh node app: a Tauri 2 desktop media client. It browses a
+user-configured gateway's public catalog, verifies every manifest natively
+(no WASM — `evermesh-kernel` is a native dependency of this binary), plays
+video/audio back, and pins chosen content for offline playback while
+honoring its own disk/bandwidth budgets. Per spec
 [000-overview.md §4](../../spec/000-overview.md), a node has **no
 public-facing duties**: it does not index, serve, or moderate for anyone
 but its owner. That's the gateway's job.
 
-## What the node will do (once built out past scaffold)
+## What it does
 
-- **Pin by explicit choice.** The owner picks specific manifests/blobs to
-  keep seeded indefinitely, regardless of whether they're actively watched.
-- **Seed by subscription.** Content from followed channels is pinned
-  automatically as it's watched or as new manifests arrive, subject to
-  budget pressure (oldest subscription-pins evicted first — explicit pins
-  are never auto-evicted).
-- **Honor its own budgets.** A configurable disk-space ceiling and upload
-  bandwidth ceiling; the node never seeds past what its owner allowed.
+- **Browses a gateway.** `Settings` manages an allow-list of gateway
+  origins (plain `http(s)`, no default baked in); `Browse` lists that
+  gateway's public catalog (video and audio, spec 004 §2 / DMTAP §24.4.2).
+- **Verifies natively, before playback.** Every manifest fetched is parsed
+  and Ed25519-verified, kind-validated (spec 003), and has every
+  rendition's derivation signature checked (spec 004 §3) in Rust — the
+  same checks the browser-side `VerifiedBadge` runs in WASM, run here as a
+  plain function call instead, before any bytes reach the webview.
+- **Pins by explicit choice.** `pin_manifest` downloads a manifest's
+  original media blob, re-hashes it (chunked BLAKE3 when it spans more
+  than one chunk) against the manifest's own claim, and only then records
+  the pin — a correctly-signed manifest proves *authorship* of a claim,
+  not that a given gateway actually served the claimed bytes.
+- **Plays back offline.** Pinned content resolves to a local file path
+  (`local_media_path`, fed to `convertFileSrc()`); everything else falls
+  back to the gateway's remote URL.
+- **Keeps an offline library.** Every fetched-and-verified manifest is
+  cached (`manifest_cache`), pinned or not, so `Library` has something to
+  show without a network round-trip.
+- **Honors its own budget.** A configurable disk-space/bandwidth ceiling
+  is recorded (spec 000 §4); automatic eviction against it is not
+  implemented yet (there is no seeding/swarm participation to make room
+  for — see Known gaps).
 
-None of this is implemented yet — see Status below.
+## Known gaps
 
-## Status: Phase 8 scaffold
-
-This crate is a **Tauri 2 scaffold only**, per build plan §2 ("Node app
-(Tauri 2) is Phase 8 — scaffold only in v1") and the Phase 8 gate ("Tauri
-shell builds"). Concretely, right now:
-
-- `src/main.rs` boots a plain Tauri window over the static `ui/` shell and
-  registers two commands that return canned data:
-  - `node_status() -> { version, pinned_count: 0, seeding: false }`
-  - `budgets() -> { disk_gb: 0, bandwidth_mbps: 0 }`
-- `ui/index.html` + `ui/style.css` are a framework-free static shell with
-  three placeholder panels — Pinned content, Subscriptions, Budgets — each
-  clearly marked `SCAFFOLD` in-page. No devUrl/dev server is configured;
-  `frontendDist` points straight at `./ui`.
-- `src/pinning.rs` is the **real v1 design surface**, written now so the
-  storage design is decided ahead of implementation: a `PinStore` backed by
-  a single SQLite file (`<app-data-dir>/pins.sqlite3`), typed around
-  `evermesh-kernel`'s `BlobId`/`RecordId`, with every method already
-  signatured. Every stub is marked `// SCAFFOLD(phase-8):`, returns an
-  empty/default value, and never panics — no placeholder that could
-  silently misbehave if called.
-
-What's explicitly **not** here yet: real sqlite I/O, swarm participation
-(seeding transport), budget enforcement/eviction, and any settings UI to
-configure pins/subscriptions/budgets from the shell.
+- **No P2P/swarm retrieval.** Every read is gateway-HTTP. "Pinning" means
+  "downloaded, re-verified, and kept as a local cache" — this node does
+  not seed to other nodes.
+- **No budget enforcement/eviction.** `set_budget` persists intent;
+  nothing evicts subscription pins over the ceiling yet (there are no
+  subscription pins yet either — see next point).
+- **No "seed by subscription."** Only explicit pins (`PinReason::Explicit`)
+  are ever created; `PinReason::Subscription` is a modeled-but-unused
+  variant, reserved for a future follow/auto-pin feature.
+- **Offline library entries don't record their origin gateway.** Content
+  is content-addressed and gateway-independent by design, so a
+  cached-but-unpinned `Library` entry has no remote URL to fall back to
+  until it's browsed again from a live gateway session — a pinned entry
+  is unaffected (it always plays from disk).
 
 ## Building
 
-Plain compilation must work with only the Rust toolchain — no Tauri CLI,
-no Node.js, no frontend build step:
+Rust side — plain compilation works with only the Rust toolchain (no
+Node.js needed to typecheck/test the Rust code, though the frontend build
+step below does need it):
 
 ```sh
 cargo check -p evermesh-node
 cargo test -p evermesh-node
+cargo clippy -p evermesh-node -- -D warnings
 ```
 
-To actually run the scaffold window (requires the `tauri` CLI, see
-[tauri.app](https://tauri.app) for install instructions):
+Frontend (`apps/node-web`, a separate pnpm package — see its own
+directory, not under this crate) builds straight into `./ui`, which
+`tauri.conf.json`'s `frontendDist` already points at:
+
+```sh
+pnpm --filter @evermesh/node-web build
+```
+
+To run the full desktop app (requires the `tauri` CLI, Node.js, and pnpm):
 
 ```sh
 cargo install tauri-cli --version "^2"
-cargo tauri dev -p evermesh-node
+cargo tauri dev -p evermesh-node   # runs apps/node-web's dev server via beforeDevCommand
+cargo tauri build -p evermesh-node # runs its build via beforeBuildCommand first
 ```
-
-There is no `beforeDevCommand`/`beforeBuildCommand` configured in
-`tauri.conf.json` — the frontend is the static `ui/` directory as-is, so
-`cargo tauri dev` serves it directly with no build step of its own.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `Cargo.toml` | crate manifest: `tauri`, `tauri-build`, `serde`/`serde_json`, `evermesh-kernel` |
+| `Cargo.toml` | crate manifest: `tauri` + `fs`/`http`/`dialog` plugins, `reqwest`, `rusqlite`, `tokio`, `evermesh-kernel` |
 | `build.rs` | `tauri_build::build()` — bundle glue from `tauri.conf.json` |
-| `tauri.conf.json` | Tauri 2 config: identifier `org.evermesh.node`, static `ui/` frontend, window config |
+| `tauri.conf.json` | Tauri 2 config: identifier `org.evermesh.node`, `devUrl`/before-dev/build commands pointing at `apps/node-web`, `frontendDist: "./ui"` |
+| `capabilities/default.json` | ACL: app-data fs read/write/remove, `http(s)` egress (gateway origins are user-configured at runtime, so scoped broadly here — the real guard is `gateway_client.rs`'s `http(s)`-only URL validation), open/save dialogs |
 | `icons/icon.png` | app icon (512×512, derived from `assets/favicon.svg`) |
-| `ui/` | static shell UI: `index.html`, `style.css` |
-| `src/main.rs` | Tauri builder + the two scaffold commands |
-| `src/pinning.rs` | `PinStore` — the documented v1 pinning/budget design |
+| `ui/` | **built output, gitignored** — `apps/node-web`'s `vite build` writes here (`tauri.conf.json`'s `frontendDist`). `tauri::generate_context!()` embeds this directory at compile time, so it must exist before `cargo build`/`check`/`test`/`clippy` — CI's `rust` job runs the pnpm build first for exactly this reason. |
+| `src/main.rs` | Tauri builder, app state, and every `#[tauri::command]` |
+| `src/gateway_client.rs` | `reqwest`-based client for a gateway's public JSON API (`apps/gateway/API.md`) |
+| `src/verify.rs` | native record/manifest verification, and post-download content-address re-hashing |
+| `src/pinning.rs` | `PinStore` — rusqlite-backed `pins`/`budget`/`manifest_cache` tables |
+
+Frontend source lives in `apps/node-web` (a pnpm workspace package, sibling
+to `apps/gateway/{web,server}`), not under this crate.

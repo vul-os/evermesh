@@ -39,8 +39,11 @@ the gateway backend and web frontend, and the cross-implementation
 conformance suite are implemented and — as of this writing — their test
 suites **run and pass** (see [Status by component](#status-by-component)).
 This is not shipped software: there is no deployment, no swarm/P2P transport,
-no live-streaming product surface, and the desktop node is a scaffold. The
-[spec](spec/) is normative; where code and spec disagree, the spec wins.
+and no live-streaming product surface. The desktop node app
+(`crates/evermesh-node`) browses a gateway, verifies natively, and pins for
+offline playback, but does not seed to other nodes — see
+[Status by component](#status-by-component). The [spec](spec/) is
+normative; where code and spec disagree, the spec wins.
 
 ## Status by component
 
@@ -56,7 +59,7 @@ no live-streaming product surface, and the desktop node is a scaffold. The
 | `apps/gateway/web` | Gateway frontend: React + Vite + Tailwind | **Implemented, tested** (45 tests); builds |
 | `apps/site` | evermesh.org: static landing page + docs viewer | **Built**, browser-checked (`just site-check`) |
 | `tools/conformance` | 189 deterministic vectors + a runner replaying them against three runtimes | **Implemented, green** (see below) |
-| `crates/evermesh-node` | Desktop node app (Tauri 2) | **Scaffold only** |
+| `crates/evermesh-node` + `apps/node-web` | Desktop media client (Tauri 2): browses a gateway, verifies manifests natively, pins for offline playback | **Implemented, tested**; no P2P/swarm retrieval (gateway-HTTP + offline cache only) |
 
 ### Spec'd but not built
 
@@ -68,8 +71,10 @@ no live-streaming product surface, and the desktop node is a scaffold. The
   product surface**.
 - **Non-custodial key flows** — the reference gateway custodies keys
   server-side (spec 002 §7 / 009 §5); client-held keys are a later phase.
-- **Desktop node** — `crates/evermesh-node` is a Tauri scaffold; it pins and
-  seeds nothing yet.
+- **Desktop node seeding** — `crates/evermesh-node` pins (downloads,
+  re-verifies, and caches) content for its owner, but does not seed it to
+  other nodes; there is no swarm/P2P transport for it to seed over (same
+  gap as the point above).
 
 ## Conformance: the golden rule
 
