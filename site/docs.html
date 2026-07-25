@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evermesh docs</title>
+<meta name="description" content="The Evermesh protocol specification, the IETF draft, and the project's decision log — rendered in the browser from the same markdown that ships in the repository.">
+<link rel="canonical" href="https://evermesh.org/docs.html">
+<meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0C0B" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
+<script src="assets/vendor/marked.umd.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="./" aria-label="Evermesh home">
+      <picture>
+        <source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)">
+        <img src="assets/logo.svg" alt="Evermesh" width="110" height="26">
+      </picture>
+    </a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="./#survival">Survival test</a></li>
+        <li><a href="./#how">How it works</a></li>
+        <li><a href="./#roles">Roles</a></li>
+        <li><a href="./#status">Status</a></li>
+        <li><a href="docs.html">Docs</a></li>
+        <li><a class="nav-cta" href="https://github.com/vul-os/evermesh">GitHub</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap docs-shell">
+  <nav class="docs-nav" id="docs-nav" aria-label="Documents"></nav>
+  <main class="docs-main">
+    <p class="docs-crumb" id="crumb"></p>
+    <article class="markdown" id="content">Loading…</article>
+    <p class="docs-license">
+      The specification is licensed CC-BY-SA-4.0. These pages render the exact
+      markdown that ships in the repository — <code>spec/</code>,
+      <code>DECISIONS.md</code>, <code>docs/</code> — with no editing beyond
+      turning cross-references into links you can click.
+    </p>
+  </main>
+</div>
+
+<script>
+/*
+ * Hash-routed docs viewer. Static: no build step, no framework, no network
+ * beyond fetching a sibling .md file. Documents are copied into ./docs/ by
+ * tools/site/sync-docs.mjs (which also has a --check mode so the copies
+ * cannot silently drift from spec/).
+ *
+ * The only transformation applied to spec text is link rewriting: the
+ * markdown cross-references files by name (`001-kernel.md`), which has to
+ * become `#001-kernel` in a single-page viewer.
+ */
+const GROUPS = [
+  {
+    label: "Specification",
+    docs: [
+      ["spec-index", "Spec index"],
+      ["000-overview", "000 · Overview"],
+      ["001-kernel", "001 · Kernel"],
+      ["002-identity", "002 · Identity"],
+      ["003-kinds-registry", "003 · Kinds registry"],
+      ["004-manifest", "004 · Manifest"],
+      ["005-claims", "005 · Claims"],
+      ["006-relay", "006 · Relay"],
+      ["007-bundles", "007 · Bundles"],
+      ["008-privacy", "008 · Privacy"],
+      ["009-gateway", "009 · Gateway"],
+      ["010-economics", "010 · Economics"],
+      ["011-threat-model", "011 · Threat model"],
+    ],
+  },
+  {
+    label: "Reference",
+    docs: [
+      ["draft-evermesh-protocol-00", "IETF draft"],
+      ["changelog", "Spec changelog"],
+    ],
+  },
+  {
+    label: "Project",
+    docs: [
+      ["decisions", "Decisions log"],
+      ["dmtap-convergence", "DMTAP convergence"],
+    ],
+  },
+];
+
+const DOCS = GROUPS.flatMap((g) => g.docs);
+const TITLES = Object.fromEntries(DOCS);
+const SLUGS = new Set(DOCS.map(([slug]) => slug));
+const DEFAULT_SLUG = "000-overview";
+
+const nav = document.getElementById("docs-nav");
+const content = document.getElementById("content");
+const crumb = document.getElementById("crumb");
+
+for (const group of GROUPS) {
+  const label = document.createElement("p");
+  label.className = "group";
+  label.textContent = group.label;
+  nav.append(label);
+  for (const [slug, title] of group.docs) {
+    const a = document.createElement("a");
+    a.href = "#" + slug;
+    a.dataset.slug = slug;
+    a.textContent = title;
+    nav.append(a);
+  }
+}
+
+if (window.marked && marked.setOptions) marked.setOptions({ gfm: true, breaks: false });
+
+/** `001-kernel.md`, `./spec/001-kernel.md`, `docs/DMTAP-CONVERGENCE.md` -> `#001-kernel` */
+function slugForHref(href) {
+  const file = href.split("#")[0].split("/").pop();
+  if (!file || !file.endsWith(".md")) return null;
+  const base = file.slice(0, -3);
+  if (SLUGS.has(base)) return base;
+  const lower = base.toLowerCase();
+  if (SLUGS.has(lower)) return lower;
+  if (base === "CHANGELOG") return "changelog";
+  if (base === "README") return "spec-index";
+  return null;
+}
+
+function setActive(slug) {
+  for (const a of nav.querySelectorAll("a")) {
+    const on = a.dataset.slug === slug;
+    a.classList.toggle("active", on);
+    if (on) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  }
+}
+
+/**
+ * "Phase 2 specification: the cutover — NOT STARTED" ->
+ * "phase-2-specification-the-cutover--not-started".
+ *
+ * Several spec/decision docs hand-write anchors in GitHub's slug style
+ * (strip disallowed punctuation, turn each remaining space into its own
+ * hyphen, never collapse runs) to link to their own later headings —
+ * e.g. docs/DMTAP-CONVERGENCE.md's "Jump to" line. Matching that
+ * algorithm, rather than a simpler collapse-all-non-alnum one, is what
+ * keeps those already-written anchors from going dangling.
+ */
+function slugifyHeading(text, used) {
+  let base = text
+    .toLowerCase()
+    .replace(/[^\w\- ]+/g, "")
+    .trim()
+    .replace(/ /g, "-");
+  if (!base) base = "section";
+  let slug = base;
+  let n = 2;
+  while (used.has(slug)) slug = base + "-" + n++;
+  used.add(slug);
+  return slug;
+}
+
+/**
+ * marked does not assign heading ids, so cross-references and deep links
+ * have nothing to land on. Give every h1/h2/h3 in the freshly-rendered
+ * document a stable id (several of these files use more than one h1 as
+ * a top-level section, not just the title), then build an "on this
+ * page" table of contents from everything but the document's own title
+ * and drop it right after that title. Collapsed by default once a
+ * document has enough headings that an open list would dominate the
+ * page (the IETF draft and a couple of the longer spec files run past
+ * thirty).
+ */
+function buildToc() {
+  const used = new Set();
+  const all = [...content.querySelectorAll("h1, h2, h3")];
+  const title = content.querySelector("h1");
+  for (const h of all) h.id = slugifyHeading(h.textContent, used);
+
+  const headings = all.filter((h) => h !== title);
+  if (!headings.length) return;
+
+  const toc = document.createElement("details");
+  toc.className = "docs-toc";
+  toc.open = headings.length <= 8;
+  const summary = document.createElement("summary");
+  summary.textContent = "On this page (" + headings.length + ")";
+  toc.append(summary);
+
+  const list = document.createElement("ol");
+  for (const h of headings) {
+    const li = document.createElement("li");
+    if (h.tagName === "H3") li.className = "toc-sub";
+    const a = document.createElement("a");
+    a.href = "#" + h.id;
+    a.textContent = h.textContent;
+    li.append(a);
+    list.append(li);
+  }
+  toc.append(list);
+
+  if (title) title.after(toc);
+  else content.prepend(toc);
+}
+
+/** Wraps every table in its own scroll container so a wide spec table (or
+ * one packed with hex ids) scrolls in place instead of widening the page. */
+function wrapTables() {
+  for (const table of content.querySelectorAll("table")) {
+    const wrap = document.createElement("div");
+    wrap.className = "table-scroll";
+    table.replaceWith(wrap);
+    wrap.append(table);
+  }
+}
+
+/**
+ * draft-evermesh-protocol-00.md opens with a pandoc YAML frontmatter block
+ * (title/author/date/abstract — consumed by `just spec-pdf`, not by this
+ * viewer). Left in, marked reads the closing `---` as a Setext heading
+ * underline for everything above it and renders the whole block as one
+ * heading. Strip it before parsing; nothing here needs that metadata,
+ * and the crumb + nav already carry the document's title.
+ */
+function stripFrontmatter(text) {
+  const m = /^---\r?\n[\s\S]*?\r?\n---[ \t]*\r?\n/.exec(text);
+  return m ? text.slice(m[0].length) : text;
+}
+
+async function load(doc) {
+  setActive(doc);
+  crumb.textContent = TITLES[doc];
+  document.title = TITLES[doc] + " — Evermesh docs";
+  content.textContent = "Loading…";
+  try {
+    const res = await fetch("docs/" + doc + ".md", { cache: "no-cache" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    content.innerHTML = marked.parse(stripFrontmatter(await res.text()));
+    for (const a of content.querySelectorAll("a[href]")) {
+      const href = a.getAttribute("href");
+      if (/^(https?:|mailto:|#)/i.test(href)) {
+        if (/^https?:/i.test(href)) {
+          a.target = "_blank";
+          a.rel = "noopener";
+        }
+        continue;
+      }
+      // Section anchors inside a cross-reference (`004-manifest.md#5-live`)
+      // are dropped: the route itself is the hash, so a viewer can only
+      // carry one. The document still opens at the right file.
+      const target = slugForHref(href);
+      if (target) {
+        a.setAttribute("href", "#" + target);
+      } else {
+        // A relative link to something the site does not carry (a source
+        // file, say): send it to the repository rather than 404.
+        a.setAttribute("href", "https://github.com/vul-os/evermesh/blob/main/" + href.replace(/^\.\//, ""));
+        a.target = "_blank";
+        a.rel = "noopener";
+      }
+    }
+    wrapTables();
+    buildToc();
+    window.scrollTo({ top: 0 });
+  } catch (err) {
+    content.innerHTML = "";
+    const box = document.createElement("div");
+    box.className = "docs-error";
+    box.textContent = "Could not load " + doc + ".md — " + err.message;
+    content.append(box);
+  }
+}
+
+/**
+ * The hash is the route, but it also has to serve as the target for the
+ * per-document table of contents built above — two things one fragment
+ * cannot both be across a reload. So: a hash that names a document loads
+ * it; a hash that doesn't (a heading id from the TOC on the document
+ * already showing) just scrolls, leaving the loaded document alone.
+ */
+function route() {
+  const raw = (location.hash || "").replace(/^#/, "") || DEFAULT_SLUG;
+  if (SLUGS.has(raw)) {
+    load(raw);
+    return;
+  }
+  const target = document.getElementById(raw);
+  if (target) {
+    target.scrollIntoView({ block: "start" });
+    return;
+  }
+  load(DEFAULT_SLUG);
+}
+
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "Evermesh",
+  "short_name": "Evermesh",
+  "description": "Many gateways. One substrate. Media that outlives its platforms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0C0B",
+  "theme_color": "#A8E01F",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
