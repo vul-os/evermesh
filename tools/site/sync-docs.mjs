@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Copies the documents the site renders into apps/site/docs/.
+ * Copies the documents the site renders into site/docs/.
  *
  *   node tools/site/sync-docs.mjs          # copy
  *   node tools/site/sync-docs.mjs --check  # fail if a copy is stale
  *
- * The site is deployable as a plain directory (see apps/site/README.md), so
+ * The site is deployable as a plain directory (see site/README.md), so
  * its docs viewer fetches same-origin `.md` files rather than reaching into
  * the repo. These copies are byte-identical to the sources — the viewer
  * does its own link rewriting at render time, so nothing here edits spec
@@ -17,7 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const dest = path.join(repo, "apps", "site", "docs");
+const dest = path.join(repo, "site", "docs");
 
 /** source (repo-relative) -> slug the docs viewer routes on */
 export const DOCS = [
@@ -51,7 +51,7 @@ for (const [src, slug] of DOCS) {
   if (check) {
     const current = fs.existsSync(to) ? fs.readFileSync(to) : null;
     if (current === null || !current.equals(body)) {
-      console.error(`stale: apps/site/docs/${slug}.md != ${src}`);
+      console.error(`stale: site/docs/${slug}.md != ${src}`);
       stale += 1;
     }
   } else {
@@ -66,5 +66,5 @@ if (check) {
   }
   console.log(`site docs in sync (${DOCS.length} files)`);
 } else {
-  console.log(`synced ${DOCS.length} docs -> apps/site/docs/`);
+  console.log(`synced ${DOCS.length} docs -> site/docs/`);
 }

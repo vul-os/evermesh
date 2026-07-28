@@ -1,0 +1,55 @@
+{
+  "note": "Hand-maintained. Declares exactly what a green conformance run verifies, per group and per target, so a corpus that shrinks — or one that grows without the harness growing with it — fails instead of passing quietly. Adding, removing or renaming a vector is expected to change this file in the same commit. See src/coverage.rs.",
+  "total": 189,
+  "groups": {
+    "bundle": 4,
+    "chunktree": 14,
+    "envelope": 7,
+    "identity": 12,
+    "json": 9,
+    "kinds/anchor": 5,
+    "kinds/attest": 5,
+    "kinds/channel": 5,
+    "kinds/claim.author": 5,
+    "kinds/claim.dispute": 5,
+    "kinds/claim.license": 5,
+    "kinds/claim.transfer": 5,
+    "kinds/comment": 5,
+    "kinds/delegate": 6,
+    "kinds/endorse.gateway": 6,
+    "kinds/feed.takedown": 5,
+    "kinds/follow": 4,
+    "kinds/keygrant": 5,
+    "kinds/live.chat": 6,
+    "kinds/live.manifest": 5,
+    "kinds/manifest": 8,
+    "kinds/mirror": 5,
+    "kinds/notice.counter": 5,
+    "kinds/notice.takedown": 6,
+    "kinds/playlist": 6,
+    "kinds/profile": 5,
+    "kinds/reaction": 5,
+    "kinds/receipt": 5,
+    "kinds/retract": 5,
+    "kinds/rotation": 4,
+    "kinds/similarity": 6,
+    "kinds/supersede": 6
+  },
+  "targets": {
+    "kernel": {
+      "pass": 189,
+      "fail": 0,
+      "skip": 0
+    },
+    "node": {
+      "pass": 177,
+      "fail": 0,
+      "skip": 12
+    },
+    "relay": {
+      "pass": 115,
+      "fail": 0,
+      "skip": 74
+    }
+  }
+}

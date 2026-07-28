@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Verifies apps/site in a real browser.
+ * Verifies site/ in a real browser.
  *
  *   node tools/site/check.mjs            # check
  *   node tools/site/check.mjs --shots    # also write site screenshots
@@ -13,7 +13,7 @@
  *   - the docs viewer actually renders each document (no error box, real
  *     headings) rather than silently showing "Loading…"
  *
- * Serves apps/site over a throwaway HTTP server, because the viewer fetches
+ * Serves site/ over a throwaway HTTP server, because the viewer fetches
  * markdown and file:// would block it.
  */
 import { chromium } from "playwright";
@@ -23,7 +23,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const siteDir = path.join(repo, "apps", "site");
+const siteDir = path.join(repo, "site");
 const shotsDir = path.join(siteDir, "screenshots");
 const withShots = process.argv.includes("--shots");
 

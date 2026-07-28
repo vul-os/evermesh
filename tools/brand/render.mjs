@@ -6,8 +6,8 @@
  *
  * Writes:
  *   assets/og-image.png                    <- tools/brand/og-card.html  (1200x630)
- *   apps/site/assets/apple-touch-icon.png  <- assets/favicon.svg        (180x180)
- *   apps/site/assets/og-image.png          <- copy of the card
+ *   site/assets/apple-touch-icon.png  <- assets/favicon.svg        (180x180)
+ *   site/assets/og-image.png          <- copy of the card
  *
  * Everything is served over a throwaway local HTTP server first: file://
  * pages cannot load the sibling stylesheets/fonts under Chromium's
@@ -57,13 +57,13 @@ async function shoot(url, width, height, out) {
 }
 
 await shoot(`${base}/tools/brand/og-card.html`, 1200, 630, "assets/og-image.png");
-await shoot(`${base}/assets/favicon.svg`, 180, 180, "apps/site/assets/apple-touch-icon.png");
+await shoot(`${base}/assets/favicon.svg`, 180, 180, "site/assets/apple-touch-icon.png");
 
 fs.copyFileSync(
   path.join(repo, "assets/og-image.png"),
-  path.join(repo, "apps/site/assets/og-image.png"),
+  path.join(repo, "site/assets/og-image.png"),
 );
-console.log("wrote apps/site/assets/og-image.png");
+console.log("wrote site/assets/og-image.png");
 
 await browser.close();
 server.close();

@@ -16,13 +16,12 @@
 //!   `envelope`, `signature`, `unknown-algorithm`, or `kind`. `layer`
 //!   says which validation pass produces the error: `"envelope"` means
 //!   `Record::from_cbor` + `Record::verify` alone must reject it (every
-//!   runner target can check this today); `"kind"` means the rejection
-//!   only happens once kind-level validation
-//!   (`evermesh_kernel::kinds::validate`) runs, which is not wired into
-//!   this runner by default (see `src/kernel_target.rs`) because the
-//!   kinds module is still being completed in parallel. Kind-layer
-//!   vectors are still generated and shipped; the runner reports them
-//!   as skipped rather than failed until kind validation is enabled.
+//!   runner target checks this); `"kind"` means the rejection only
+//!   happens once kind-level validation
+//!   (`evermesh_kernel::kinds::validate`) runs. The kernel target runs
+//!   that pass (see `src/kernel_target.rs`); the node and relay targets
+//!   have no kind-validation surface and report these as skips, which
+//!   `coverage.json` declares so the skip count cannot drift unnoticed.
 //! * `chunk-proof` — describes a synthetic blob (by formula, so no
 //!   megabytes of hex need to live in the fixture file), a chunk index,
 //!   a sibling proof, a root, and whether the proof MUST verify.

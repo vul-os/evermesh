@@ -21,17 +21,12 @@ pub enum Outcome {
     Pass,
     /// The vector's expectation did not hold; the string explains how.
     Fail(String),
-    /// Not checked against this target/configuration. Not a failure —
-    /// e.g. a `layer: kind` vector when kind-level validation is not
-    /// wired into this build (see the module docs and the `// kinds`
-    /// comment below).
+    /// Not checked against this target/configuration. Not a failure, and
+    /// never silent: the runner prints every skip by name with this
+    /// reason, and `coverage.json` declares how many each target is
+    /// allowed to have. The string must say *what was not verified*, not
+    /// merely that something was skipped.
     Skip(String),
-}
-
-impl Outcome {
-    pub fn is_fail(&self) -> bool {
-        matches!(self, Outcome::Fail(_))
-    }
 }
 
 fn hex_decode(s: &str) -> Result<Vec<u8>, String> {

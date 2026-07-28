@@ -399,18 +399,30 @@ mod tests {
         assert_eq!(content_id_to_blob_id(&ContentId(raw)), None);
     }
 
-    /// THE load-bearing negative result: same tree shape, different values.
+    /// The load-bearing negative result, in its cheap single-chunk form:
+    /// same tree shape, different values.
+    ///
+    /// These blobs are `n` **bytes**, so every one of them is a *single*
+    /// 1 MiB chunk — this covers the leaf rule only, not the interior-node
+    /// or odd-node rules. The claim across real chunk counts (1..=9 actual
+    /// chunks, with frozen roots for both profiles) lives in
+    /// `tests/chunk_tree_profiles.rs`, which additionally runs in the
+    /// default build so the proof does not vanish with this optional
+    /// feature.
     #[test]
-    fn native_and_pub_roots_differ_for_every_chunk_count() {
+    fn native_and_pub_leaf_roots_differ_for_single_chunk_blobs() {
         for n in 1usize..=9 {
-            // Small synthetic "chunks" are fine here: both trees are driven by
-            // the same chunking, and we are comparing values, not sizes.
             let bytes: Vec<u8> = (0..n).map(|i| i as u8).collect();
+            assert_eq!(
+                ChunkTree::from_bytes(&bytes).n_chunks(),
+                1,
+                "this fixture is single-chunk by construction"
+            );
             let (native, pubroot) = divergence::roots_for(&bytes).unwrap();
             let native_framed = content_id_from_digest(&native);
             assert_ne!(
                 native_framed, pubroot,
-                "evermesh and §22 roots must NOT coincide (n={n}); \
+                "evermesh and §22 roots must NOT coincide ({n} byte(s)); \
                  if they ever do, the proofs would be silently interchangeable"
             );
         }

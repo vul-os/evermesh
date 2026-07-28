@@ -11,7 +11,7 @@
  * with a stubbed backend, and the README says so; they are not pictures
  * of a running network, and must never be captioned as if they were.
  *
- * Writes apps/site/screenshots/ui-{dark,light}.png.
+ * Writes site/screenshots/ui-{dark,light}.png.
  */
 import { chromium } from "playwright";
 import http from "node:http";
@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const dist = path.join(repo, "apps", "gateway", "web", "dist");
-const shots = path.join(repo, "apps", "site", "screenshots");
+const shots = path.join(repo, "site", "screenshots");
 
 if (!fs.existsSync(dist)) {
   console.error("build the frontend first: pnpm --filter @evermesh/gateway-web build");
@@ -196,7 +196,7 @@ for (const scheme of ["dark", "light"]) {
   await page.waitForSelector("h3");
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(shots, `ui-${scheme}.png`) });
-  console.log("wrote apps/site/screenshots/ui-" + scheme + ".png");
+  console.log("wrote site/screenshots/ui-" + scheme + ".png");
   await page.close();
 }
 await browser.close();

@@ -1,4 +1,4 @@
-# apps/site
+# site/
 
 evermesh.org: a static landing page and a hash-routed docs viewer. No
 framework, no build step, no CDN. Deployable as a directory.
@@ -44,7 +44,7 @@ text, because the spec is normative and this is only a rendering of it.
 
 ## Deploy
 
-Copy `apps/site/*` to any static host with no build command. Everything is
+Copy `site/*` to any static host with no build command. Everything is
 same-origin: fonts, the markdown renderer (`assets/vendor/marked.umd.js`,
 MIT), and the documents themselves.
 
@@ -54,7 +54,7 @@ Before going live, check `<link rel="canonical">`, the `og:` URLs,
 
 ## Design
 
-The brand is documented in [`assets/README.md`](../../assets/README.md):
+The brand is documented in [`assets/README.md`](../assets/README.md):
 "signal on carbon", Syne / Hanken Grotesk / JetBrains Mono, and the
 `--bo-*` tokens in `assets/tokens.css` that this stylesheet and the
 gateway's reference UI both read from.

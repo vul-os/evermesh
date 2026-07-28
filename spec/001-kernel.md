@@ -200,6 +200,49 @@ incremental and out-of-order retrieval.
 Servers advertising range support ([006](006-relay.md) §5) MUST serve
 range proofs aligned to chunk boundaries.
 
+### 8.1 Chunk-tree profiles
+
+The construction above is a **profile**, named `EM-1`. A second profile,
+`DP-22`, exists in the wild: DMTAP-PUB §22.2.2's `PubManifest` tree, which
+solves the same problem over the same 1 MiB chunking and produces
+**different roots for the same bytes**.
+
+| | `EM-1` (this specification) | `DP-22` (DMTAP-PUB §22.2.2) |
+|---|---|---|
+| Chunk size | 1 MiB | 1 MiB |
+| Chunk digest | — (chunk bytes go straight into the leaf) | `h_i = 0x1e ‖ BLAKE3-256(chunk)`, an address |
+| Leaf hash | `BLAKE3-256(0x00 ‖ chunk_bytes)` | `BLAKE3-256(DS ‖ 0x00 ‖ h_i)` |
+| Interior hash | `BLAKE3-256(0x01 ‖ left ‖ right)` | `BLAKE3-256(DS ‖ 0x01 ‖ left ‖ right)` |
+| Unpaired node | promoted unchanged | RFC 6962 split at the largest power of two `< n` |
+| Empty blob | permitted (zero chunks, no root) | forbidden (`n ≥ 1`) |
+| Root form | bare 32 bytes, rendered `b3-256:<hex>` | `0x1e ‖ root` (multihash) |
+| Range proofs | specified (this section) | not specified; per-chunk self-verification only |
+
+`DS` is the `"DMTAP-PUB-v0/manifest"` domain-separation tag, folded into
+every leaf and interior preimage. The two profiles reduce an `n`-leaf list
+to a root with the **same tree shape** for every `n`, and never with the
+same **value**.
+
+**The two profiles are frozen as distinct and MUST NOT be converged.**
+`EM-1` is the only profile an Evermesh `chunk_root` ever denotes.
+Rationale, recorded so this is not reopened as a defect:
+
+1. Evermesh folds its `0x00` leaf tag *inside* the hash, so it has never
+   persisted `BLAKE3-256(chunk)` anywhere. Restating a stored corpus under
+   `DP-22` therefore requires **re-reading and re-hashing every stored
+   media byte**, not a metadata-only recompute over retained digests.
+2. No two implementations exchange a chunk proof across a profile
+   boundary; the interchange the convergence would buy is not one anybody
+   performs.
+
+An implementation MUST NOT accept a range proof under one profile against
+a root produced by the other. The roots differing at every chunk count is
+the property that makes this safe — if they ever coincided, a proof would
+verify without its rules ever having been checked — and it is asserted
+executably in `crates/evermesh-kernel/tests/chunk_tree_profiles.rs`, which
+also pins the `EM-1` roots for chunk counts 1–9 against change. The full
+byte-level comparison is in `docs/DMTAP-CONVERGENCE.md`.
+
 ## 9. Fetch hints
 
 ```
@@ -246,7 +289,9 @@ is invalid.
 * `IdentityRef` carries the signing key so records verify without the
   rotation chain; authorization is a separate, chain-dependent check.
 * Chunk-tree leaves/interiors are domain-separated with `0x00`/`0x01`;
-  odd nodes promote unchanged.
+  odd nodes promote unchanged. This is profile `EM-1` (§8.1); the
+  divergence from DMTAP-PUB §22's `DP-22` profile is frozen deliberately
+  and MUST NOT be converged.
 
 ## Test vectors
 
@@ -254,8 +299,13 @@ Covered by conformance groups:
 
 * `envelope/` — valid records; mutations: bad signature, non-canonical
   encoding, wrong id, unknown envelope key, unknown `sig_alg`.
-* `chunktree/` — roots and range proofs for 0, 1, 2, 3, and 1000-chunk
-  blobs, including a truncated final chunk; invalid: wrong sibling,
-  swapped leaf prefix.
+* `chunktree/` — roots and range proofs, every index, for 1, 2, 3, and
+  5-chunk blobs with a truncated final chunk; invalid: wrong sibling,
+  wrong index, any index into the empty (zero-chunk) blob. Not covered by
+  a shipped vector: a 1000-chunk blob (~1 GiB to materialize per run) and
+  the swapped-leaf-prefix case. The `0x00`/`0x01` separation and the `EM-1`
+  roots themselves are pinned instead by
+  `crates/evermesh-kernel/tests/chunk_tree_profiles.rs` (§8.1), which runs
+  in the ordinary test gate.
 * `json/` — JSON↔CBOR round-trip fixtures, including a JSON record that
   MUST fail (non-round-trippable).

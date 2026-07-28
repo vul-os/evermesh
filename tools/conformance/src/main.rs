@@ -13,15 +13,27 @@
 //! the "golden rule" instrument: the same vectors must pass identically
 //! against the kernel crate, `@evermesh/kernel` under Node, and a live
 //! relay.
+//!
+//! Two rules keep a green run meaningful:
+//!
+//! * **Skips are loud.** Every skipped vector is printed by name with the
+//!   reason it was not checked, under a `NOT VERIFIED` heading. A skip is
+//!   not a failure, but it is never invisible.
+//! * **Coverage is asserted.** The run is checked against the committed
+//!   `coverage.json` (see [`evermesh_conformance::coverage`]) and exits
+//!   nonzero on any mismatch, so a corpus that shrinks, a group that
+//!   disappears, or a target that quietly stops verifying things cannot
+//!   report success.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
+use evermesh_conformance::coverage::Coverage;
 use evermesh_conformance::kernel_target::{self, Outcome};
-use evermesh_conformance::load_vectors;
 use evermesh_conformance::node_target::{self, NodeHarness};
 use evermesh_conformance::relay_target::{self, RelayConn};
 use evermesh_conformance::vectors::Vector;
+use evermesh_conformance::{default_coverage_path, default_vectors_dir, load_vectors};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Target {
@@ -30,12 +42,28 @@ enum Target {
     Relay,
 }
 
+impl Target {
+    /// The name this target is declared under in `coverage.json`.
+    fn name(self) -> &'static str {
+        match self {
+            Target::Kernel => "kernel",
+            Target::Node => "node",
+            Target::Relay => "relay",
+        }
+    }
+}
+
 struct Args {
     vectors_dir: PathBuf,
     target: Target,
     node_harness: PathBuf,
     relay_url: String,
+    coverage: PathBuf,
 }
+
+const USAGE: &str =
+    "usage: evermesh-conformance run [--vectors <dir>] [--target kernel|node|relay] \
+     [--node-harness <path>] [--relay-url <ws url>] [--coverage <path>]";
 
 fn crate_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -45,15 +73,13 @@ fn parse_args() -> Result<Args, String> {
     let mut argv = std::env::args().skip(1);
     let sub = argv.next().unwrap_or_default();
     if sub != "run" {
-        return Err(format!(
-            "usage: evermesh-conformance run --vectors <dir> [--target kernel|node|relay] \
-             [--node-harness <path>] [--relay-url <ws url>]\n(got subcommand {sub:?})"
-        ));
+        return Err(format!("{USAGE}\n(got subcommand {sub:?})"));
     }
-    let mut vectors_dir = crate_dir().join("vectors");
+    let mut vectors_dir = default_vectors_dir();
     let mut target = Target::Kernel;
     let mut node_harness = crate_dir().join("node-harness.mjs");
     let mut relay_url = "ws://127.0.0.1:8787/sync".to_string();
+    let mut coverage = default_coverage_path();
 
     let rest: Vec<String> = argv.collect();
     let mut i = 0;
@@ -82,7 +108,11 @@ fn parse_args() -> Result<Args, String> {
                 i += 1;
                 relay_url = rest.get(i).ok_or("--relay-url needs a value")?.clone();
             }
-            other => return Err(format!("unrecognized argument: {other}")),
+            "--coverage" => {
+                i += 1;
+                coverage = PathBuf::from(rest.get(i).ok_or("--coverage needs a value")?);
+            }
+            other => return Err(format!("unrecognized argument: {other}\n{USAGE}")),
         }
         i += 1;
     }
@@ -91,6 +121,7 @@ fn parse_args() -> Result<Args, String> {
         target,
         node_harness,
         relay_url,
+        coverage,
     })
 }
 
@@ -105,6 +136,18 @@ fn main() {
         Ok(a) => a,
         Err(e) => {
             eprintln!("{e}");
+            std::process::exit(2);
+        }
+    };
+
+    let coverage = match Coverage::load(&args.coverage) {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!(
+                "failed to load the coverage manifest {}: {e}\nA run without a coverage manifest \
+                 cannot tell you how much it verified, so it is not allowed to report success.",
+                args.coverage.display()
+            );
             std::process::exit(2);
         }
     };
@@ -127,6 +170,12 @@ fn main() {
         std::process::exit(2);
     }
 
+    let corpus_problems = coverage.check_corpus(&vectors);
+    if !corpus_problems.is_empty() {
+        print_coverage_problems("corpus", &args.coverage, &corpus_problems);
+        std::process::exit(2);
+    }
+
     let results: Vec<(Vector, Outcome)> = match args.target {
         Target::Kernel => run_kernel(&vectors),
         Target::Node => run_node(&vectors, &args.node_harness),
@@ -134,7 +183,27 @@ fn main() {
     };
 
     let any_fail = print_report(&results);
-    std::process::exit(if any_fail { 1 } else { 0 });
+    let target_problems = coverage.check_target(args.target.name(), &results);
+    if !target_problems.is_empty() {
+        print_coverage_problems(args.target.name(), &args.coverage, &target_problems);
+    }
+    std::process::exit(if any_fail || !target_problems.is_empty() {
+        1
+    } else {
+        0
+    });
+}
+
+fn print_coverage_problems(what: &str, manifest: &Path, problems: &[String]) {
+    eprintln!("\nCOVERAGE MISMATCH ({what}) — {}", manifest.display());
+    for p in problems {
+        eprintln!("  {p}");
+    }
+    eprintln!(
+        "\nThis run does not verify what this suite claims to verify. Either restore the missing \
+         coverage or update {} in the same commit that changed it.",
+        manifest.display()
+    );
 }
 
 fn run_kernel(vectors: &[Vector]) -> Vec<(Vector, Outcome)> {
@@ -185,11 +254,13 @@ fn run_relay(vectors: &[Vector], relay_url: &str) -> Vec<(Vector, Outcome)> {
     })
 }
 
-/// Print the per-group table and the detail of every failure. Returns
-/// whether any vector failed.
+/// Print the per-group table, every skip with its reason, and the detail
+/// of every failure. Returns whether any vector failed.
 fn print_report(results: &[(Vector, Outcome)]) -> bool {
     let mut tally: BTreeMap<String, GroupTally> = BTreeMap::new();
     let mut failures: Vec<(&Vector, &Outcome)> = Vec::new();
+    // reason -> the vectors that were not checked for that reason.
+    let mut skips: BTreeMap<&str, Vec<String>> = BTreeMap::new();
 
     for (v, outcome) in results {
         let entry = tally.entry(v.group.clone()).or_insert(GroupTally {
@@ -203,7 +274,13 @@ fn print_report(results: &[(Vector, Outcome)]) -> bool {
                 entry.fail += 1;
                 failures.push((v, outcome));
             }
-            Outcome::Skip(_) => entry.skip += 1,
+            Outcome::Skip(reason) => {
+                entry.skip += 1;
+                skips
+                    .entry(reason.as_str())
+                    .or_default()
+                    .push(format!("{}/{}", v.group, v.name));
+            }
         }
     }
 
@@ -245,6 +322,21 @@ fn print_report(results: &[(Vector, Outcome)]) -> bool {
         total_skip,
         width = width
     );
+
+    // Skips are never silent. A skip is not a failure, but "this vector
+    // was not checked" is exactly the information a passing summary line
+    // otherwise hides, so every one of them is named here with its
+    // reason — grouped by reason, because the reasons repeat and the
+    // vectors do not.
+    if total_skip > 0 {
+        println!("\nNOT VERIFIED — {total_skip} vector(s) skipped, by reason:");
+        for (reason, names) in &skips {
+            println!("\n  [{}] {reason}", names.len());
+            for name in names {
+                println!("      {name}");
+            }
+        }
+    }
 
     if !failures.is_empty() {
         println!("\nFAILURES:");

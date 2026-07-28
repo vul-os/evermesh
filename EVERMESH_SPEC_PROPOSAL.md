@@ -7,6 +7,42 @@
 
 ---
 
+> ## ⚠️ Superseded — historical. Not the normative specification.
+>
+> This is **Draft 0.1**, the original proposal. The normative specification
+> is **Draft 0.2**, the numbered per-concern files in
+> [`spec/`](spec/README.md) (`000-overview.md` … `011-threat-model.md`),
+> with [`spec/draft-evermesh-protocol-00.md`](spec/draft-evermesh-protocol-00.md)
+> as its single-document rendering. **Where this document and `spec/`
+> disagree, `spec/` wins, and the implementation follows `spec/`.**
+>
+> This file is kept because it is where the design argument was made, not
+> as a description of what was built. Read it as intent. Places it is
+> already known to diverge from what shipped:
+>
+> * **§3.1 `refs`** is sketched as `[RecordId | BlobId]`. The shipped
+>   form is a positional `Ref = [ref_type, hash]` with `0 = record`,
+>   `1 = blob` (spec 001 §6, DECISIONS.md P5).
+> * **§3.1 `id`** is described loosely ("kind..sig excluded"). The shipped
+>   id covers envelope keys 1–6 **including `sig_alg`**, for downgrade
+>   resistance (spec 001 §3, P2), and the signature is over the
+>   domain-separated id `"evermesh:record:v1" ‖ id` (P3), not over raw
+>   envelope bytes.
+> * **§3.2 chunk trees** are unnamed here. They are now profile **`EM-1`**
+>   (spec 001 §8.1), deliberately and permanently distinct from
+>   DMTAP-PUB §22's `DP-22` profile.
+> * **Scope.** This draft says *video* throughout. Evermesh has since been
+>   rescoped to **media — video and audio** (DECISIONS.md, 2026-07-2x).
+> * **§16 v1 deliverables** is a plan, not a status report. For what is
+>   actually built versus spec'd-but-not-built, the authoritative list is
+>   [README.md § Status by component](README.md#status-by-component).
+>
+> The design *principles* (§1), roles (§2), and the survival test in the
+> abstract are unchanged and still binding — they were carried into
+> `spec/000-overview.md` intact.
+
+---
+
 ## Abstract
 
 Evermesh is a protocol for publishing, distributing, and discussing video without any

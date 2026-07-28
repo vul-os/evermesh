@@ -94,9 +94,9 @@ All three are SIL OFL 1.1 (`fonts/LICENSE-*.txt`).
 - Keep the triangle-and-satellites geometry intact when resizing — it is
   designed to read at 16px and at 512px.
 - Pick the light or dark lockup by the background it sits on, via
-  `<picture>` + `prefers-color-scheme` (see `apps/site/index.html`).
+  `<picture>` + `prefers-color-scheme` (see `site/index.html`).
 - Spend the signal colour sparingly. If two things on a screen are lime,
   at least one of them is wrong.
-- `apps/site/assets/` holds copies of these files so the site directory is
+- `site/assets/` holds copies of these files so the site directory is
   deployable on its own; if you edit one here, copy it there too.
   `tools/brand/render.mjs` regenerates the raster exports in both places.

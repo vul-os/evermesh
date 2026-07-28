@@ -63,6 +63,75 @@ jobs:
             | tee /tmp/vec.log
           grep -q "1 passed" /tmp/vec.log
 
+  # The `rust` job above already runs the conformance suite's *kernel*
+  # target, because tools/conformance/tests/kernel_conformance.rs wires it
+  # into `cargo test --workspace`. The other two runtimes need things a
+  # plain `cargo test` cannot provide — a built WASM package, and a live
+  # relay — so they get their own job here. Without it the "golden rule"
+  # (the same vectors pass identically in every runtime) would be a claim
+  # nothing in CI checks.
+  #
+  # Every target asserts itself against tools/conformance/coverage.json and
+  # exits nonzero on any mismatch, so a harness that spawns, dies, and
+  # checks nothing fails instead of printing an empty green table.
+  conformance:
+    name: Conformance (node + relay targets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # node target: @evermesh/kernel wraps crates/evermesh-wasm, so the
+      # WASM package has to exist before the harness can import it.
+      - name: Build the WASM kernel for the node target
+        run: pnpm --filter @evermesh/kernel build:wasm
+      - name: Conformance — node target
+        run: cargo run --bin evermesh-conformance -- run --target node
+
+      # relay target: a real evermesh-relay over its /sync websocket.
+      - name: Build the relay
+        run: cargo build -p evermesh-relay
+      - name: Boot a relay for the conformance run
+        run: |
+          mkdir -p /tmp/conformance-relay/blobs
+          cat > /tmp/conformance-relay/relay.json <<'JSON'
+          {
+            "listen_addr": "127.0.0.1:8787",
+            "db_path": "/tmp/conformance-relay/relay.sqlite3",
+            "name": "ci-conformance-relay.local",
+            "pow_min_bits": 0,
+            "blob": { "enabled": true, "dir": "/tmp/conformance-relay/blobs", "max_bytes": 1073741824 }
+          }
+          JSON
+          ./target/debug/evermesh-relay /tmp/conformance-relay/relay.json \
+            > /tmp/conformance-relay/relay.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null "http://127.0.0.1:8787/info"; then exit 0; fi
+            sleep 1
+          done
+          echo "::error::relay did not come up in 30s"
+          cat /tmp/conformance-relay/relay.log
+          exit 1
+      - name: Conformance — relay target
+        run: cargo run --bin evermesh-conformance -- run --target relay --relay-url ws://127.0.0.1:8787/sync
+      - name: Relay log
+        if: always()
+        run: cat /tmp/conformance-relay/relay.log || true
+
   wasm:
     name: WASM build
     runs-on: ubuntu-latest

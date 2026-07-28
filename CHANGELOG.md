@@ -24,6 +24,43 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `VerifiedBadge`) with Browse/Library/Watch/Listen/Settings views.
   P2P/swarm retrieval remains out of scope — playback is gateway-HTTP plus
   an offline cache, never a second implementation of transport.
+- **Chunk-tree profiles `EM-1` and `DP-22`, frozen** (spec 001 §8.1,
+  DECISIONS.md P20/T9). Evermesh's chunk tree and DMTAP-PUB §22.2.2's
+  produce different roots for the same bytes; the divergence is now named,
+  specified side by side, and declared permanent rather than carried as a
+  migration item. No wire change — `EM-1` is exactly the construction §8
+  already described. `crates/evermesh-kernel/tests/chunk_tree_profiles.rs`
+  pins both profiles' roots for chunk counts 1–9 **in the default build**,
+  so the proof does not depend on the optional `dmtap-pub` git dependency
+  being reachable; with the feature on, one further test recomputes the
+  `DP-22` column live so the frozen constants cannot go stale.
+- **The conformance suite asserts its own coverage.**
+  `tools/conformance/coverage.json` declares the exact per-group vector
+  counts and the exact pass/fail/skip shape each target must produce, and
+  every run — CLI or test — fails on any mismatch. Skips are printed by
+  name with their reason under a `NOT VERIFIED` heading; an unparseable
+  vector file is now a hard error instead of a dropped file with a
+  `warning:` line.
+- **The conformance suite runs in CI.** The kernel target runs inside
+  `cargo test --workspace` (`tools/conformance/tests/kernel_conformance.rs`);
+  a new `conformance` workflow job runs the node target against a freshly
+  built WASM package and the relay target against a relay it boots. The
+  three-runtime "golden rule" was previously asserted only by hand.
+  `just conformance-node`, `just conformance-relay` and
+  `just conformance-all` were added alongside.
+
+### Changed
+
+- The conformance node target now checks `layer: "kind"` vectors through
+  `@evermesh/kernel`'s `validateKind` instead of skipping them: **node
+  moves 142/0/47 → 177/0/12**, still zero failures. The surface had existed
+  since the WASM binding gained `validate_kind`; the harness simply was not
+  calling it.
+- `site/` is the single copy of the static site. It was byte-identically
+  duplicated at `apps/site/`, and only the `apps/` copy was refreshed by
+  `tools/site/sync-docs.mjs` — so the two would have silently drifted on
+  the next spec edit. Tooling, the justfile and the docs now all point at
+  `site/`.
 
 ## [0.1.0] — 2026-07-21
 
@@ -80,7 +117,7 @@ spec'd-but-not-built.
 - **`apps/gateway/web`** — the uniform reference UI (React + Vite +
   Tailwind + TanStack Query) every gateway ships, re-skinnable only through
   its `--bo-*` design tokens. 45 tests; builds.
-- **`apps/site`** — evermesh.org: a static landing page and docs viewer,
+- **`site`** — evermesh.org: a static landing page and docs viewer,
   browser-checked (`just site-check`).
 - **`tools/conformance`** — 189 deterministic test vectors replayed
   identically against three independent runtimes (in-process kernel,

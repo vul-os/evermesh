@@ -1,3 +1,27 @@
+> ## ⚠️ Historical — this is the original build prompt, not a status report.
+>
+> Nothing below describes what exists; it describes what was asked for. For
+> what is actually built, the authoritative list is
+> [README.md § Status by component](README.md#status-by-component).
+>
+> Two statements in this document are no longer true and are kept only
+> because rewriting a prompt after the fact would falsify the record:
+>
+> * **`EVERMESH_SPEC_PROPOSAL.md` is no longer authoritative.** It is
+>   Draft 0.1; the normative specification is Draft 0.2, the numbered
+>   files in [`spec/`](spec/README.md). Where the proposal and `spec/`
+>   disagree, `spec/` wins — see the banner on the proposal itself.
+> * **§15's "Final acceptance" is not met.** `just dev` is a pointer to
+>   the README's manual smoke run, not a one-command end-to-end demo, and
+>   there is no seeded demo content. `just conformance` does pass, and CI
+>   is green. The unmet parts are exactly the ones the README's status
+>   table already lists as not built (no deployment, no swarm transport,
+>   no live-streaming surface).
+>
+> The project has also been rescoped since: "video" throughout this
+> document means **media — video and audio** today (DECISIONS.md,
+> 2026-07-2x).
+
 ## Agent prompt: build the Evermesh monorepo from zero
 
 You are an expert protocol engineer and full-stack developer. Your task is to build
@@ -282,7 +306,7 @@ but ensure both variants pass contrast on their intended backgrounds. Include th
 wordmark "evermesh" in lowercase, set in an open-license geometric sans (embed as
 path outlines, not font-family, so it renders everywhere).
 
-## 14. Landing page (apps/site)
+## 14. Landing page (site)
 
 Static, no framework — one hand-crafted `index.html` + `style.css` + assets, deployable
 to any static host. Requirements:

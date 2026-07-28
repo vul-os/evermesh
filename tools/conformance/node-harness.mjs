@@ -101,6 +101,19 @@ async function handle(req) {
         return errorResponse(e);
       }
     }
+    case "validate-kind": {
+      // Kind-level validation (spec 003), the pass that runs *after* the
+      // envelope verifies. @evermesh/kernel exposes it, so `layer: "kind"`
+      // vectors are checked here rather than skipped — the kernel target
+      // checks the same vectors through `evermesh_kernel::kinds::validate`.
+      const bytes = kernel.fromHex(req.cbor_hex);
+      try {
+        await kernel.validateKind(bytes);
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, ...errorResponse(e) };
+      }
+    }
     case "verify-chunk": {
       const chunk = kernel.fromHex(req.chunk_hex);
       try {

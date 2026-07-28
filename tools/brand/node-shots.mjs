@@ -20,7 +20,7 @@
  * same honesty rule `ui-shots.mjs` states for the gateway screenshots
  * applies here.
  *
- * Writes apps/site/screenshots/ui-node-{dark,light}.png.
+ * Writes site/screenshots/ui-node-{dark,light}.png.
  */
 import { chromium } from "playwright";
 import http from "node:http";
@@ -30,7 +30,7 @@ import { fileURLToPath } from "node:url";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const dist = path.join(repo, "crates", "evermesh-node", "ui");
-const shots = path.join(repo, "apps", "site", "screenshots");
+const shots = path.join(repo, "site", "screenshots");
 
 if (!fs.existsSync(dist)) {
   console.error("build the node frontend first: pnpm --filter @evermesh/node-web build");
@@ -160,7 +160,7 @@ for (const scheme of ["dark", "light"]) {
   await page.waitForSelector("h1");
   await page.waitForTimeout(300);
   await page.screenshot({ path: path.join(shots, `ui-node-${scheme}.png`) });
-  console.log(`wrote apps/site/screenshots/ui-node-${scheme}.png`);
+  console.log(`wrote site/screenshots/ui-node-${scheme}.png`);
   await page.close();
 }
 

@@ -50,15 +50,15 @@ normative; where code and spec disagree, the spec wins.
 | Path | What it is | State |
 |---|---|---|
 | `spec/` | Normative protocol spec (000–011 + IETF draft), CC-BY-SA-4.0 | **Complete** for v1 scope |
-| `crates/evermesh-kernel` | Records, identity/rotation, blobs+chunk proofs, bundles, canonical codec, all 27 record kinds | **Implemented, tested** (193 unit + 7 property tests) |
+| `crates/evermesh-kernel` | Records, identity/rotation, blobs+chunk proofs, bundles, canonical codec, all 27 record kinds | **Implemented, tested** (201 unit + 7 property + 4 frozen chunk-tree-profile tests) |
 | `crates/evermesh-relay` | Axum `/sync` websocket relay: envelope validation, storage, filtered subscriptions, gossip, PoW, rate-limit, retention, blob sidecar (PUT/GET-range/proof) | **Implemented, tested** (47 tests) |
 | `crates/evermesh-wasm` | wasm-bindgen bindings over the kernel | **Implemented**, builds to WASM, tested |
 | `packages/kernel-ts` | Typed TS API over the WASM kernel | **Implemented, tested** (5 tests) |
 | `packages/ui` | Shared React components (player, verification badge) | **Implemented**, typechecks |
 | `apps/gateway/server` | Gateway backend: config, SQLite index, policy engine, key custody, relay clients, kind-aware ingest, upload/original-only pipeline, JSON API | **Implemented, tested** (45 tests); boots and connects to a relay |
 | `apps/gateway/web` | Gateway frontend: React + Vite + Tailwind | **Implemented, tested** (45 tests); builds |
-| `apps/site` | evermesh.org: static landing page + docs viewer | **Built**, browser-checked (`just site-check`) |
-| `tools/conformance` | 189 deterministic vectors + a runner replaying them against three runtimes | **Implemented, green** (see below) |
+| `site` | evermesh.org: static landing page + docs viewer | **Built**, browser-checked (`just site-check`) |
+| `tools/conformance` | 189 deterministic vectors + a runner replaying them against three runtimes, with an asserted coverage manifest | **Implemented, green** (see below); kernel target runs in `cargo test --workspace`, node + relay targets in their own CI job |
 | `crates/evermesh-node` + `apps/node-web` | Desktop media client (Tauri 2): browses a gateway, verifies manifests natively, pins for offline playback | **Implemented, tested**; no P2P/swarm retrieval (gateway-HTTP + offline cache only) |
 
 ### Spec'd but not built
@@ -83,14 +83,22 @@ The suite replays the same vectors against three independent runtimes — the
 live `evermesh-relay` over its `/sync` websocket. **A vector must pass
 identically in every runtime**; a divergence is a protocol/binding bug, never
 a fixture to special-case. Current result (0 failures across all three; the
-differing counts are documented per-runtime skips — each runtime only checks
-what it is responsible for):
+differing counts are per-runtime skips — each runtime only checks what it is
+responsible for):
 
-| Target | Pass | Fail | Skip |
-|---|---:|---:|---:|
-| kernel | 189 | 0 | 0 |
-| node (WASM/kernel-ts) | 142 | 0 | 47 |
-| relay (`/sync`) | 115 | 0 | 74 |
+| Target | Pass | Fail | Skip | What it declines to check |
+|---|---:|---:|---:|---|
+| kernel | 189 | 0 | 0 | nothing — it is the reference |
+| node (WASM/kernel-ts) | 177 | 0 | 12 | bundle import/export and non-record JSON: no such surface in `@evermesh/kernel` |
+| relay (`/sync`) | 115 | 0 | 74 | everything but the envelope — relays envelope-validate only (spec 006 §4) |
+
+Every skip is printed by name with its reason under a `NOT VERIFIED` heading,
+and every run checks itself against `tools/conformance/coverage.json`, which
+declares the exact per-group vector counts and the exact pass/fail/skip shape
+each target must produce. A run that verifies less than the suite claims to —
+a shrunken corpus, a group that vanished, a check that turned into a skip —
+exits nonzero instead of reporting a clean table. See
+[`tools/conformance/README.md`](tools/conformance/README.md).
 
 ## What it looks like
 
@@ -103,11 +111,11 @@ measured contrast table) is documented in [`assets/README.md`](assets/README.md)
 
 | Reference UI — dark | Reference UI — light |
 |---|---|
-| ![Gateway home in dark theme: the hero strip naming video, music, client-side verification and the desktop client, above a grid mixing video and audio cards](apps/site/screenshots/ui-dark.png) | ![The same page in the light theme](apps/site/screenshots/ui-light.png) |
+| ![Gateway home in dark theme: the hero strip naming video, music, client-side verification and the desktop client, above a grid mixing video and audio cards](site/screenshots/ui-dark.png) | ![The same page in the light theme](site/screenshots/ui-light.png) |
 
 | Desktop client (Tauri) — dark | Desktop client (Tauri) — light |
 |---|---|
-| ![The evermesh-node desktop client's Browse view: the same mixed video/audio grid, with a gateway picker and an All/Video/Audio filter](apps/site/screenshots/ui-node-dark.png) | ![The same view in the light theme](apps/site/screenshots/ui-node-light.png) |
+| ![The evermesh-node desktop client's Browse view: the same mixed video/audio grid, with a gateway picker and an All/Video/Audio filter](site/screenshots/ui-node-dark.png) | ![The same view in the light theme](site/screenshots/ui-node-light.png) |
 
 > These four are the real frontends served against a **stubbed** gateway
 > API / a **stubbed** Tauri IPC boundary (`node tools/brand/ui-shots.mjs`,
@@ -117,9 +125,9 @@ measured contrast table) is documented in [`assets/README.md`](assets/README.md)
 
 | evermesh.org | Docs viewer |
 |---|---|
-| ![The landing page: the tagline hero naming video, music, and the desktop client, followed by the survival test, roles, and an honest status section](apps/site/screenshots/site-dark.png) | ![The specification rendered in the site's docs viewer](apps/site/screenshots/docs-dark.png) |
+| ![The landing page: the tagline hero naming video, music, and the desktop client, followed by the survival test, roles, and an honest status section](site/screenshots/site-dark.png) | ![The specification rendered in the site's docs viewer](site/screenshots/docs-dark.png) |
 
-The site in [`apps/site`](apps/site/) is static and self-contained;
+The site in [`site`](site/) is static and self-contained;
 `just site-check` drives a real browser over it (console errors, links,
 every docs route, both themes) and `just site-shots` refreshes these
 images.
@@ -148,13 +156,22 @@ pnpm --filter @evermesh/gateway-web test         # gateway frontend (45)
 
 ### Conformance suite
 
+The kernel target already runs inside `cargo test --workspace`
+(`tools/conformance/tests/kernel_conformance.rs`). To drive the runner
+directly, or to reach the other two runtimes:
+
 ```sh
 cargo run --bin generate                        # (re)generate vectors — deterministic
-cargo run --bin evermesh-conformance -- run --target kernel
-cargo run --bin evermesh-conformance -- run --target node    # needs `just wasm` + kernel-ts build
+just conformance                                # kernel target, human-readable table
+just conformance-node                           # needs `just wasm` + kernel-ts build
 # relay target needs a live relay (see the smoke run below), then:
-cargo run --bin evermesh-conformance -- run --target relay --relay-url ws://127.0.0.1:8787/sync
+just conformance-relay                          # or: conformance-relay ws://host:port/sync
+just conformance-all                            # all three, the golden rule in full
 ```
+
+Adding or removing a vector is expected to change
+`tools/conformance/coverage.json` in the same commit; the runner fails until
+it does.
 
 ### Smoke run (relay + gateway, no ffmpeg)
 
@@ -203,7 +220,7 @@ GATEWAY_CONFIG=smoke/gateway.json \
 ### Site and brand
 
 ```sh
-just site-serve     # preview apps/site at http://127.0.0.1:8080
+just site-serve     # preview site at http://127.0.0.1:8080
 just site-check     # docs-copy sync check + real-browser check of the site
 just site-shots     # refresh the site/docs screenshots
 just ui-shots       # refresh the gateway reference-UI screenshots

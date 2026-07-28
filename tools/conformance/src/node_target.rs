@@ -19,13 +19,16 @@
 //! | `{"op":"record-from-json","json":<value>}` | `{"cbor_hex":...}` |
 //! | `{"op":"verify-chunk","root_hex":...,"n_chunks":u64,"index":u64,"chunk_hex":...,"proof_hex":[...]}` | `{"ok":true}` |
 //! | `{"op":"identity-verify-chain","records_hex":[...],"now":i64,"observed":{<id_hex>:seconds}}` | `{"head_hex":...,"signing_key_hex":...,"depth":u64}` |
+//! | `{"op":"validate-kind","cbor_hex":...}` | `{"ok":true}` |
 //!
-//! `@evermesh/kernel` only exposes record-level and chunk/identity
+//! `@evermesh/kernel` only exposes record-level, kind, and chunk/identity
 //! helpers (see `packages/kernel-ts/src/index.ts`), not a generic
 //! CBOR-Value-level JSON codec or bundle import/export, so
 //! `json-roundtrip` vectors that are not record-shaped and all `bundle`
 //! vectors are reported as skipped against this target rather than
 //! failed — that is a gap in surface area, not a protocol violation.
+//! Every skip is printed by name with its reason and its count is
+//! declared in `coverage.json`, so a surface gap cannot quietly widen.
 //!
 //! Requires **Node >= 22.6** run with `--experimental-strip-types` (the
 //! harness imports `packages/kernel-ts/src/index.ts` directly), and
@@ -236,17 +239,33 @@ fn run_record_invalid(
             }
         }
         Layer::Kind => {
-            if accepted {
-                Outcome::Skip(
-                    "kind-layer vector: node harness accepts at envelope layer as expected; \
-                     kind-level validation is a separate, not-yet-wired check"
-                        .into(),
-                )
-            } else {
-                Outcome::Fail(format!(
+            if !accepted {
+                return Outcome::Fail(format!(
                     "kind-layer vector rejected at envelope layer instead ({resp}); \
                      fixture or envelope rules disagree between kernel and node"
-                ))
+                ));
+            }
+            // The envelope accepted it, as a kind-layer vector requires.
+            // `@evermesh/kernel` exposes the kind pass too, so check it
+            // rather than declaring the vector out of reach.
+            let resp = match call_or_fail(
+                harness,
+                json!({"op": "validate-kind", "cbor_hex": cbor_hex}),
+            ) {
+                Ok(r) => r,
+                Err(o) => return o,
+            };
+            if resp.get("ok") == Some(&JsonValue::Bool(true)) {
+                return Outcome::Fail(
+                    "expected kind-level rejection, validateKind accepted it".into(),
+                );
+            }
+            match response_error_class(&resp) {
+                Some(class) if class == expected_error => Outcome::Pass,
+                Some(class) => Outcome::Fail(format!(
+                    "wrong error class: got {class}, expected {expected_error}"
+                )),
+                None => Outcome::Fail(format!("rejected but no error_class reported: {resp}")),
             }
         }
     }

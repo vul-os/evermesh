@@ -48,16 +48,31 @@ dev:
     @echo "See the 'Smoke run' section in README.md: boots a relay with the"
     @echo "blob sidecar and the gateway server against it (no ffmpeg needed)."
 
+# Changing the corpus must change tools/conformance/coverage.json too — that
+# is deliberate; see tools/conformance/README.md "Coverage is asserted".
 # (Re)generate the deterministic conformance vectors
 conformance-generate:
     cargo run --bin generate
 
-# Run the conformance suite against the in-process kernel (reference target).
-# For the node and relay targets, see README "Conformance suite".
+# `cargo test --workspace` already runs this target via
+# tools/conformance/tests/kernel_conformance.rs; this recipe is the table.
+# Conformance vs the in-process kernel (reference target)
 conformance:
     cargo run --bin evermesh-conformance -- run --target kernel
 
-# Copy spec/ + docs into apps/site/docs (the site is deployable on its own)
+# Same vectors against @evermesh/kernel under Node — needs `just wasm` first.
+conformance-node:
+    cargo run --bin evermesh-conformance -- run --target node
+
+# Same vectors against a live relay's /sync. Pass a URL to point elsewhere.
+conformance-relay url="ws://127.0.0.1:8787/sync":
+    cargo run --bin evermesh-conformance -- run --target relay --relay-url {{url}}
+
+# Requires `just wasm` and a relay already listening on the default URL.
+# The golden rule in full: the same vectors against all three runtimes
+conformance-all: conformance conformance-node conformance-relay
+
+# Copy spec/ + docs into site/docs (the site is deployable on its own)
 site-docs:
     node tools/site/sync-docs.mjs
 
@@ -66,29 +81,29 @@ site-check:
     node tools/site/sync-docs.mjs --check
     node tools/site/check.mjs
 
-# Same, and refresh apps/site/screenshots/
+# Same, and refresh site/screenshots/
 site-shots:
     node tools/site/check.mjs --shots
 
 # Screenshot the gateway reference UI against a stubbed API
-# (apps/site/screenshots/ui-{dark,light}.png) — build first.
+# (site/screenshots/ui-{dark,light}.png) — build first.
 ui-shots:
     pnpm --filter @evermesh/gateway-web build
     node tools/brand/ui-shots.mjs
 
 # Screenshot the desktop (Tauri) node client against a stubbed IPC
-# boundary (apps/site/screenshots/ui-node-{dark,light}.png) — build first.
+# boundary (site/screenshots/ui-node-{dark,light}.png) — build first.
 node-shots:
     pnpm --filter @evermesh/node-web build
     node tools/brand/node-shots.mjs
 
-# Refresh every screenshot in apps/site/screenshots/
+# Refresh every screenshot in site/screenshots/
 shots: site-shots ui-shots node-shots
 
 # Re-render the raster brand exports (OG card, apple-touch-icon)
 brand:
     node tools/brand/render.mjs
 
-# Serve apps/site locally at http://127.0.0.1:8080
+# Serve site locally at http://127.0.0.1:8080
 site-serve:
-    cd apps/site && python3 -m http.server 8080
+    cd site && python3 -m http.server 8080

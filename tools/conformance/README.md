@@ -21,15 +21,19 @@ broken — never a reason to special-case the vector.
 ```
 tools/conformance/
 ├── Cargo.toml
+├── coverage.json           what a green run must verify (see "Coverage is asserted")
 ├── node-harness.mjs        the Node side of the `node` target
 ├── src/
 │   ├── vectors.rs          the vector format (serde structs)
 │   ├── lib.rs              shared vector loading
+│   ├── coverage.rs         the coverage manifest and its checks
 │   ├── kernel_target.rs    executes vectors against evermesh-kernel in-process
 │   ├── node_target.rs      spawns node-harness.mjs, speaks its protocol
 │   ├── relay_target.rs     speaks the spec 006 /sync websocket protocol
 │   ├── main.rs             the `evermesh-conformance run` CLI
 │   └── bin/generate.rs     the deterministic vector generator
+├── tests/
+│   └── kernel_conformance.rs   the kernel target under `cargo test --workspace`
 └── vectors/                generated output (see "Regenerating" below)
     ├── envelope/
     ├── kinds/<kind-name>/  one directory per spec 003 registry entry
@@ -60,7 +64,7 @@ a clean diff), with four fields every vector shares —
 | `kind` | Fields | Meaning |
 |---|---|---|
 | `record-valid` | `cbor_hex`, `expected_id_hex`, `json` | The bytes MUST parse, verify, and derive this id; `json` is its JSON interchange form (spec 001 §11), embedded as a real value so it reads/diffs naturally. |
-| `record-invalid` | `cbor_hex`, `expected_error`, `layer` | The bytes MUST be rejected. `expected_error` is one of `cbor`, `non-canonical`, `envelope`, `signature`, `unknown-algorithm`, `kind` (mirrors `evermesh_kernel::Error`). `layer` is `"envelope"` (checkable by `Record::from_cbor` + `Record::verify` alone — every target checks these today) or `"kind"` (only checkable by `evermesh_kernel::kinds::validate`, not yet wired into this runner — see below). |
+| `record-invalid` | `cbor_hex`, `expected_error`, `layer` | The bytes MUST be rejected. `expected_error` is one of `cbor`, `non-canonical`, `envelope`, `signature`, `unknown-algorithm`, `kind` (mirrors `evermesh_kernel::Error`). `layer` is `"envelope"` (checkable by `Record::from_cbor` + `Record::verify` alone — every target checks these) or `"kind"` (only checkable by `evermesh_kernel::kinds::validate`, which the kernel target runs and the node/relay targets declare as a skip). |
 | `chunk-proof` | `n_chunks`, `last_chunk_len`, `chunk_index`, `proof_hex`, `root_hex`, `valid` | Describes a synthetic blob by formula (chunk `i` is `(i % 251)` repeated for its length; every chunk but the last is exactly 1 MiB) rather than embedding megabytes of hex, plus a range proof and whether it MUST verify. |
 | `identity-chain` | `records_hex`, `now`, `observed`, `expected` or `expected_error` | Records to feed `Identity::verify_chain`, in the order the vector wants them merged; `observed` maps record-id-hex to a first-observed Unix time (absent = "just observed", not final). |
 | `bundle` | `bundle_hex`, `expected` or `expected_error` | A complete bundle byte stream (magic + CBOR item sequence); `expected` is what a correct importer recovers (record/blob ids, skip count, truncation flag), or `expected_error` if the container itself is malformed (e.g. bad magic — `Bundle::import` MUST fail outright, not salvage). |
@@ -82,8 +86,10 @@ synthesized from a formula, and output is written in sorted order with
 sorted-key JSON — so a clean checkout re-running `generate` produces no
 diff. Record-kind bodies are built directly with `RecordBuilder` +
 `evermesh_kernel::codec::Value` per spec 003/004's schemas, **not** via
-`evermesh_kernel::kinds` (that module is being completed in parallel and is
-not yet part of the compiled kernel crate — see the report below).
+`evermesh_kernel::kinds`: the fixtures must encode what the *spec* says,
+independently of the module the suite then judges. If a vector is added or
+removed, `coverage.json` must change in the same commit — the runner
+enforces it.
 
 ## Running
 
@@ -100,27 +106,81 @@ cargo run --bin evermesh-conformance -- run --target relay --relay-url ws://127.
 ```
 
 `--vectors <dir>` overrides the vector directory (default:
-`tools/conformance/vectors`, resolved relative to this crate). Each run
-prints a per-group pass/fail/skip table and exits nonzero if anything
-failed. `just conformance` (once wired by the lead) should invoke all
-three targets in turn.
+`tools/conformance/vectors`, resolved relative to this crate);
+`--coverage <path>` overrides the coverage manifest. Each run prints a
+per-group pass/fail/skip table, names every skipped vector, checks itself
+against `coverage.json`, and exits nonzero if anything failed or if
+coverage moved.
 
-**Skips are not failures.** A vector is skipped, with a stated reason,
-when the target genuinely cannot check it yet — e.g. a `layer: "kind"`
-record-invalid vector against the kernel target (kind-level validation
-isn't wired in yet, guarded behind a `// kinds` comment in
-`src/kernel_target.rs` for the lead to enable once
-`evermesh_kernel::kinds` lands), or a `bundle` vector against the node
-target (`@evermesh/kernel` exposes no bundle API), or any non-record
-vector against the relay target (relays only speak the envelope, spec
-006 §4).
+`just conformance`, `just conformance-node` and `just conformance-relay`
+run one target each; `just conformance-all` runs all three (it needs
+`just wasm` first and a relay already listening).
+
+### Where each target runs
+
+| Target | Runs in | Why there |
+|---|---|---|
+| `kernel` | `cargo test --workspace` (`tests/kernel_conformance.rs`) **and** the CLI | The reference target needs nothing but the crate, so it belongs in the ordinary test gate rather than in a step somebody has to remember. |
+| `node` | CI job `conformance`, via the CLI | Needs `crates/evermesh-wasm` built into `packages/kernel-ts/wasm/` first. |
+| `relay` | CI job `conformance`, via the CLI | Needs a live `evermesh-relay` on a websocket. |
+
+### Skips are loud
+
+**Skips are not failures, and they are never silent.** Every skipped
+vector is printed by name under a `NOT VERIFIED` heading, grouped by the
+reason it was not checked:
+
+```text
+NOT VERIFIED — 47 vector(s) skipped, by reason:
+
+  [4] @evermesh/kernel exposes no bundle import/export API
+      bundle/bad-magic
+      bundle/corrupted-blob-item
+      ...
+```
+
+A vector is skipped when the target genuinely has no surface to check it
+against — a `bundle` vector against the node target (`@evermesh/kernel`
+exposes no bundle API), a non-record `json` vector against the node target
+(no generic CBOR-Value JSON codec), a `layer: "kind"` vector against the
+node target (the WASM binding validates the envelope, not the kind), or
+any non-record vector against the relay target (relays only speak the
+envelope, spec 006 §4). The **kernel target skips nothing**: it is the
+kernel the vectors were written against, and
+`tests/kernel_conformance.rs` asserts that it never starts to.
+
+A target that cannot start at all — a node harness that will not spawn, a
+relay that will not connect — prints the reason and exits `2`. It does not
+degrade into a run of zero vectors.
+
+### Coverage is asserted
+
+`coverage.json` declares the exact number of vectors in every group and
+the exact pass/fail/skip shape each target must produce. Every run checks
+itself against it and exits nonzero on any mismatch. This is what makes a
+green run mean something: without it, "0 failures" reads the same whether
+the suite checked 189 vectors, checked none because the corpus went
+missing, or quietly turned half of them into skips.
+
+Consequences, all deliberate:
+
+* Adding or removing a vector fails the run until `coverage.json` is
+  updated in the same commit.
+* A group that disappears, or a new group that nobody declared, fails.
+* A vector that flips from checked to skipped fails, even though a skip is
+  not itself a failure — what the suite verified went down.
+* A malformed vector file is a hard error, not a warning. It used to be
+  dropped with a `warning:` line, which shrank the corpus silently.
+
+The manifest is hand-maintained on purpose. Regenerating it from whatever
+the code currently does would make it a mirror, and a mirror cannot catch
+drift.
 
 ## The golden rule in practice
 
-`just conformance` (or three manual `run` invocations) is green only when
-**all three targets report the same failures — ideally none.** A vector
-that passes against `kernel` but fails against `node` or `relay` means one
-of:
+`just conformance-all` is green only when **all three targets report the
+same failures — ideally none.** A vector that passes against `kernel` but
+fails against `node` or `relay` means one of:
 
 * the canonical CBOR encoders disagree (a real, serious bug — stop and
   fix before anything else, per build plan §7);
@@ -128,45 +188,37 @@ of:
 * the fixture itself encodes an assumption one runtime can't yet honor
   (also documented below).
 
+## Closed gaps
+
+Recorded because the fix is the interesting part, and because a reader
+who finds the old wording elsewhere should know it is settled:
+
+1. **`evermesh_kernel::kinds` is wired in and the kernel target checks
+   `layer: "kind"` vectors.** It used to be absent from the crate, so
+   every kind-specific invalid mutation was reported as a *skip* against
+   the kernel target. `crates/evermesh-kernel/src/lib.rs` declares
+   `pub mod kinds;` today and `src/kernel_target.rs` calls
+   `evermesh_kernel::kinds::validate` for `Layer::Kind`, which is why the
+   kernel target now runs **189/0/0** with zero skips. The node target
+   still skips these 35 vectors — its WASM binding validates the
+   envelope, not the kind — and that skip is declared in `coverage.json`
+   rather than left to be noticed.
+
+2. **The WASM `identity.verifyChain` binding carries `observedAt`.** It
+   used to hardcode `Identity::verify_chain(&parsed, &|_| None, now)`, so
+   contest-window finality could never be reached under Node and
+   `identity/fork-final-signing` genuinely disagreed with the kernel
+   target. The parameter now threads
+   `evermesh_wasm::verify_chain` → `@evermesh/kernel`'s
+   `identity.verifyChain` → `node-harness.mjs`'s `identity-verify-chain`
+   op. Closing the divergence rather than special-casing the vector is the
+   golden rule (build plan §7); see DECISIONS.md T3.
+
 ## Known gaps and mismatches found while building this suite
 
 These are reported rather than silently worked around, per the task's
 own instruction — decide what to do about each one as a build-plan/spec
 decision, not a fixture hack:
-
-1. **`evermesh_kernel::kinds` is not part of the compiled kernel crate
-   yet.** `crates/evermesh-kernel/src/kinds/mod.rs` references
-   `claims`, `compliance`, `infra`, `live`, `social`, `trust` submodules
-   that do not exist on disk yet (only `content.rs` does), and
-   `crates/evermesh-kernel/src/lib.rs` does not declare `pub mod kinds;`
-   at all — so the module tree isn't wired in. This suite therefore
-   builds every kind record directly with `RecordBuilder` + `Value`
-   (per the task brief) and ships every kind-specific invalid mutation
-   as a `layer: "kind"` vector that the kernel target currently
-   *skips* rather than checks (see `src/kernel_target.rs`'s `// kinds`
-   comment block, ready to uncomment once the module lands).
-   `crates/evermesh-wasm/src/lib.rs` already assumes `kinds` exists
-   (`use evermesh_kernel::{..., kinds, ...}`) and calls
-   `kinds::validate` in `validate_kind` — so `evermesh-wasm` likely does
-   not compile today either, independent of this suite.
-
-2. **The WASM `identity.verifyChain` binding cannot express
-   contest-window finality.** `crates/evermesh-wasm/src/lib.rs`'s
-   `verify_chain` hardcodes
-   `Identity::verify_chain(&parsed, &|_| None, now)` — every record is
-   always treated as "just observed," so a signing-key rotation can
-   never become final. `packages/kernel-ts/src/index.ts`'s
-   `identity.verifyChain(records, now)` has no parameter for
-   first-observed times either. Consequently
-   `identity/fork-final-signing` (which depends on one rotation being
-   observed long enough ago to resist a later recovery fork) cannot be
-   correctly exercised against the `node` target as it stands — it
-   will genuinely disagree with the `kernel` target. Fix: add an
-   `observedAt: Record<string, number>` parameter through
-   `evermesh_wasm::verify_chain` → `kernel-ts`'s `identity.verifyChain`
-   → `node-harness.mjs`'s `identity-verify-chain` op (which already
-   forwards a request `observed` map that the harness currently drops
-   for exactly this reason, documented at the top of the file).
 
 3. **`rotate-alg-migration` is not yet a real cross-algorithm test.**
    Spec 002's test-vectors section calls for an "algorithm-migration
@@ -196,11 +248,16 @@ decision, not a fixture hack:
    blob is ~1000 MiB of synthesized bytes per test run (the fixture
    file itself stays tiny — it's described by formula — but every
    runner target would need to materialize and hash that much data
-   every run). Also not yet covered: spec 001's "swapped leaf prefix"
-   invalid case (hashing a chunk with the interior-node `0x01` prefix
-   instead of the leaf `0x00` prefix, to check the domain separation is
-   enforced) — only "wrong sibling" and "wrong index" are covered, per
-   the task brief. Both are good candidates for a follow-up pass.
+   every run). Also not covered by a vector: spec 001's "swapped leaf
+   prefix" invalid case (hashing a chunk with the interior-node `0x01`
+   prefix instead of the leaf `0x00` prefix, to check the domain
+   separation is enforced) — only "wrong sibling", "wrong index" and
+   "any index into the empty blob" are. The `0x00`/`0x01` separation and
+   the `EM-1` chunk roots themselves are pinned instead by
+   `crates/evermesh-kernel/tests/chunk_tree_profiles.rs` (spec 001 §8.1),
+   which runs in `cargo test --workspace`; spec 001's test-vector index
+   has been corrected to say so rather than to claim vectors that do not
+   exist. A 1000-chunk vector remains a candidate for a follow-up pass.
 
 6. **Two-record semantic kind-invalids are intentionally absent.**
    Several of spec 003's kind-specific validation rules require a

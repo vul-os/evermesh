@@ -22,7 +22,10 @@ process/product decisions that don't belong in the spec.
 - **Testing:** implement extensive tests throughout (unit, property,
   vectors), but **do not run test suites yet** — the owner will say
   when. Compilation/type checks are still performed so shipped code is
-  sound.
+  sound. **SUPERSEDED 2026-07-19:** the owner authorized running them;
+  see "Phase 1 — first test-suite run" below. Suites run and pass, and
+  are wired into CI (`.github/workflows/ci.yml`) — the "do not run"
+  clause is historical and no longer in force.
 - Commit per phase minimum, conventional commits (build plan §4/§15).
 - **Git identity:** author/committer `imranparuk <imranparuk@live.com>`;
   no Co-Authored-By or Generated-with trailers, ever (owner directive
@@ -54,6 +57,7 @@ process/product decisions that don't belong in the spec.
 | P17 | Uniform reference UI across gateways is a trademark-level requirement | 009 §7 |
 | P18 | JSON interchange is a strict bijection: `txt:` escape also applies to text map keys that would re-parse as integer keys (codec agent finding) | codec.rs module docs |
 | P19 | Relay edge cases: all-zero id in `OK` for undecodable PUBs; unparseable frames dropped not CLOSED; `X-Expected-Blob-Id` header for PUT 422s; filter keys are text | 006 §§1,3,5.2 |
+| P20 | Chunk trees are the named profile `EM-1`; DMTAP-PUB §22.2.2's tree is `DP-22`. The divergence is **frozen, not a defect** — proofs are never interchangeable and MUST NOT be accepted across profiles | 001 §8.1 |
 
 ## Implementation decisions
 
@@ -87,7 +91,7 @@ suites now run and pass; the fixes made, as decisions:
 | T2 | `kinds::validate()` verifies each manifest rendition's `derivation_sig` against the manifest's own original blob (spec 004 §3.1) | `Manifest::parse` stops at structure by design; `validate()` is the caller it documents as responsible for the crypto check. Conformance vector `kinds/manifest/bad-derivation-sig` required it; the kernel accepted a forged sig before. |
 | T3 | `verifyChain` (WASM + kernel-ts + node harness) takes an `observedAt` map threaded into `Identity::verify_chain`'s `observed_at` closure | The binding hardcoded `observed = None`, so contest-window finality could never be exercised under Node and `identity/fork-final-signing` genuinely diverged from the kernel. Closing the divergence (not special-casing the vector) is the golden rule (build plan §7). |
 | T4 | JS test/dev runners: gateway-server uses `--experimental-transform-types`; kernel-ts expands its one parameter property to a field | Node's strip-only mode rejects TS parameter-property constructors and enums; the gateway uses many parameter properties (a deliberate style), so the flag switch is the least-invasive correct fix there. |
-| T5 | Conformance verdict recorded: kernel 189/0/0, node 142/0/47, relay 115/0/74 — 0 failures; all differences are documented per-runtime skips | The three-runtime golden rule holds. Skips are each runtime checking only what it is responsible for (relay = envelope only; node = no bundle/json/kind-invalid surface). |
+| T5 | Conformance verdict recorded: kernel 189/0/0, node 142/0/47, relay 115/0/74 — 0 failures; all differences are documented per-runtime skips. **Node superseded 2026-07-28 → 177/0/12, see T10**; kernel and relay unchanged | The three-runtime golden rule holds. Skips are each runtime checking only what it is responsible for (relay = envelope only; node = no bundle/json/kind-invalid surface). |
 
 **2026-07-19, post-relocation build breakage** (the project was still
 named **Vidmesh** at the time; renamed to Boloka afterward, then to
@@ -120,12 +124,17 @@ output never accidentally gets committed or relied upon across machines.
 | T6 | `crates/vidmesh-node/gen/` (now `crates/evermesh-node/gen/`) added to `.gitignore`; stale-path build breakage fixed via targeted `cargo clean`, not a hardcoded path | Generated/cached artifacts must never bake in machine-specific absolute paths that outlive a relocation; the correct fix is always "regenerate", never "hardcode the new path" |
 
 **DMTAP-PUB convergence** — recorded as a full decision document at
-[docs/DMTAP-CONVERGENCE.md](docs/DMTAP-CONVERGENCE.md). Recommendation:
-re-base evermesh's video layer as the DMTAP-PUB §24 video profile (route b),
-contributing range proofs / rotation-log finality / a fetch-hint registry
-upstream. **FOUNDER-GATED** — no substrate byte changes until the founder
-confirms direction, §24 is targetable, and envoir's §22 Rust impl is a
-consumable dependency. Phase 1 stayed non-destructive per this gate.
+[docs/DMTAP-CONVERGENCE.md](docs/DMTAP-CONVERGENCE.md). The 2026-07 analysis
+recommended re-basing evermesh's video layer as the DMTAP-PUB §24 video
+profile (route b), contributing range proofs / rotation-log finality / a
+fetch-hint registry upstream, **FOUNDER-GATED**. Phase 1 (an additive,
+default-off §22 path) shipped under that gate and stayed non-destructive.
+**Superseded for the chunk tree specifically on 2026-07-28** — see T9.
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| T9 | The chunk-tree divergence is **frozen as two named profiles** (`EM-1`, `DP-22` — P20, spec 001 §8.1) rather than converged. Route (b) is **not** withdrawn for the rest of the substrate; it is withdrawn for the chunk tree | Converging the tree buys interchange nobody performs — no two products in this suite exchange a chunk proof across a boundary — and costs a re-read and re-hash of every stored media byte in every deployment, because evermesh folds its `0x00` leaf tag inside the hash and so never persisted `BLAKE3(chunk)`. Freezing it makes the divergence a documented, tested property instead of a standing migration debt that gets re-litigated every time someone diffs the two specs. The safety property that matters (the roots never coincide, so a proof cannot verify under rules it was not checked against) is now pinned executably in `crates/evermesh-kernel/tests/chunk_tree_profiles.rs` **in the default build**, not only behind the optional `dmtap-pub` feature |
+| T10 | The conformance harness asserts its own coverage (`tools/conformance/coverage.json`), names every skip, hard-errors on an unparseable vector, runs its kernel target inside `cargo test --workspace`, and gets a CI job for the node and relay targets. The node target now checks `layer: "kind"` vectors through `@evermesh/kernel`'s `validateKind` instead of skipping them: **node moves 142/0/47 → 177/0/12**, zero failures, so T5's verdict is superseded on that line only (kernel 189/0/0 and relay 115/0/74 are unchanged) | A harness that reports "0 failures" says the same thing when it checked 189 vectors and when it checked none. The three-runtime golden rule was also, until now, a claim nothing in CI ran — only the kernel target was reachable from `cargo test`, and the runner binary was never invoked by a workflow. The 35 kind-layer skips were a harness gap, not a surface gap: the WASM binding has exposed `validate_kind` since T3's era, and closing the gap is the golden rule (fix the divergence, do not special-case it) |
 
 **2026-07-2x, project renamed Vidmesh → Boloka; rescoped video-only → media**
 — the project's former name was **Vidmesh**; it is now **Boloka** (Sesotho/

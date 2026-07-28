@@ -8,6 +8,42 @@ rename.*
 **Status: phase 1 SHIPPED and proven. Phase 2 (the cutover) is specified below
 but NOT started, and remains FOUNDER-GATED.**
 
+> ## 2026-07-28 — the chunk tree is settled: two frozen profiles
+>
+> **The chunk-tree divergence is no longer an open migration item.** Spec
+> [001 §8.1](../spec/001-kernel.md) now names the two constructions —
+> **`EM-1`** (evermesh's, `BLAKE3(0x00 ‖ chunk)` leaves, odd-node promotion,
+> bare 32-byte root) and **`DP-22`** (DMTAP-PUB §22.2.2's, DS-tagged leaves
+> over `h_i` addresses, RFC-6962 split, `0x1e`-prefixed root) — and freezes
+> them as permanently distinct. A range proof under one profile MUST NOT be
+> accepted against the other's root.
+>
+> Two reasons, both already established below and neither of which changed:
+>
+> 1. **Converging is I/O-bound, not metadata-bound.** Evermesh folds its
+>    `0x00` leaf tag *inside* the hash, so it never persisted
+>    `BLAKE3(chunk)`. Restating a corpus under `DP-22` means re-reading and
+>    re-hashing **every stored media byte in every deployment** (the §24.14
+>    item-4 erratum, C-01, below).
+> 2. **Nothing performs the interchange it would buy.** No two products
+>    exchange a chunk proof across a profile boundary.
+>
+> The safety property this rests on — that the two roots never coincide, so
+> a proof can never verify under rules that were never checked — is now
+> asserted in `crates/evermesh-kernel/tests/chunk_tree_profiles.rs` at every
+> chunk count 1–9, **in the default build**, with both profiles' roots
+> frozen as constants. It no longer depends on the optional `dmtap-pub`
+> feature (and therefore on a sibling repo staying reachable) to run; the
+> feature adds one further test that recomputes the `DP-22` column live
+> against `dmtap-core` so the frozen constants cannot go stale.
+>
+> **What this does and does not settle.** It settles the chunk tree, and
+> only the chunk tree. Everything else below — the envelope, the signature
+> preimage, feed heads, the serving surface — is unchanged and still
+> founder-gated. Read the "Chunk tree" row of the migration table and the
+> `PubManifest` mapping section as *closed with a decision*, not as pending
+> work. Recorded as DECISIONS.md P20 / T9.
+
 Phase 1 was additive and reversible: a §22 encode/decode path now exists
 *beside* the native format, behind a default-off feature flag. **No existing
 byte format changed and no existing test changed.** Deleting
@@ -18,9 +54,16 @@ dependency returns the repo exactly to where it was.
   repo pass **byte-exact** through evermesh's §22 path.
 - **How it avoids a third dialect:** §22 is **consumed** from envoir's
   `dmtap-core`, not reimplemented.
-- **Test counts:** 251 Rust tests before → **251 unchanged** by default,
-  **263** with `--features dmtap-pub`. Three-runtime conformance
-  **189 / 142 / 115** before and after, zero failures.
+- **Test counts:** phase 1 added no default-build tests — 251 before, 251
+  after, 263 with `--features dmtap-pub`. Three-runtime conformance
+  **189 / 142 / 115** before and after phase 1, zero failures. *(Those are
+  the counts as of phase 1, kept because they are what the phase-1 claim
+  rests on. The tree has grown since: as of 2026-07-28 the workspace runs
+  **290** tests by default and **304** with `--features dmtap-pub`, and
+  three-runtime conformance is **189 / 177 / 115** — the node target rose
+  after the conformance harness started exercising `validateKind` instead
+  of skipping the 35 kind-layer vectors. README.md carries the current
+  numbers.)*
 
 Jump to [Phase 1: what was built and proved](#phase-1-what-was-built-and-proved),
 the [byte-level mapping](#byte-level-mapping-evermesh--22), or the
@@ -85,7 +128,7 @@ survives** (next section).
 | **DS-tags** | Replace `"evermesh:record:v1"` / `"evermesh:derivation:v1"` with the DMTAP-PUB DS-tag family (`DMTAP-PUB-v0/{announce,feed,manifest}` ‖ `0x00`) | **Low** | Mechanical; touches signing/verify preimages only. Isolated in `record.rs` / `content.rs`. |
 | **Envelope shape** | Evermesh's one universal `Record` becomes a small set of DMTAP-PUB object types (`PubAnnounce` for what is published; `meta` carries the video schema). The **kinds registry stops being a wire concept and becomes a `meta` schema** (like §23's `"artifact"` key) | **Medium** | Conceptual, not just mechanical: "everything is a Record" → "everything published is an announce carrying a profile schema". Kinds like `manifest`, `comment`, `playlist`, `channel` re-express as §24 `meta` schemas or as their own announces. |
 | **Multihash prefix** | Prefix every content address with `0x1e` (BLAKE3-256), per §18.1.5 hash-agility | **Low** | `ids.rs` (`BlobId`/`RecordId` gain the prefix on the wire); enables FIPS/SHA-2 migration and Git-LFS interop for free. |
-| **Chunk tree** | Move from odd-node-promotion + bare `0x00`/`0x01` to the **RFC-6962 split rule with the DS-tag folded into leaf/node** (§22.2.2) | **Medium–High** | The deepest byte change. But evermesh's *range-proof* code is exactly what §22 lacks — see "contribute upstream". Reuses `ChunkTree` machinery; only the split rule + domain-sep bytes change. |
+| **Chunk tree** | ~~Move from odd-node-promotion + bare `0x00`/`0x01` to the **RFC-6962 split rule with the DS-tag folded into leaf/node** (§22.2.2)~~ **CLOSED 2026-07-28 — not doing this.** The two constructions are frozen as the named profiles `EM-1` and `DP-22` (spec 001 §8.1) | **n/a** | The deepest byte change, and the one whose cost was mis-estimated upstream: it is a full re-read of every stored media byte (erratum C-01), for an interchange nobody performs. Evermesh's *range-proof* code remains an upstream contribution — see "contribute upstream" — independently of the tree it is computed over. |
 | **Feed / anti-rollback** | Adopt `FeedHead`/`FeedEntry`: per-author append-only log, monotonic `seq`, `prev` chain (§22.4) | **Medium (new)** | A primitive evermesh does not have today. Gives ordering, discovery, and anti-rollback the relay's gossip only approximates. |
 | **Serving surface** | Add `/.well-known/dmtap-pub/{feed,announce,manifest,chunk}` and advertise `pub-1` | **Low** | The relay's `/blob` sidecar (content-addressed GET + range + immutable caching) is ~80% of the `chunk`/`manifest`/`announce` endpoints already. `/sync` gossip can remain as an optimization beside the well-known surface. |
 | **Error model** | Map kernel `Error` onto the `ERR_PUB_*` (`0x09xx`) registry (§22.10) | **Low** | Naming/telemetry alignment; behavior (fail-closed) already matches. |
@@ -329,9 +372,14 @@ Evermesh's identity-rotation *contest-window finality* (spec 002 §4) is a riche
 fork-resolution rule than a monotonic `seq` and remains a genuine upstream
 contribution — it complements the feed head, it does not substitute for it.
 
-## Blob manifest → `PubManifest` (§22.2)
+## Blob manifest → `PubManifest` (§22.2) — profile `EM-1` vs profile `DP-22`
 
-| Aspect | evermesh `ChunkTree` | §22 `PubManifest` | Difference |
+*This section is **closed with a decision**, not pending work: the two
+columns below are the frozen profiles `EM-1` and `DP-22` (spec 001 §8.1).
+It is kept because the byte-level comparison is exactly what stops the
+question being reopened.*
+
+| Aspect | evermesh `ChunkTree` (`EM-1`) | §22 `PubManifest` (`DP-22`) | Difference |
 |---|---|---|---|
 | Chunk size | 1 MiB | 1 MiB (`chunk_sz`) | **same** |
 | Chunk digest | `BLAKE3(0x00 ‖ chunk)`, stored as the leaf | `h_i = 0x1e ‖ BLAKE3(chunk)`, stored as an address | **different preimage** — see erratum above |
@@ -345,9 +393,14 @@ contribution — it complements the feed head, it does not substitute for it.
 Because the tree *shape* agrees for every `n` but every *value* differs, the two
 formats are structurally interchangeable and cryptographically not. A proof from
 one substrate will never verify in the other — and, critically, will never
-*accidentally* verify. `native_and_pub_roots_differ_for_every_chunk_count`
-asserts the roots differ for `n = 1…9`; if they ever coincided, proofs would be
-silently interchangeable, which would be far worse than being incompatible.
+*accidentally* verify. `crates/evermesh-kernel/tests/chunk_tree_profiles.rs`
+asserts the roots differ for chunk counts `n = 1…9` against a frozen table of
+both profiles' values, in the **default build**; if they ever coincided, proofs
+would be silently interchangeable, which would be far worse than being
+incompatible. (`dmtap_pub`'s own
+`native_and_pub_leaf_roots_differ_for_single_chunk_blobs` covers the cheap
+single-chunk case only — those fixtures are `n` *bytes*, hence always one
+chunk — and is not on its own a claim about chunk counts.)
 
 ---
 
@@ -370,6 +423,10 @@ costed **before** anyone starts, and deliberately not begun.
 alongside its `ChunkTree`; both are stored, the native one stays authoritative.
 Cheap, reversible, and it populates §22 addresses before anything depends on
 them. *Exit: every new blob has both roots; all existing tests green.*
+**Amended 2026-07-28:** with `EM-1` and `DP-22` frozen as distinct profiles
+(spec 001 §8.1), dual-writing is the *permanent* shape of blob interop, not
+a stepping stone to replacing `EM-1`. Backfilling `DP-22` roots over the
+existing corpus stays off the table for the reason in the erratum below.
 
 **Step 2 — serve the §22 well-known surface.** Add
 `/.well-known/dmtap-pub/{feed,announce,manifest,chunk}` to the relay and
@@ -399,12 +456,15 @@ This is the part with no clean answer, and it must not be glossed.
 
 **Blobs migrate; records cannot be migrated automatically.**
 
-- **Blobs — mechanical but I/O-bound.** Every stored blob must be re-read and
-  re-chunked to compute `h_i = 0x1e ‖ BLAKE3(chunk)`, because evermesh persisted
+- **Blobs — mechanical but I/O-bound, and for that reason not being done.**
+  Every stored blob would have to be re-read and re-chunked to compute
+  `h_i = 0x1e ‖ BLAKE3(chunk)`, because evermesh persisted
   `BLAKE3(0x00 ‖ chunk)` instead (the erratum). Content is unchanged and no key
-  is needed, so this is a background job over the corpus. **Budget a full pass
-  over all stored media.** New `PubManifest` roots are new addresses; keep a
-  native-root → §22-root index so old references keep resolving.
+  is needed, so it *could* be a background job over the corpus — but it is
+  **a full pass over all stored media in every deployment**, which is what
+  tipped the 2026-07-28 decision to freeze `EM-1` and `DP-22` as two profiles
+  instead (spec 001 §8.1, DECISIONS.md T9). Newly ingested blobs may carry both
+  roots; the historical corpus keeps `EM-1` only.
 
 - **Records — require the author's key, so most cannot be migrated.** A §22
   announce signs `det_cbor(∖sig)` under a `DMTAP-PUB-v0/` DS-tag; a evermesh
