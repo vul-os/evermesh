@@ -1064,26 +1064,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dmtap-core"
-version = "0.2.0"
-source = "git+https://github.com/vul-os/envoir?rev=12526123cb37e459df5717c2ce243bbecbf5ac23#12526123cb37e459df5717c2ce243bbecbf5ac23"
-dependencies = [
- "blake3",
- "chacha20poly1305",
- "ciborium",
- "ed25519-dalek",
- "hkdf",
- "hpke",
- "ml-dsa",
- "rand_core 0.6.4",
- "serde",
- "sha2",
- "thiserror 1.0.69",
- "x-wing",
- "x25519-dalek 2.0.1",
-]
-
-[[package]]
 name = "document-features"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1276,10 +1256,10 @@ name = "evermesh-kernel"
 version = "0.0.1"
 dependencies = [
  "blake3",
- "dmtap-core",
  "ed25519-dalek",
  "getrandom 0.2.17",
  "hex",
+ "kotva-core",
  "proptest",
  "serde_json",
 ]
@@ -2414,6 +2394,28 @@ dependencies = [
  "bitflags 2.13.1",
  "serde",
  "unicode-segmentation",
+]
+
+[[package]]
+name = "kotva-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "603f64f944ed7357b4a4f77ac122ccd6d7e94fd2eef4c6adddd4c954c9172dd9"
+dependencies = [
+ "blake3",
+ "chacha20poly1305",
+ "ciborium",
+ "ed25519-dalek",
+ "hkdf",
+ "hpke",
+ "ml-dsa",
+ "rand_core 0.6.4",
+ "serde",
+ "sha2",
+ "thiserror 1.0.69",
+ "unicode-normalization",
+ "x-wing",
+ "x25519-dalek 2.0.1",
 ]
 
 [[package]]
@@ -5313,6 +5315,15 @@ name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
+
+[[package]]
+name = "unicode-normalization"
+version = "0.1.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fd4f6878c9cb28d874b009da9e8d183b5abc80117c40bbd187a1fde336be6e8"
+dependencies = [
+ "tinyvec",
+]
 
 [[package]]
 name = "unicode-segmentation"

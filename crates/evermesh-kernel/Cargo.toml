@@ -12,12 +12,24 @@ blake3 = "1.5"
 ed25519-dalek = "2.1"
 getrandom = "0.2"
 
-# DMTAP-PUB §22 substrate, CONSUMED (not reimplemented) from envoir's reference
-# crate. See docs/DMTAP-CONVERGENCE.md: a second divergent implementation of §22
-# would defeat the point of converging, so this is a real dependency pinned to a
-# reviewed revision. Optional and default-off — the native evermesh format and the
-# WASM build are untouched unless `--features dmtap-pub` is passed.
-dmtap-core = { git = "https://github.com/vul-os/envoir", rev = "12526123cb37e459df5717c2ce243bbecbf5ac23", optional = true }
+# DMTAP-PUB §22 substrate, CONSUMED (not reimplemented) from the KOTVA substrate's
+# reference crate. See docs/DMTAP-CONVERGENCE.md: a second divergent implementation
+# of §22 would defeat the point of converging, so this is a real dependency.
+# Optional and default-off — the native evermesh format and the WASM build are
+# untouched unless `--features dmtap-pub` is passed.
+#
+# The crate MOVED REPOSITORIES: it was `dmtap-core` inside envoir and was carved out
+# to the KOTVA substrate repo as `kotva-core`, then PUBLISHED to crates.io. This
+# manifest therefore names the published `kotva-core` but keeps the local alias
+# `dmtap-core` via cargo's dependency-rename, so every `use dmtap_core::...` in
+# src/dmtap_pub.rs keeps compiling and no source had to move for the migration.
+#
+# A REGISTRY dep also replaces a GIT dep that had quietly stopped being updatable:
+# envoir deleted crates/dmtap-core at 620a68c, so the old `rev = 12526123...` pin
+# still resolved (git history is immutable, and that rev is 52 commits behind
+# envoir HEAD) but pointed at a tree that no longer exists upstream and could never
+# receive another fix. It was a dead pin that still compiled — the worst kind.
+dmtap-core = { package = "kotva-core", version = "0.2.0", optional = true }
 
 [features]
 default = []

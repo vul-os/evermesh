@@ -1,53 +1,116 @@
 //! THE PROOF that this is a convergence and not a third dialect.
 //!
 //! Runs the **frozen DMTAP-PUB §22 conformance vectors** — copied verbatim from
-//! `dmtap/conformance/vectors/pub_vectors.json`, the spec repo's authoritative
+//! `kotva/conformance/vectors/pub_vectors.json`, the spec repo's authoritative
 //! corpus — through evermesh's §22 path, asserting **byte-exact** agreement on
 //! every value and fail-closed rejection with the exact `ERR_PUB_*` code on
 //! every negative case.
 //!
+//! Re-vendored for `kotva-core = "0.2.0"`: 10 of the 15 vectors changed value,
+//! all downstream of the single `announce_id` rule change (now over the
+//! signature-EXCLUDED body, §22.3.1/§1.3). The count is unchanged at 15.
+//!
 //! Those vectors were generated from the specification text by a script that
 //! does not import the reference crate, and are independently cross-checked by a
 //! second from-scratch implementation. Passing them means evermesh's §22 path
-//! agrees with the spec, not merely with envoir.
+//! agrees with the spec, not merely with the reference crate.
 //!
 //! Every vector is executed; the count is asserted, so a corpus that grows
 //! without this harness growing with it fails rather than silently skipping.
 //!
 //! Run with: `cargo test -p evermesh-kernel --features dmtap-pub`
+//!
+//! # When the feature is OFF, the skip is LOUD
+//!
+//! `dmtap-pub` is default-off on purpose (it drags `ml-dsa`/`x-wing`/`hpke` into
+//! the build and the WASM target). But a fully `#[cfg]`-gated test file compiles
+//! to *nothing* and prints `running 0 tests ... test result: ok` — a green line
+//! that means "verified nothing", indistinguishable at a glance from a real pass.
+//!
+//! So [`feature_gate`] always compiles. In the default build it prints, by name,
+//! the reason these vectors were not verified, and it still asserts the corpus
+//! coverage count. That count assertion is the point: a corpus that grows while
+//! the harness is switched off now FAILS the default `cargo test` instead of
+//! being silently skipped by a test binary that no longer exists.
 
-#![cfg(feature = "dmtap-pub")]
-
-use evermesh_kernel::dmtap_pub::*;
 use serde_json::Value as J;
 
 /// The vector file, vendored at the revision recorded in `docs/DMTAP-CONVERGENCE.md`.
 const VECTORS: &str = include_str!("vectors/dmtap_pub_vectors.json");
 
+/// The size of the frozen §22 corpus. Asserted in BOTH builds — under the
+/// feature by the harness below (which also executes every vector), and without
+/// it by [`feature_gate`] (which can only count them).
+const CORPUS_LEN: usize = 15;
+
+/// Loud skip + coverage count for the default (feature-off) build.
+#[cfg(not(feature = "dmtap-pub"))]
+mod feature_gate {
+    use super::{CORPUS_LEN, J, VECTORS};
+
+    /// Not a placeholder: this asserts the one property still checkable without
+    /// the optional dependency — that the corpus is exactly the size the real
+    /// harness claims to execute — and prints why the other 15 assertions did
+    /// not run.
+    #[test]
+    fn section_22_vectors_were_not_verified_in_this_build() {
+        let doc: J = serde_json::from_str(VECTORS).expect("vector file parses");
+        let vectors = doc["vectors"].as_array().expect("vectors array");
+
+        eprintln!(
+            concat!(
+                "\n  NOT VERIFIED — DMTAP-PUB §22 conformance vectors ({} in corpus)\n",
+                "\n  reason:    the `dmtap-pub` feature is OFF, so `kotva-core` is not linked",
+                "\n             and evermesh's §22 path was neither compiled nor executed.",
+                "\n             Only the corpus size below was checked.\n",
+                "\n  to verify: cargo test -p evermesh-kernel --features dmtap-pub\n"
+            ),
+            vectors.len()
+        );
+
+        assert_eq!(
+            vectors.len(),
+            CORPUS_LEN,
+            "the frozen §22 corpus changed size while the harness that executes it \
+             is switched off — re-run with --features dmtap-pub and update the \
+             harness in the same commit"
+        );
+    }
+}
+
+#[cfg(feature = "dmtap-pub")]
+use evermesh_kernel::dmtap_pub::*;
+
+#[cfg(feature = "dmtap-pub")]
 fn unhex(s: &str) -> Vec<u8> {
     hex::decode(s).expect("vector hex decodes")
 }
 
+#[cfg(feature = "dmtap-pub")]
 fn hexs(b: &[u8]) -> String {
     hex::encode(b)
 }
 
+#[cfg(feature = "dmtap-pub")]
 fn cid(hexstr: &str) -> ContentId {
     ContentId(unhex(hexstr))
 }
 
+#[cfg(feature = "dmtap-pub")]
 fn s<'a>(v: &'a J, k: &str) -> &'a str {
     v.get(k)
         .and_then(J::as_str)
         .unwrap_or_else(|| panic!("vector field {k} missing or not a string"))
 }
 
+#[cfg(feature = "dmtap-pub")]
 fn u(v: &J, k: &str) -> u64 {
     v.get(k)
         .and_then(J::as_u64)
         .unwrap_or_else(|| panic!("vector field {k} missing or not a uint"))
 }
 
+#[cfg(feature = "dmtap-pub")]
 fn hex_list(v: &J, k: &str) -> Vec<String> {
     v.get(k)
         .and_then(J::as_array)
@@ -58,6 +121,7 @@ fn hex_list(v: &J, k: &str) -> Vec<String> {
 }
 
 /// Assert a rejection carries the exact §22.10 error code the vector names.
+#[cfg(feature = "dmtap-pub")]
 fn assert_code(err: &PubError, expected: &J, vector: &str) {
     let want_code = s(expected, "error_code");
     let want_name = s(expected, "error_name");
@@ -81,6 +145,7 @@ fn assert_code(err: &PubError, expected: &J, vector: &str) {
     assert_eq!(err.name(), want_name, "{vector}: wrong error name");
 }
 
+#[cfg(feature = "dmtap-pub")]
 #[test]
 fn dmtap_pub_conformance_vectors_agree_byte_for_byte() {
     let doc: J = serde_json::from_str(VECTORS).expect("vector file parses");
@@ -220,24 +285,49 @@ fn dmtap_pub_conformance_vectors_agree_byte_for_byte() {
                 executed += 1;
             }
 
-            // §18.9.4 — announce_id = 0x1e ‖ BLAKE3-256(det_cbor of the COMPLETE signed object).
+            // §22.3.1 / §1.3 — announce_id = 0x1e ‖ BLAKE3-256(det_cbor(PubAnnounce ∖ {9})),
+            // over the SIGNATURE-EXCLUDED body.
+            //
+            // This vector CHANGED when the substrate moved to kotva-core 0.2.0: it used to
+            // carry the complete signed object (a CBOR map with key 9) and the id of that,
+            // and now carries the sig-excluded body and the id of that. The reason is §1.3 —
+            // hybrid AND-composition is EUF-CMA, not SUF-CMA, so a signature is malleable and
+            // an id derived from one would let a mauled-but-valid copy of a single semantic
+            // announce carry a second id. See docs/DMTAP-CONVERGENCE.md.
             "content_address" => {
-                let bytes = unhex(s(input, "bytes_hex"));
-                let a = PubAnnounce::from_det_cbor(&bytes)
-                    .unwrap_or_else(|e| panic!("{name}: announce must decode: {e}"));
+                let body = unhex(s(input, "bytes_hex"));
+
+                // The vector body has no signature, so reassemble two announces that differ
+                // ONLY in key 9. `from_det_cbor` does not check the signature — it requires a
+                // well-formed 64-byte one — which is exactly what makes this the executable
+                // statement of the property: the id must not move when the signature does.
+                let a = decode_announce_from_preimage(&body, &[0x11u8; 64]);
+                let b = decode_announce_from_preimage(&body, &[0x22u8; 64]);
+                assert_ne!(a.sig, b.sig, "{name}: fixture must vary the signature");
+
+                // Evermesh's §22 path reproduces the vector's signing body byte-for-byte...
                 assert_eq!(
-                    a.det_cbor(),
-                    bytes,
-                    "{name}: re-encode MUST be byte-identical to the vector"
+                    a.signing_preimage(),
+                    body,
+                    "{name}: signing preimage MUST be byte-identical to the vector body"
                 );
+                // ...and derives the vector's id from it.
                 assert_eq!(
                     hexs(a.announce_id().as_bytes()),
                     s(expected, "id_hex"),
                     "{name}: announce_id"
                 );
-                // A decoded vector announce must also verify against its own id.
-                a.verify(&a.announce_id())
-                    .unwrap_or_else(|e| panic!("{name}: {e}"));
+                // The load-bearing §1.3 property: swapping the signature does not move the id.
+                assert_eq!(
+                    a.announce_id(),
+                    b.announce_id(),
+                    "{name}: announce_id MUST NOT depend on the malleable signature (§1.3)"
+                );
+                // NOTE: no `verify()` here — these two announces carry deliberately bogus
+                // signatures, so there is nothing valid to verify. Signature verification of a
+                // real vector-supplied announce is covered by `pub_announce_signing_preimage`
+                // and by both `pub_announce_supersede_*` vectors, which still carry complete
+                // signed CBOR; this arm is solely about the id derivation rule.
                 executed += 1;
             }
 
@@ -363,13 +453,17 @@ fn dmtap_pub_conformance_vectors_agree_byte_for_byte() {
         vectors.len(),
         "every vector in the corpus must be executed, none skipped"
     );
-    assert_eq!(executed, 15, "the frozen §22 corpus is 15 vectors");
+    assert_eq!(
+        executed, CORPUS_LEN,
+        "the frozen §22 corpus is {CORPUS_LEN} vectors"
+    );
 }
 
 /// Rebuild a signed `PubAnnounce` from its unsigned signing preimage plus the
 /// signature: append key 9 to the preimage's CBOR map and decode the result.
 /// This exercises the decoder on bytes the harness assembled, so a preimage that
 /// is not exactly `det_cbor(∖sig)` cannot pass.
+#[cfg(feature = "dmtap-pub")]
 fn decode_announce_from_preimage(preimage: &[u8], sig: &[u8]) -> PubAnnounce {
     // The preimage is a definite-length CBOR map with 7 or 8 entries (major type 5,
     // additional info = count). Bump the count and append `9: bstr(sig)`.

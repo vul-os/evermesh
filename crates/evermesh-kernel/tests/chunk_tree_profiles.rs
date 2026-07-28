@@ -25,13 +25,21 @@
 //!
 //! # Why this test runs in the default build
 //!
-//! The `DP-22` side is computed by `dmtap-core`, an **optional git
-//! dependency** on a sibling repo. A proof that only runs when that
-//! dependency resolves is a proof that disappears the day the dependency
-//! does. So the `DP-22` roots are **frozen as constants** below and the
-//! whole comparison runs with no features enabled; the `dmtap-pub`
-//! feature adds one more test that recomputes them live and asserts the
-//! frozen table still matches, so the constants cannot rot either.
+//! The `DP-22` side is computed by the substrate's reference crate — an
+//! **optional dependency**, today the published `kotva-core` aliased as
+//! `dmtap-core`. A proof that only runs when that dependency resolves is
+//! a proof that disappears the day the dependency does. So the `DP-22`
+//! roots are **frozen as constants** below and the whole comparison runs
+//! with no features enabled; the `dmtap-pub` feature adds one more test
+//! that recomputes them live and asserts the frozen table still matches,
+//! so the constants cannot rot either.
+//!
+//! That design paid off across the `kotva-core = "0.2.0"` bump: the
+//! substrate crate changed repository, name and version, and the frozen
+//! `DP-22` column did not move by a single byte — asserted live by
+//! `dp22_frozen_roots_match_a_live_section_22_computation`, not assumed.
+//! The bump is confirmed not to have silently altered the frozen
+//! profiles, which remain deliberately NOT converged (DECISIONS.md P20).
 //!
 //! To regenerate the table after an intentional profile change, print
 //! `ChunkTree::from_bytes(&b).root()` and
@@ -167,7 +175,7 @@ fn em1_leaf_and_interior_tags_are_distinct() {
 }
 
 /// With the optional `dmtap-pub` feature on, recompute the `DP-22` column
-/// against envoir's `dmtap-core` and prove the frozen constants above are
+/// against the substrate's `kotva-core` and prove the frozen constants above are
 /// still exactly what §22 produces. Without this, the frozen table could
 /// drift from the real §22 rules and the default-build test would happily
 /// keep asserting a stale value.

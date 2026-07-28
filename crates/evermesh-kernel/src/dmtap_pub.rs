@@ -14,7 +14,7 @@
 //!
 //! # One implementation, not two
 //!
-//! The §22 object types are **re-exported from `dmtap-core`**, envoir's
+//! The §22 object types are **re-exported from `kotva-core`**, the substrate's
 //! reference implementation, and are *not* reimplemented here. That is the
 //! whole point: a second divergent implementation of §22 would recreate exactly
 //! the duplication this convergence exists to remove. What this module adds is
@@ -35,7 +35,8 @@ use dmtap_core::id::MH_BLAKE3_256;
 pub use dmtap_core::cbor::Cv;
 pub use dmtap_core::id::ContentId;
 pub use dmtap_core::identity::IdentityKey;
-/// The §22 object model, re-exported verbatim from envoir's `dmtap-core`.
+/// The §22 object model, re-exported verbatim from the substrate's `kotva-core`
+/// (locally aliased `dmtap-core`, so `use dmtap_core::…` still resolves).
 ///
 /// These are the *same types the reference implementation uses* — `PubAnnounce`
 /// (§22.3), `PubManifest` (§22.2), `FeedHead`/`FeedEntry` (§22.4), the
@@ -95,11 +96,14 @@ pub fn blob_id_to_content_id(id: &BlobId) -> ContentId {
 
 /// Frame a evermesh [`RecordId`] as a §22 [`ContentId`].
 ///
-/// Representational only: a evermesh record id hashes the envelope **without**
-/// the signature, whereas a §22 `announce_id` hashes the **complete signed**
-/// object (§18.9.4). The two therefore identify the same logical thing under
-/// incompatible rules — this conversion is for referencing evermesh objects from
-/// §22 `meta`, never for claiming a §22 anchor.
+/// Representational only. Both sides now hash a **signature-excluded** body — a
+/// evermesh record id hashes the envelope without the signature, and as of
+/// `kotva-core` 0.2.0 a §22 `announce_id` hashes `det_cbor(PubAnnounce ∖ {9})`
+/// rather than the complete signed object (§1.3: an id must not be derived from a
+/// malleable signature). The agreement is only in *shape*: the two still commit
+/// to different fields under different CBOR schemas, so this conversion remains
+/// for referencing evermesh objects from §22 `meta`, never for claiming a §22
+/// anchor.
 pub fn record_id_to_content_id(id: &RecordId) -> ContentId {
     content_id_from_digest(id.as_bytes())
 }
@@ -318,6 +322,18 @@ pub fn feed_append(prev: &FeedEntry, announce: &PubAnnounce, ts: u64) -> FeedEnt
 /// so §22's mandatory anti-rollback and equivocation detection (§22.4.2) is
 /// *adopted here, not translated* — there was nothing to translate. Signing the
 /// head authenticates every entry transitively reachable via the `prev` chain.
+///
+/// # `topic` is deliberately the default (untopiced) feed
+///
+/// `kotva-core` 0.2.0 added §25.3.1's `topic` (CBOR key `64`) to [`FeedHead`].
+/// Evermesh publishes one feed per author and has no DMTAP-PUBSUB surface, so it
+/// uses the **default feed**, spelled `""`. That is not a placeholder: §25.3.1
+/// rule 1 gives the empty topic exactly one encoding — **key 64 omitted** — and
+/// the decoder rejects a present-but-empty key 64 as malformed. Emitting `""`
+/// therefore produces byte-for-byte the same `FeedHead` CBOR, and the same
+/// signature, as before the field existed. The addition is strictly additive for
+/// evermesh; adopting a non-empty topic would be a `pubsub-1` capability decision,
+/// not a field to fill in here.
 pub fn build_feed_head(kp: &Keypair, tip: &FeedEntry, ts: u64) -> FeedHead {
     let key = keypair_to_identity_key(kp);
     let pk = key.public();
@@ -330,6 +346,7 @@ pub fn build_feed_head(kp: &Keypair, tip: &FeedEntry, ts: u64) -> FeedHead {
         ts,
         signer: pk,
         sig: Vec::new(),
+        topic: String::new(),
     };
     h.sign(&key);
     h
