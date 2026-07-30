@@ -6,11 +6,13 @@ envelope integrity, stores, answers filtered subscriptions over
 `WS /sync`, forwards new records to peers with loop suppression, and
 optionally serves a content-addressed blob sidecar.
 
-**Status: Phase 4 skeleton.** Full module structure, storage schema,
-config, frame codec, and HTTP surface are implemented against a kernel
-API (`evermesh_kernel::Record`, `ChunkTree`) that is specified but not
-yet merged — see "What's pending" below. The crate will not compile
-until that lands.
+**Status: kernel-integrated.** Full module structure, storage schema,
+config, frame codec, and HTTP surface are implemented against
+`evermesh_kernel::Record` and `ChunkTree`, which have since merged — the
+crate compiles and its test suite runs (see "Testing" below). This
+section previously said the crate "will not compile" pending a kernel
+that had not landed; that stopped being true once `evermesh-kernel`
+gained `Record`/`ChunkTree` and is corrected here rather than left stale.
 
 ## Running
 
@@ -108,28 +110,14 @@ Every module ships unit tests (frame round-trips and canonical-encoding
 rejection, filter matching including `since`/`limit`, a PoW
 brute-forced-nonce check, rate-bucket exhaustion, store insert/dup/query
 against an in-memory SQLite database, blob hash/range/dedup behavior).
-**Tests have not been run as part of this skeleton pass** — the crate
-depends on `evermesh_kernel::Record`/`ChunkTree`, which are specified
-but not yet merged, so `cargo test` cannot succeed yet.
+`cargo test -p evermesh-relay` passes in full (47 tests, 0 failed) as of
+this revision, now that `evermesh_kernel::Record`/`ChunkTree` are
+implemented.
 
-## What works vs. what's pending kernel merge
+## What works
 
-Works today, independent of the kernel:
-
-- Config loading and defaults (`config.rs`).
-- The `/sync` frame codec, including canonical-encoding rejection
-  (`frames.rs`).
-- Filter parsing and matching (`filter.rs`).
-- The SQLite store: insert, dedup, filtered query, retention pruning
-  (`store.rs`).
-- PoW difficulty check (`pow.rs`) and rate limiting (`rate.rs`).
-- The blob sidecar's hashing/storage/range-read logic (`blobs.rs`),
-  except the chunk-proof endpoint.
-- `GET /info` document rendering (`info.rs`).
-
-Blocked on the kernel crate implementing `Record` (currently only
-`RecordId`/`BlobId`/`IdentityId` newtypes and the `Error` type exist)
-and `ChunkTree`:
+Everything the module map above lists is implemented against the merged
+kernel API, including the two kernel-verification call sites:
 
 - `sync.rs`'s `PUB` handling (`Record::from_cbor`, `Record::verify`,
   `Record::id`, `Record::kind`, `Record::author_identity_id`,
