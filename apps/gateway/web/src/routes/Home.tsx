@@ -86,7 +86,7 @@ function Hero(): JSX.Element {
           <p className="mt-2">
             It optionally distributes over{" "}
             <a
-              href="https://evermesh.org/docs.html#dmtap-convergence"
+              href="https://vulos.org/projects/evermesh/docs.html#dmtap-convergence"
               className="underline decoration-dotted underline-offset-2 hover:text-ink"
             >
               DMTAP-PUB (§22)

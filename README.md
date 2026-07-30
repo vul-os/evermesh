@@ -57,7 +57,7 @@ normative; where code and spec disagree, the spec wins.
 | `packages/ui` | Shared React components (player, verification badge) | **Implemented**, typechecks |
 | `apps/gateway/server` | Gateway backend: config, SQLite index, policy engine, key custody, relay clients, kind-aware ingest, upload/original-only pipeline, JSON API | **Implemented, tested** (45 tests); boots and connects to a relay |
 | `apps/gateway/web` | Gateway frontend: React + Vite + Tailwind | **Implemented, tested** (45 tests); builds |
-| `site` | evermesh.org: static landing page + docs viewer | **Built**, browser-checked (`just site-check`) |
+| `site` | vulos.org/projects/evermesh: static landing page + docs viewer | **Built**, browser-checked (`just site-check`) |
 | `tools/conformance` | 189 deterministic vectors + a runner replaying them against three runtimes, with an asserted coverage manifest | **Implemented, green** (see below); kernel target runs in `cargo test --workspace`, node + relay targets in their own CI job |
 | `crates/evermesh-node` + `apps/node-web` | Desktop media client (Tauri 2): browses a gateway, verifies manifests natively, pins for offline playback | **Implemented, tested**; no P2P/swarm retrieval (gateway-HTTP + offline cache only) |
 
@@ -123,7 +123,7 @@ measured contrast table) is documented in [`assets/README.md`](assets/README.md)
 > deployed and there is no built desktop binary in this environment — see
 > the status table above. They show the interfaces, not a running network.
 
-| evermesh.org | Docs viewer |
+| vulos.org/projects/evermesh | Docs viewer |
 |---|---|
 | ![The landing page: the tagline hero naming video, music, and the desktop client, followed by the survival test, roles, and an honest status section](site/screenshots/site-dark.png) | ![The specification rendered in the site's docs viewer](site/screenshots/docs-dark.png) |
 

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://evermesh.org/sitemap.xml
+Sitemap: https://vulos.org/projects/evermesh/sitemap.xml

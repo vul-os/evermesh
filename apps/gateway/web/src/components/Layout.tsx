@@ -117,7 +117,7 @@ export function Layout(): JSX.Element {
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4">
             <p>
               Powered by{" "}
-              <a href="https://evermesh.org" className="font-medium text-signal hover:underline">
+              <a href="https://vulos.org/projects/evermesh" className="font-medium text-signal hover:underline">
                 evermesh
               </a>
               {" "}— many gateways, one substrate.

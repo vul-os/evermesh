@@ -1,7 +1,7 @@
 # site/
 
-evermesh.org: a static landing page and a hash-routed docs viewer. No
-framework, no build step, no CDN. Deployable as a directory.
+vulos.org/projects/evermesh: a static landing page and a hash-routed docs
+viewer. No framework, no build step, no CDN. Deployable as a directory.
 
 ```
 index.html          landing page — hero, survival test, how it works,
@@ -50,7 +50,7 @@ MIT), and the documents themselves.
 
 Before going live, check `<link rel="canonical">`, the `og:` URLs,
 `robots.txt` and `sitemap.xml` — they all assume the
-`https://evermesh.org/` origin.
+`https://vulos.org/projects/evermesh/` origin.
 
 ## Design
 
