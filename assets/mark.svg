@@ -1,21 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Evermesh mark — "the play button is a network node".
-
-  A signal-lime play triangle with three mesh edges leaving its vertices to
-  three outer nodes: the video is one point in a lattice that keeps going.
-  This is the original Vidmesh-era mark, restored: it was briefly retired
-  for a cairn during the short-lived "Boloka" name and is brought back
-  because "Evermesh" itself re-embraces the mesh image (see DECISIONS.md,
-  2026-07-23). Two colors, flat fills, no gradients/filters/text.
-  Structure (edges + outer nodes) is `currentColor` here so this file can
-  be dropped inline into any UI and inherit the surrounding text color;
-  the standalone light/dark lockups hard-code it instead.
--->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Evermesh">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Evermesh">
   <title>Evermesh</title>
+  <!-- tile: dark ground so the mark reads as a branded app tile like the rest -->
+  <rect width="256" height="256" rx="56" fill="#0e130a"/>
   <!-- mesh: edges out of each vertex, then the outer nodes -->
-  <g stroke="currentColor" stroke-width="12" stroke-linecap="round" fill="currentColor">
+  <g stroke="#DDE7CE" stroke-width="12" stroke-linecap="round" fill="#DDE7CE">
     <path d="M84,72 L56,28" />
     <path d="M84,184 L56,228" />
     <path d="M190,128 L236,128" />
@@ -23,8 +11,7 @@
     <circle cx="56" cy="228" r="13" stroke="none" />
     <circle cx="236" cy="128" r="13" stroke="none" />
   </g>
-  <!-- the record itself: a play triangle, drawn fill+stroke in one color so
-       the corners round without a separate path -->
+  <!-- the record itself: a signal-lime play triangle -->
   <path d="M84,72 L190,128 L84,184 Z" fill="#A8E01F" stroke="#A8E01F"
         stroke-width="20" stroke-linejoin="round" />
 </svg>
