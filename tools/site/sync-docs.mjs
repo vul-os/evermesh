@@ -11,6 +11,14 @@
  * does its own link rewriting at render time, so nothing here edits spec
  * text. `--check` is the guard that keeps the copies honest; run it in CI
  * or before a release.
+ *
+ * The check used to only walk the DOCS list above — it never looked at what
+ * was actually sitting in site/docs/. A file that is renamed off the DOCS
+ * list (or dropped in by hand) stayed published forever: `--check` iterates
+ * DOCS, so a file no DOCS entry points at is never visited, never compared,
+ * never flagged. Proven by dropping an untracked file into site/docs/ and
+ * running `--check`: it reported "in sync". Now every *.md under site/docs/
+ * is required to be accounted for by exactly one DOCS entry.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -43,11 +51,15 @@ export const DOCS = [
 const check = process.argv.includes("--check");
 fs.mkdirSync(dest, { recursive: true });
 
+const knownNames = new Set(DOCS.map(([, slug]) => `${slug}.md`));
+
 let stale = 0;
+let examined = 0;
 for (const [src, slug] of DOCS) {
   const from = path.join(repo, src);
   const to = path.join(dest, `${slug}.md`);
   const body = fs.readFileSync(from);
+  examined += 1;
   if (check) {
     const current = fs.existsSync(to) ? fs.readFileSync(to) : null;
     if (current === null || !current.equals(body)) {
@@ -59,12 +71,39 @@ for (const [src, slug] of DOCS) {
   }
 }
 
+// site/docs/ is written only by this script, so any *.md there that no DOCS
+// entry names is an orphan — a renamed or retired chapter that never got
+// cleaned up, still being served to readers. Walking DOCS alone can never
+// find this; the destination directory has to be walked too.
+const orphans = fs
+  .readdirSync(dest)
+  .filter((f) => f.endsWith(".md") && !knownNames.has(f));
+
 if (check) {
-  if (stale) {
-    console.error(`\n${stale} stale copy/copies — run: node tools/site/sync-docs.mjs`);
+  for (const f of orphans) console.error(`orphan: site/docs/${f} is not published by any DOCS entry`);
+} else {
+  for (const f of orphans) {
+    fs.unlinkSync(path.join(dest, f));
+    console.log(`removed orphan site/docs/${f} (no longer in DOCS)`);
+  }
+}
+
+// Coverage assertion: every declared page must have been examined, so a loop
+// that silently walked fewer entries than DOCS declares fails instead of
+// reporting success for work it did not do.
+if (examined !== DOCS.length) {
+  console.error(`\nexamined ${examined} of ${DOCS.length} declared page(s) — the check did not do its whole job`);
+  process.exit(1);
+}
+
+if (check) {
+  if (stale || orphans.length) {
+    console.error(
+      `\n${stale} stale copy/copies, ${orphans.length} orphan(s) — run: node tools/site/sync-docs.mjs`,
+    );
     process.exit(1);
   }
-  console.log(`site docs in sync (${DOCS.length} files)`);
+  console.log(`site docs in sync (${DOCS.length} files, 0 orphans)`);
 } else {
-  console.log(`synced ${DOCS.length} docs -> site/docs/`);
+  console.log(`synced ${DOCS.length} docs -> site/docs/ (${orphans.length} orphan(s) removed)`);
 }
