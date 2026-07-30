@@ -88,7 +88,7 @@ cargo tauri build -p evermesh-node # runs its build via beforeBuildCommand first
 | `build.rs` | `tauri_build::build()` — bundle glue from `tauri.conf.json` |
 | `tauri.conf.json` | Tauri 2 config: identifier `org.evermesh.node`, `devUrl`/before-dev/build commands pointing at `apps/node-web`, `frontendDist: "./ui"` |
 | `capabilities/default.json` | ACL: app-data fs read/write/remove, `http(s)` egress (gateway origins are user-configured at runtime, so scoped broadly here — the real guard is `gateway_client.rs`'s `http(s)`-only URL validation), open/save dialogs |
-| `icons/icon.png` | app icon (512×512, derived from `assets/favicon.svg`) |
+| `icons/icon.png` | app icon (512×512, rendered from the approved tile mark at `brand/logo.svg` — was stale (a pre-rebrand hexagon placeholder) until this pass; regenerate with `rsvg-convert -w 512 -h 512 brand/logo.svg -o crates/evermesh-node/icons/icon.png` |
 | `ui/` | **built output, gitignored** — `apps/node-web`'s `vite build` writes here (`tauri.conf.json`'s `frontendDist`). `tauri::generate_context!()` embeds this directory at compile time, so it must exist before `cargo build`/`check`/`test`/`clippy` — CI's `rust` job runs the pnpm build first for exactly this reason. |
 | `src/main.rs` | Tauri builder, app state, and every `#[tauri::command]` |
 | `src/gateway_client.rs` | `reqwest`-based client for a gateway's public JSON API (`apps/gateway/API.md`) |

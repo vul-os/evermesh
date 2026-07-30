@@ -198,3 +198,45 @@ erasing the naming history.
 | # | Decision | Rationale |
 |---|----------|-----------|
 | T8 | Boloka→Evermesh is a find-and-replace for wire identifiers/crate names/tokens (re-proved byte-for-byte via the conformance suite) but a find-and-*restore* for the mark: the pre-cairn mesh mark is reinstated verbatim rather than redrawn, only the wordmark is redrawn | The mark encodes meaning the name itself now supports again ("Evermesh" contains "mesh"); restoring a still-fitting prior asset is not the same mistake as leaving a stale one, and re-litigating art direction the founder already rejected once (the cairn) is not a good use of a second rename |
+
+## Cross-project — the family payment rail (2026-07-30)
+
+Recorded here because a sibling project (magnetite) has selected a crypto rail and
+asked for the decision to be reflected in Evermesh. **It is deliberately NOT
+recorded as an Evermesh rail choice, because doing so would contradict
+[`spec/010-economics.md`](spec/010-economics.md) §1.** That section is right and
+stands unchanged.
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| X1 | Evermesh does **not** adopt a chain. The magnetite Stellar decision is recorded here as *informative context only*; `010` §1's rail-neutral `PaymentPointer` registry remains the normative position | `010` opens "no rail is required; a protocol token is permanently out of scope (Principle 6)" and "New rails are new registry entries. Clients render the rails they understand and MUST ignore unknown types." A media protocol whose publishers each choose their own payout rail must not inherit another product's chain. Naming Stellar normatively would be a regression, not an alignment |
+| X2 | **Proposed, not applied:** allocate a `stellar` `PaymentPointer` type (next free id after 4) so a publisher who wants Stellar can express it | Registry-entry addition is the mechanism `010` §1 already specifies for exactly this. Left as a proposal rather than applied unilaterally because it allocates a wire id, which is a normative change belonging to a spec revision with `003-kinds-registry.md` coordination — not a log entry |
+| X3 | `010` §2's receipt discipline is **prior art the sibling should adopt**, not the other way round | "A receipt proves the payer *said* they paid; settlement proof lives in the rail… SHOULD label unverified receipts as claims." magnetite independently derived the same two-tier model (settled vs signed-but-unsettled) while designing for disconnected operation, and arrived later. Evermesh got there first and made it normative |
+
+**Informative — what magnetite chose and why**, for whoever implements gated access
+([`008`](spec/008-privacy.md) §4) and needs a rail that actually works:
+
+* **Stellar**, XLM native, each payee declaring the asset it wants to receive.
+  Verified against primary sources over sixteen L1 candidates; the matrix lives at
+  `magnetite/docs/chain-candidates.md`.
+* **Stellar is not uniquely qualified** — Radix, Sui and Solana also clear every hard
+  filter. It was chosen on cost-to-ship (a `patala-stellar` rail already exists with
+  29 offline tests and `Memo::Hash` binding implemented), on unbounded offline
+  transaction validity, on being the lightest node of the four, and on being the only
+  candidate where validating requires no bonded stake.
+* **Three findings that would bite Evermesh too, if it ever bundles payouts:**
+  1. **Minimum payment granularity.** Cardano cannot create an output below ~0.97 ADA
+     — a floor on payment *size*, not rent — which makes sub-cent tips impossible.
+     Any rail added to `010` §1's registry should be checked for this. Stellar (1
+     stroop), Sui (1 MIST) and Radix (1 atto) have no such floor.
+  2. **Batch integrity.** On any chain with atomic multi-recipient payments, one
+     unprepared or hostile recipient can veto the whole batch — Stellar via a missing
+     trustline, Radix via deposit rules. Radix has a free native remedy
+     (`AccountLocker::airdrop`); Stellar's `CREATE_CLAIMABLE_BALANCE` locks 0.5 XLM
+     per leg; Sui is structurally immune. Relevant only to *bundled* payouts, so
+     Evermesh's per-publisher pointer model sidesteps it entirely — which is a point
+     in that model's favour worth noting.
+  3. **Rails differ in what they can promise.** `patala_core`'s seam is
+     single-recipient, so atomic multi-party splits are per-chain work beneath it, and
+     a fiat processor cannot be atomic at all (N payouts are N API calls). Capability
+     must be declared, not assumed.

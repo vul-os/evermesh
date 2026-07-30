@@ -8,17 +8,23 @@
  *   assets/og-image.png                    <- tools/brand/og-card.html  (1200x630)
  *   site/assets/apple-touch-icon.png  <- assets/favicon.svg        (180x180)
  *   site/assets/og-image.png          <- copy of the card
+ *   crates/evermesh-node/icons/icon.png <- brand/logo.svg (512x512, via rsvg-convert)
  *
  * Everything is served over a throwaway local HTTP server first: file://
  * pages cannot load the sibling stylesheets/fonts under Chromium's
  * same-origin rules, and the card must have the real vendored faces
  * loaded before it is captured.
+ *
+ * The Tauri app icon is rasterized straight from the approved brand mark
+ * (brand/logo.svg is FINAL — never redrawn) with rsvg-convert, not Chromium,
+ * since it is a plain vector-to-raster export with no CSS/fonts to load.
  */
 import { chromium } from "playwright";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const TYPES = {
@@ -67,3 +73,11 @@ console.log("wrote site/assets/og-image.png");
 
 await browser.close();
 server.close();
+
+execFileSync("rsvg-convert", [
+  "-w", "512",
+  "-h", "512",
+  path.join(repo, "brand/logo.svg"),
+  "-o", path.join(repo, "crates/evermesh-node/icons/icon.png"),
+]);
+console.log("wrote crates/evermesh-node/icons/icon.png");

@@ -231,11 +231,25 @@ yes, with evidence.
 
 ## Consumed, not ported
 
-`dmtap-core` is an **optional git dependency** pinned to a reviewed revision:
+The §22 reference crate is an **optional registry dependency** on a published
+release:
 
 ```toml
-dmtap-core = { git = "https://github.com/vul-os/envoir", rev = "12526123…", optional = true }
+dmtap-core = { package = "kotva-core", version = "0.2.0", optional = true }
 ```
+
+**The crate moved repositories.** It was `dmtap-core` inside envoir; it was
+carved out to the KOTVA substrate repo as `kotva-core` and published to
+crates.io. Evermesh keeps the local alias `dmtap-core` through cargo's
+dependency-rename, so every `use dmtap_core::…` in `dmtap_pub.rs` still compiles
+and **no source moved** for the migration.
+
+The old pin — `git = "…/envoir", rev = "12526123…"` — was not merely stale. Git
+history is immutable, so it still resolved and still compiled; but envoir
+deleted `crates/dmtap-core` outright at commit `620a68c`, leaving that rev 52
+commits behind envoir HEAD and pointing at a tree upstream no longer maintains.
+It could never receive another fix. A dead pin that still builds green is worse
+than one that breaks, because nothing surfaces it.
 
 `crates/evermesh-kernel/src/dmtap_pub.rs` **re-exports** `PubAnnounce`,
 `PubManifest`, `FeedHead`/`FeedEntry`, `check_anti_rollback`, `ServePolicy` and
@@ -243,12 +257,9 @@ the `ERR_PUB_*` registry verbatim. Evermesh owns **none** of the §22 object cod
 
 This was the deciding constraint. A vendored copy or a careful re-port would
 have produced a *second divergent implementation of §22* — precisely the
-duplication this convergence exists to delete. The dependency was viable
-because the envoir repo is publicly fetchable over HTTPS and `pubobj.rs` is
-committed on `origin/main`, so no private-credential or unpushed-work hazard
-applies. It is `optional = true` and `default = []`, so the heavy PQ crypto in
-`dmtap-core` (`ml-dsa`, `x-wing`, `hpke`) never enters the default build or the
-WASM target.
+duplication this convergence exists to delete. It is `optional = true` and
+`default = []`, so the heavy PQ crypto in `kotva-core` (`ml-dsa`, `x-wing`,
+`hpke`) never enters the default build or the WASM target.
 
 What evermesh *does* own is the **bridge**: multihash prefix add/strip, blob →
 `PubManifest` construction at evermesh's 1 MiB chunking, identity reinterpretation,
@@ -257,8 +268,13 @@ and the §24-profile `meta` framing of a native record.
 ## The proof: frozen vectors, byte-exact
 
 `crates/evermesh-kernel/tests/dmtap_pub_vectors.rs` runs the spec repo's frozen
-corpus (`dmtap/conformance/vectors/pub_vectors.json`, vendored verbatim;
-sha256 `43a4ab54fee10fea3997f99605e01fb9b7dc9b465da32cd365cd3413c0be81f4`).
+corpus (`kotva/conformance/vectors/pub_vectors.json`, vendored verbatim;
+sha256 `b0dfbff210d5ccf368de3f123ab390189393f16f38b6a91bf3d83ea5d9e895fc`).
+
+**Re-vendored with the 0.2.0 bump.** 10 of the 15 vectors changed value, all as
+downstream consequences of the single `announce_id` rule change described under
+"Behavioural changes" below. The corpus is byte-identical to the upstream file
+at kotva `41121cb`; the count is unchanged at 15.
 
 Those vectors were generated **from the specification text** by a script that
 does not import the reference crate, and are cross-checked by a second
@@ -272,7 +288,7 @@ from-scratch implementation. Passing them means evermesh's §22 path agrees with
 | `pub_manifest_type_incompatibility` | §22.2.3 | public root ≠ sealed-style root |
 | `pub_manifest_key5_forbidden` | §22.2.1 | reject `0x0902`; key-5-free twin decodes + re-encodes byte-exact |
 | `pub_announce_signing_preimage` | §22.3.1 | DS-tag, preimage, signature |
-| `pub_announce_id` | §18.9.4 | `announce_id`; re-encode byte-identical |
+| `pub_announce_id` | §22.3.1 / §1.3 | `announce_id` over the sig-EXCLUDED body; preimage byte-exact; id invariant under a changed signature |
 | `pub_announce_supersede_*` (2) | §22.3.4 | same-author accept / cross-author `0x090B` |
 | `pub_feed_entry_chain` | §22.4.1 | three `entry_id`s + `prev` linkage |
 | `pub_feed_head_signing_preimage` | §22.4.1 | DS-tag, preimage, signature |
@@ -285,6 +301,77 @@ from-scratch implementation. Passing them means evermesh's §22 path agrees with
 `ERR_PUB_*` code, not merely "an error". The harness asserts all 15 execute, so
 a corpus that grows without the harness growing fails rather than silently
 skipping.
+
+## Behavioural changes crossed by the `kotva-core = "0.2.0"` bump
+
+The bump crosses every substrate change since envoir `12526123` (52 commits).
+Only a few reach evermesh, because evermesh consumes exactly five modules —
+`pubobj`, `cbor`, `id`, `identity`, `suite`.
+
+### 1. `announce_id` now hashes the signature-EXCLUDED body — WIRE-VISIBLE
+
+`PubAnnounce::announce_id()` changed from `BLAKE3(det_cbor(announce))` over the
+complete signed object to `BLAKE3(det_cbor(announce ∖ {9}))` over the same body
+the `sig` covers. Rationale (§1.3): hybrid AND-composition is EUF-CMA, not
+SUF-CMA, so a valid signature is malleable, and an id derived from one gives a
+single semantic announce two different ids.
+
+**Every announce id evermesh computes changes value.** This is the one change
+here with real consequences. They are contained today only because evermesh has
+**never persisted or transmitted a §22 announce id**: the `dmtap-pub` feature is
+default-off, phase 1 is additive, and no §22 object is written to storage or the
+relay wire. If any had been published, this would be a breaking migration.
+`META_KEY_EVERMESH_RECORD` is unaffected — it carries an evermesh *record* id,
+which was already signature-excluded.
+
+### 2. `FeedHead` gained `topic` (§25.3.1, CBOR key 64) — additive, no byte change
+
+Evermesh has no DMTAP-PUBSUB surface and publishes the default feed, `topic = ""`.
+§25.3.1 rule 1 gives the empty topic exactly one encoding — key 64 **omitted** —
+so evermesh's `FeedHead` CBOR and signatures are byte-identical to before. The
+field is required in the struct literal, so the bump failed to compile until
+`build_feed_head` was updated: a loud break, not a silent default.
+
+### 3. Suites `0x04`/`0x05` registered; decode is now fail-closed on unsupported
+
+`pub_suite` now rejects a **known-but-unsupported** suite at decode, not merely
+at verification. Evermesh hardcodes `Suite::Classical` (`0x01`) everywhere it
+constructs a §22 object, and `Classical.is_supported()` is `true`, so no
+evermesh path changes behaviour.
+
+**Worth flagging for phase 2, not actionable now:** the 0.2.0 suite table
+reclassifies `0x01` as *LEGACY — verify only, MUST NOT originate* and makes
+`0x02` (PQ-hybrid) the required originating suite. Evermesh therefore now
+originates a suite the spec marks legacy. It cannot simply switch: `kotva-core`
+0.2.0's `is_supported()` is still `Classical`-only, so a `0x02` announce would be
+rejected by its own decoder. This is a substrate-side gap to resolve before any
+§22 cutover, and is recorded here rather than papered over.
+
+### 4. NOT applicable: C-08 ext-value, C-09 SnapshotBody, C-11 fast-join
+
+The adopter-wide warning that `EXT_VALUE_PROFILE=2` makes mixed deployments
+diverge **by rejection**, so partial rollouts are unsafe, **does not apply to
+evermesh.** Verified mechanically, not assumed:
+
+- envoir `9d6977c` (C-08/C-09) and `5e8c357` (C-11) touch **zero files** under
+  `crates/dmtap-core` — `git show --stat <rev> -- crates/dmtap-core` is empty for
+  both. They are changes to the *sync engine* (`dmtap-sync`, now `kotva-sync`).
+- The strings `EXT_VALUE_PROFILE`, `ext_value` and `SnapshotBody` appear
+  **nowhere** in `kotva-core` 0.2.0's sources, nor in the pinned `dmtap-core`.
+- Evermesh depends on `kotva-core` only. It has **no** dependency on
+  `kotva-sync`/`dmtap-sync`, and no source references `dmtap_sync::`.
+
+Evermesh runs no sync engine, so there is no mixed-deployment rejection hazard
+here and no rollout ordering constraint.
+
+### 5. The frozen chunk-tree divergence is untouched — verified, not assumed
+
+`chunk_hash` and `pub_manifest_root` are **byte-identical** between the pinned
+`dmtap-core` and `kotva-core` 0.2.0 (verified by direct source diff), so the
+`DP-22` profile cannot have moved. `tests/chunk_tree_profiles.rs` proves this
+executably rather than taking it on trust: all 9 frozen `DP-22` roots still match
+a live §22 computation under the bumped crate, and all 9 still differ from their
+`EM-1` counterparts. See "The frozen divergence" below.
 
 ## Two findings that change the phase-2 estimate
 
@@ -414,8 +501,11 @@ costed **before** anyone starts, and deliberately not begun.
 1. **Founder confirms one substrate.** (Gates 2 and 3 are already met.)
 2. **File the §24.14 item 4 erratum** and agree the corrected blob-migration
    cost, since it changes the operational plan materially.
-3. **Pin `dmtap-core` to a released version, not a git rev.** A cutover must not
-   depend on a moving branch of a sibling repo.
+3. ~~**Pin `dmtap-core` to a released version, not a git rev.** A cutover must not
+   depend on a moving branch of a sibling repo.~~ **DONE** — the crate is now the
+   published `kotva-core = "0.2.0"` from crates.io, aliased back to `dmtap-core`
+   by dependency-rename. This gate is closed by that change and nothing else;
+   gates 1 and 2 remain open.
 
 ## Step order (each step independently shippable and green)
 
