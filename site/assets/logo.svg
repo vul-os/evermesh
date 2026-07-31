@@ -3,24 +3,27 @@
   Evermesh lockup — light-background variant.
 
   Mark: a play triangle whose three vertices each throw an edge out to a
-  mesh node. This is the original Vidmesh-era mesh mark, restored: it was
-  briefly retired for a cairn during the short-lived "Boloka" name and is
-  brought back because "Evermesh" itself re-embraces the mesh image the
-  cairn had replaced (see DECISIONS.md, 2026-07-23). Wordmark: "evermesh"
-  hand-plotted as stroked paths on the same grid the project has used
-  since Vidmesh (baseline 180, x-height 100, ascender 30, stroke 22, round
-  caps). There is no <text> and no font-family anywhere in this file, so
-  the lockup renders identically everywhere with nothing to load.
+  mesh node — the same geometry as brand/logo.svg's icon (brand/ is
+  FINAL and is never redrawn; this file only drops its dark tile so the
+  mark sits directly on the page).
 
-  Colors: carbon ink #10140F for structure, signal #4F6E09 for the
-  triangle — the deep end of the signal ramp, because acid lime on white
-  falls under the 3:1 non-text contrast floor.
+  Wordmark: "evermesh" set in the real Bricolage Grotesque ExtraBold
+  (96pt optical size, for its character at this size) and traced to
+  static path data with opentype.js, so the lockup still renders
+  identically everywhere with nothing to load and no <text>/font-family
+  — but from genuine type outlines instead of hand-plotted strokes
+  imitating type (the 2026-07-31 redesign replaced the latter: its
+  letterforms were visibly uneven at hero size).
+
+  Colors: ink #15151A for structure, signal #4F6E09 for the triangle —
+  the deep end of the signal ramp, because acid lime on paper falls
+  under the 3:1 non-text contrast floor.
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 256" role="img" aria-label="Evermesh">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1210 256" role="img" aria-label="Evermesh">
   <title>Evermesh</title>
 
   <!-- ============ mark ============ -->
-  <g stroke="#10140F" stroke-width="12" stroke-linecap="round" fill="#10140F">
+  <g stroke="#15151A" stroke-width="12" stroke-linecap="round" fill="#15151A">
     <path d="M84,72 L56,28" />
     <path d="M84,184 L56,228" />
     <path d="M190,128 L236,128" />
@@ -31,36 +34,8 @@
   <path d="M84,72 L190,128 L84,184 Z" fill="#4F6E09" stroke="#4F6E09"
         stroke-width="20" stroke-linejoin="round" />
 
-  <!-- ============ wordmark: "evermesh" ============ -->
-  <g transform="translate(300,23)" fill="none" stroke="#10140F" stroke-width="22"
-     stroke-linecap="round" stroke-linejoin="round">
-    <g transform="translate(0,0)"><!-- e -->
-      <path d="M2,140 L82,140 C82,118 66,100 42,100 C18,100 2,118 2,140 C2,162 18,180 42,180 C58,180 71,173 78,161" />
-    </g>
-    <g transform="translate(106,0)"><!-- v -->
-      <path d="M0,100 L34,180 L68,100" />
-    </g>
-    <g transform="translate(198,0)"><!-- e -->
-      <path d="M2,140 L82,140 C82,118 66,100 42,100 C18,100 2,118 2,140 C2,162 18,180 42,180 C58,180 71,173 78,161" />
-    </g>
-    <g transform="translate(304,0)"><!-- r -->
-      <path d="M11,100 L11,180" />
-      <path d="M11,120 C11,106 20,100 33,100 C38,100 42,101 46,103" />
-    </g>
-    <g transform="translate(374,0)"><!-- m -->
-      <path d="M0,180 L0,100" />
-      <path d="M0,124 C0,108 12,100 23,100 C35,100 44,110 44,126 L44,180" />
-      <path d="M44,124 C44,108 56,100 67,100 C79,100 88,110 88,126 L88,180" />
-    </g>
-    <g transform="translate(486,0)"><!-- e -->
-      <path d="M2,140 L82,140 C82,118 66,100 42,100 C18,100 2,118 2,140 C2,162 18,180 42,180 C58,180 71,173 78,161" />
-    </g>
-    <g transform="translate(592,0)"><!-- s -->
-      <path d="M62,113 C57,104 48,100 36,100 C21,100 11,108 11,120 C11,144 62,133 62,157 C62,171 50,180 36,180 C22,180 12,174 7,164" />
-    </g>
-    <g transform="translate(678,0)"><!-- h -->
-      <path d="M0,180 L0,30" />
-      <path d="M0,124 C0,108 13,100 25,100 C41,100 52,110 52,128 L52,180" />
-    </g>
+  <!-- ============ wordmark: "evermesh", traced from Bricolage Grotesque ExtraBold ============ -->
+  <g transform="translate(300,203)" fill="#15151A">
+    <path d="M57.40 2.80Q37.60 2.80 26-4.60Q14.40-12 9.40-24.20Q4.40-36.40 4.40-50.60Q4.40-65.80 9.60-79Q14.80-92.20 26-100.30Q37.20-108.40 55.40-108.40Q73.60-108.40 84.80-100.20Q96-92 100.10-78.20Q104.20-64.40 101.20-47.40L35.80-46.40Q36.80-33.20 42.10-27.20Q47.40-21.20 57.60-21.20Q67-21.20 70.80-25.90Q74.60-30.60 74.20-39L103.80-37.40Q104.40-30.80 102.50-23.80Q100.60-16.80 95.40-10.80Q90.20-4.80 80.90-1Q71.60 2.80 57.40 2.80M55.40-83Q46.80-83 42.30-77.90Q37.80-72.80 36.40-64L72.60-64.80Q71.60-83 55.40-83 M181 0L139.80 0L108-105.60L142.40-105.60L160.60-26.80L161.40-26.80L180.40-105.60L212.80-105.60 M270.80 2.80Q251 2.80 239.40-4.60Q227.80-12 222.80-24.20Q217.80-36.40 217.80-50.60Q217.80-65.80 223-79Q228.20-92.20 239.40-100.30Q250.60-108.40 268.80-108.40Q287-108.40 298.20-100.20Q309.40-92 313.50-78.20Q317.60-64.40 314.60-47.40L249.20-46.40Q250.20-33.20 255.50-27.20Q260.80-21.20 271-21.20Q280.40-21.20 284.20-25.90Q288-30.60 287.60-39L317.20-37.40Q317.80-30.80 315.90-23.80Q314-16.80 308.80-10.80Q303.60-4.80 294.30-1Q285 2.80 270.80 2.80M268.80-83Q260.20-83 255.70-77.90Q251.20-72.80 249.80-64L286-64.80Q285-83 268.80-83 M360.20 0L328 0L328-105.60L356-105.60L356-63.60L357.60-63.60Q358.80-80.40 362.30-90.10Q365.80-99.80 371.10-103.90Q376.40-108 383-108Q390.80-108 398.20-103.80L396.60-67.80Q387.40-73 380-73Q370.40-73 365.30-64.90Q360.20-56.80 360.20-41.80 M440.40 0L408 0L408-105.60L435.40-105.60L435.40-62.60L437-62.60Q439-87.60 447.30-98Q455.60-108.40 470-108.40Q484.80-108.40 491.60-97.30Q498.40-86.20 498.20-62.60L499.80-62.60Q502-87.40 510.80-97.90Q519.60-108.40 534.20-108.40Q566.60-108.40 566.60-60L566.60 0L534.20 0L534.20-57.20Q534.20-80 522.40-80Q514.60-80 508.80-69.40Q503-58.80 503-37.40L503 0L471.40 0L471.40-58Q471.40-80 459.40-80Q454.40-80 450.10-75.90Q445.80-71.80 443.10-62.40Q440.40-53 440.40-37.40 M630.20 2.80Q610.40 2.80 598.80-4.60Q587.20-12 582.20-24.20Q577.20-36.40 577.20-50.60Q577.20-65.80 582.40-79Q587.60-92.20 598.80-100.30Q610-108.40 628.20-108.40Q646.40-108.40 657.60-100.20Q668.80-92 672.90-78.20Q677-64.40 674-47.40L608.60-46.40Q609.60-33.20 614.90-27.20Q620.20-21.20 630.40-21.20Q639.80-21.20 643.60-25.90Q647.40-30.60 647-39L676.60-37.40Q677.20-30.80 675.30-23.80Q673.40-16.80 668.20-10.80Q663-4.80 653.70-1Q644.40 2.80 630.20 2.80M628.20-83Q619.60-83 615.10-77.90Q610.60-72.80 609.20-64L645.40-64.80Q644.40-83 628.20-83 M733.60 2.80Q719.40 2.80 708.10-1Q696.80-4.80 690.60-13.50Q684.40-22.20 685-37L713.20-39.40Q714.40-20.20 734.60-20.20Q740.80-20.20 745.30-22.30Q749.80-24.40 749.80-29.40Q749.80-33.20 745.90-35.30Q742-37.40 729.80-40.40Q716.20-43.80 706.20-47.50Q696.20-51.20 690.90-57.30Q685.60-63.40 685.60-73.80Q685.60-84.80 691.50-92.50Q697.40-100.20 707.80-104.30Q718.20-108.40 731.80-108.40Q744-108.40 754.60-104.60Q765.20-100.80 771.30-92.20Q777.40-83.60 775.80-69.40L748.20-66.80Q749-75.60 743.90-80.30Q738.80-85 730-85Q723.20-85 719.50-82.50Q715.80-80 715.80-76.20Q715.80-71.60 721.10-69.20Q726.40-66.80 738-64.20Q744.80-62.80 752.20-60.60Q759.60-58.40 766-54.70Q772.40-51 776.40-45Q780.40-39 780.40-29.80Q780.40-15 768.40-6.10Q756.40 2.80 733.60 2.80 M823.20 0L790.80 0L790.80-140L823.20-140L823.20-113.60Q823.20-109.40 822.70-102.50Q822.20-95.60 821.30-87.80Q820.40-80 819.50-72.90Q818.60-65.80 818-61L819.80-61Q822.40-86 831.20-97.20Q840-108.40 856.40-108.40Q889.80-108.40 889.80-59.80L889.80 0L857.40 0L857.40-58.40Q857.40-69.60 854.40-74.80Q851.40-80 844.60-80Q835.60-80 829.40-69.60Q823.20-59.20 823.20-35.80"/>
   </g>
 </svg>

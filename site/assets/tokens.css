@@ -1,31 +1,29 @@
 /*
- * Evermesh design tokens — the single source of truth for the reference look.
+ * Evermesh site design tokens.
  *
- * Spec 009 §7 (and DECISIONS P17) make the gateway UI *uniform*: a gateway
- * operator re-skins accents, never the interface. These custom properties
- * are the seam that makes that possible — every surface in the project
- * (site, apps/gateway/web, packages/ui) reads colour, type, radius and
- * elevation from here rather than hard-coding values. Override the
- * properties, ship no new CSS.
+ * Scope: site/ only (the marketing page + docs viewer). apps/gateway/web
+ * and apps/node-web keep their own copies of the reference look (see
+ * their tailwind.config.ts) — this file is not shared with them.
  *
- * THEME: "signal on carbon". Carbon is a near-black with a green cast;
- * signal is an acid lime that only ever appears where something is *live*,
- * *verified*, or *actionable*. Mesh blue is structural: identity,
- * verification, the substrate. Live red is reserved for record/live state
- * and errors. Nothing else gets to be bright.
+ * THEME: "carbon & signal". Neutrals are a true, cool graphite — not
+ * tinted toward any hue — so the one saturated colour in the system,
+ * the brand's signal lime (#A8E01F, from brand/logo.svg), reads as a
+ * clean accent instead of competing with an olive-tinted ground. Mesh
+ * blue is structural (identity, verification). Live red is reserved for
+ * "not built" / error state. Nothing else gets to be bright.
  *
- * CONTRAST: every foreground token below was checked against the surface
- * it is used on. Light mode uses the deep end of each ramp for text
- * (brand-800 7.0:1, accent-600 5.6:1 on --bo-surface); dark mode uses the
- * bright end (brand-300 13.3:1, accent-200 11.1:1). Acid lime is never
- * text on a light background — it fails even the 3:1 non-text floor there,
- * which is why the light lockup uses brand-700.
+ * CONTRAST: every foreground token below is checked against the surface
+ * it sits on. Light mode uses the deep end of the signal ramp for text
+ * (brand-800 ~7:1, accent-700 ~6:1 on --bo-surface); dark mode uses the
+ * bright end (brand-300 ~12:1, accent-200 ~10.8:1). Acid lime is never
+ * text on the light ground — it fails the 3:1 non-text floor there,
+ * which is why the light lockup's triangle uses brand-700.
  */
 
 :root {
   color-scheme: light dark;
 
-  /* ---- signal (brand): live, verified, actionable ---- */
+  /* ---- signal (brand): the one accent, from the mark itself ---- */
   --bo-brand-50: #f4fce0;
   --bo-brand-100: #e7f9be;
   --bo-brand-200: #d2f387;
@@ -38,94 +36,100 @@
   --bo-brand-900: #2a3a07;
   --bo-brand-950: #172004;
 
-  /* ---- mesh (accent): identity, verification, substrate ---- */
-  --bo-accent-50: #e6f4fb;
-  --bo-accent-100: #c6e7f7;
-  --bo-accent-200: #93d2f0;
-  --bo-accent-300: #5cb8e6;
-  --bo-accent-400: #2e9bd8;
-  --bo-accent-500: #187eb8;
-  --bo-accent-600: #126595;
-  --bo-accent-700: #0f5075;
-  --bo-accent-800: #0d3d59;
-  --bo-accent-900: #0a2a3d;
-  --bo-accent-950: #061722;
+  /* ---- mesh (accent): identity, verification ---- */
+  --bo-accent-50: #e9f2fb;
+  --bo-accent-100: #cce3f7;
+  --bo-accent-200: #99c7ee;
+  --bo-accent-300: #62a6e0;
+  --bo-accent-400: #3d87cf;
+  --bo-accent-500: #256bb0;
+  --bo-accent-600: #1b5590;
+  --bo-accent-700: #164572;
+  --bo-accent-800: #133a5f;
+  --bo-accent-900: #0e2c48;
+  --bo-accent-950: #081b2c;
 
-  /* ---- light surfaces ("paper") ---- */
-  --bo-bg: #fafbf7;
-  --bo-surface: #f0f2ec;
-  --bo-surface-2: #e7eae2;
-  --bo-fg: #10140f;
-  --bo-muted: #4c554d;
-  --bo-faint: #6d7a70;
-  --bo-border: #d7dcd1;
-  --bo-border-strong: #b9c2b2;
+  /* ---- a second illustration hue, warm — thumbnails/illustrations only,
+     never UI chrome, so the system still reads as "one accent" */
+  --bo-warm-400: #ff8a5c;
+  --bo-warm-600: #c9531f;
+  --bo-warm-800: #7a3212;
+
+  /* ---- light surfaces ("paper") — neutral warm-grey, not green-tinted */
+  --bo-bg: #faf9f6;
+  --bo-surface: #f1efe9;
+  --bo-surface-2: #e8e5dc;
+  --bo-fg: #15151a;
+  --bo-muted: #53555c;
+  --bo-faint: #75767d;
+  --bo-border: #ddd9cf;
+  --bo-border-strong: #c5c0b2;
 
   /* ---- semantic ---- */
   --bo-link: var(--bo-brand-800);
   --bo-link-hover: var(--bo-brand-700);
-  --bo-verified: var(--bo-accent-600);
-  --bo-live: #c42a1c;
+  --bo-verified: var(--bo-accent-700);
+  --bo-live: #b8331f;
   --bo-focus-ring: var(--bo-accent-600);
-  --bo-on-signal: #10140f; /* text on a signal-filled surface */
+  --bo-on-signal: #15151a; /* text on a signal-filled surface */
   --bo-signal: var(--bo-brand-700); /* the signal colour that is safe on paper */
 
   /* ---- type ---- */
-  --bo-font-display: "Syne", "Hanken Grotesk", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --bo-font-display: "Bricolage Grotesque", "Hanken Grotesk", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   --bo-font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
   --bo-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
     Consolas, monospace;
 
   /* ---- shape + elevation ---- */
-  --bo-radius: 14px;
-  --bo-radius-sm: 8px;
+  --bo-radius: 16px;
+  --bo-radius-sm: 9px;
   --bo-radius-pill: 999px;
-  --bo-shadow: 0 1px 2px rgba(16, 20, 15, 0.06), 0 8px 24px -12px rgba(16, 20, 15, 0.18);
-  --bo-shadow-lg: 0 24px 60px -28px rgba(16, 20, 15, 0.4);
+  --bo-shadow: 0 1px 2px rgba(20, 20, 22, 0.06), 0 10px 26px -14px rgba(20, 20, 22, 0.2);
+  --bo-shadow-lg: 0 30px 70px -30px rgba(20, 20, 22, 0.38);
 }
 
 :root.dark,
 :root[data-theme="dark"] {
-  --bo-bg: #0a0c0b;
-  --bo-surface: #121614;
-  --bo-surface-2: #1a201d;
-  --bo-fg: #e9f0ea;
-  --bo-muted: #9fb0a6;
-  --bo-faint: #74857a;
-  --bo-border: #26302c;
-  --bo-border-strong: #3a4741;
+  --bo-bg: #0b0b10;
+  --bo-surface: #151620;
+  --bo-surface-2: #1d1f2b;
+  --bo-fg: #f3f4f1;
+  --bo-muted: #a3a6b3;
+  --bo-faint: #71737f;
+  --bo-border: #24252f;
+  --bo-border-strong: #343643;
 
   --bo-link: var(--bo-brand-300);
   --bo-link-hover: var(--bo-brand-200);
   --bo-verified: var(--bo-accent-200);
-  --bo-live: #ff4d3d;
+  --bo-live: #ff6a4d;
   --bo-focus-ring: var(--bo-brand-300);
   --bo-signal: var(--bo-brand-400);
-  --bo-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
-  --bo-shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+  --bo-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -14px rgba(0, 0, 0, 0.7);
+  --bo-shadow-lg: 0 40px 90px -36px rgba(0, 0, 0, 0.85);
 }
 
 /* Sites without a JS toggle get the dark palette from the OS instead. */
 @media (prefers-color-scheme: dark) {
   :root:not(.light):not([data-theme="light"]) {
-    --bo-bg: #0a0c0b;
-    --bo-surface: #121614;
-    --bo-surface-2: #1a201d;
-    --bo-fg: #e9f0ea;
-    --bo-muted: #9fb0a6;
-    --bo-faint: #74857a;
-    --bo-border: #26302c;
-    --bo-border-strong: #3a4741;
+    --bo-bg: #0b0b10;
+    --bo-surface: #151620;
+    --bo-surface-2: #1d1f2b;
+    --bo-fg: #f3f4f1;
+    --bo-muted: #a3a6b3;
+    --bo-faint: #71737f;
+    --bo-border: #24252f;
+    --bo-border-strong: #343643;
 
     --bo-link: var(--bo-brand-300);
     --bo-link-hover: var(--bo-brand-200);
     --bo-verified: var(--bo-accent-200);
-    --bo-live: #ff4d3d;
+    --bo-live: #ff6a4d;
     --bo-focus-ring: var(--bo-brand-300);
     --bo-signal: var(--bo-brand-400);
-    --bo-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
-    --bo-shadow-lg: 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+    --bo-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -14px rgba(0, 0, 0, 0.7);
+    --bo-shadow-lg: 0 40px 90px -36px rgba(0, 0, 0, 0.85);
   }
 }
