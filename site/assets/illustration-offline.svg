@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The desktop client (crates/evermesh-node) verifies a manifest's signature
+  and re-hashes pinned content natively, in Rust, before it plays anything
+  — the same checks the web player runs in WASM, run here whether or not a
+  network is reachable. This card shows that: a gateway on the left, a
+  broken link where the network would be, and the device on the right doing
+  the check itself from a locally cached blob.
+  Flat two-color style matching architecture.svg, neutral card background.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320" role="img"
+     aria-label="Diagram: even with no path to the gateway, the desktop client verifies a pinned manifest's signature and re-hashes its cached blob locally before playing it.">
+  <title>Verified locally, whether or not the network is there</title>
+
+  <rect x="0" y="0" width="1000" height="320" rx="16" fill="#F0F2EC"/>
+
+  <!-- gateway (left, distant) -->
+  <g opacity="0.55">
+    <rect x="60" y="110" width="150" height="100" rx="12" fill="none" stroke="#1E2620" stroke-width="5"/>
+    <rect x="80" y="130" width="110" height="14" rx="4" fill="#1E2620"/>
+    <rect x="80" y="154" width="110" height="14" rx="4" fill="#1E2620"/>
+    <rect x="80" y="178" width="70" height="14" rx="4" fill="#1E2620"/>
+    <text x="135" y="242" text-anchor="middle" font-family="'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif" font-size="19" fill="#10140F">Gateway</text>
+  </g>
+
+  <!-- broken link between them -->
+  <g stroke="#1E2620" stroke-width="4" stroke-dasharray="10 8" fill="none">
+    <path d="M225,160 H420"/>
+  </g>
+  <g stroke="#C42A1C" stroke-width="7" stroke-linecap="round">
+    <path d="M300,135 L340,185"/>
+    <path d="M340,135 L300,185"/>
+  </g>
+  <text x="320" y="115" text-anchor="middle" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="13" fill="#4C554D">no network required</text>
+
+  <!-- device (right): laptop with cached blob + verification badge -->
+  <g>
+    <rect x="440" y="90" width="380" height="150" rx="14" fill="none" stroke="#1E2620" stroke-width="6"/>
+    <!-- cached blob icon -->
+    <g>
+      <rect x="470" y="120" width="90" height="90" rx="10" fill="none" stroke="#1E2620" stroke-width="4"/>
+      <circle cx="497" cy="150" r="7" fill="#4F6E09"/>
+      <circle cx="533" cy="150" r="7" fill="#4F6E09"/>
+      <circle cx="497" cy="180" r="7" fill="#4F6E09"/>
+      <circle cx="533" cy="180" r="7" fill="#4F6E09"/>
+      <text x="515" y="228" text-anchor="middle" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="12" fill="#4C554D">cached blob</text>
+    </g>
+    <!-- checks -->
+    <g font-family="'JetBrains Mono',ui-monospace,monospace" font-size="14" fill="#10140F">
+      <circle cx="605" cy="128" r="9" fill="#4F6E09"/>
+      <path d="M600,128 L604,133 L611,123" fill="none" stroke="#F0F2EC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="622" y="133">Ed25519 signature verified</text>
+
+      <circle cx="605" cy="160" r="9" fill="#4F6E09"/>
+      <path d="M600,160 L604,165 L611,155" fill="none" stroke="#F0F2EC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="622" y="165">BLAKE3 hash re-derived, matches</text>
+
+      <circle cx="605" cy="192" r="9" fill="#4F6E09"/>
+      <path d="M600,192 L604,197 L611,187" fill="none" stroke="#F0F2EC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="622" y="197">Kind schema validated</text>
+    </g>
+    <text x="630" y="270" text-anchor="middle" font-family="'Hanken Grotesk',-apple-system,'Segoe UI',sans-serif" font-size="22" fill="#10140F">Desktop client</text>
+  </g>
+  <text x="630" y="40" text-anchor="middle" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="14" letter-spacing="0.02em" fill="#4C554D">checked before a single frame plays</text>
+</svg>

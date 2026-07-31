@@ -787,6 +787,206 @@ h3 {
   border-radius: var(--bo-radius-sm);
 }
 
+/* ---------------------------------------------------------- model figures
+   Three illustrations of the ideas "how it works" only states in prose:
+   the record/blob relationship, a record propagating (the one place on
+   the page besides the hero that moves), and offline verification. Same
+   corner-frame card language as the architecture diagram above. */
+
+.model-figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.model-fig {
+  margin: 0;
+  padding: 22px;
+  background-color: var(--bo-surface);
+}
+
+.model-fig-wide {
+  grid-column: 1 / -1;
+}
+
+.model-fig img,
+.model-fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--bo-radius-sm);
+}
+
+.model-fig figcaption {
+  margin-top: 16px;
+  color: var(--bo-muted);
+  font-size: 15px;
+  max-width: 68ch;
+}
+
+.model-fig figcaption b {
+  color: var(--bo-fg);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .model-figures {
+    grid-template-columns: 1fr;
+  }
+}
+
+.model-fig-label {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bo-faint);
+}
+
+/* the propagation diagram: same lattice/signal technique as the hero,
+   plus two gateways that "light up" roughly when the travelling packet
+   would reach them, and a third, dimmer, dashed path a gateway declined
+   to subscribe to — selection is part of the picture, not just carriage */
+.model-lattice {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.model-lattice .edge path {
+  stroke: var(--bo-border-strong);
+  stroke-width: 2;
+  fill: none;
+}
+
+.model-lattice .edge path.declined {
+  stroke-dasharray: 5 7;
+  stroke: var(--bo-border);
+}
+
+.model-lattice .node .creator {
+  fill: var(--bo-border-strong);
+}
+
+.model-lattice .node .relay {
+  fill: var(--bo-surface);
+  stroke: var(--bo-border-strong);
+  stroke-width: 2.5;
+}
+
+.model-lattice .gw {
+  fill: var(--bo-surface-2);
+  stroke: var(--bo-border-strong);
+  stroke-width: 2.5;
+}
+
+.model-lattice .gw.declined {
+  fill: none;
+  stroke-dasharray: 4 5;
+  opacity: 0.55;
+}
+
+.model-lattice .signal {
+  fill: var(--bo-signal);
+  opacity: 0;
+  animation: vm-travel 6s linear infinite;
+}
+
+.model-lattice .sig-b {
+  animation-delay: 0.6s;
+}
+
+@keyframes gw-arrive {
+  0%,
+  55% {
+    stroke: var(--bo-border-strong);
+    filter: none;
+  }
+  62% {
+    stroke: var(--bo-signal);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--bo-signal) 55%, transparent));
+  }
+  78%,
+  100% {
+    stroke: var(--bo-border-strong);
+    filter: none;
+  }
+}
+
+.model-lattice .gw-a {
+  animation: gw-arrive 6s ease-in-out infinite;
+}
+
+.model-lattice .gw-b {
+  animation: gw-arrive 6s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+.model-lattice-label {
+  font-family: var(--bo-font-mono);
+  font-size: 12px;
+  fill: var(--bo-muted);
+}
+
+.model-lattice-gwlabel {
+  font-family: var(--bo-font-sans);
+  font-size: 14px;
+  fill: var(--bo-fg);
+}
+
+.model-lattice-gwlabel.declined {
+  fill: var(--bo-faint);
+}
+
+/* ------------------------------------------------------------- gallery
+   Real screenshots of the two real frontends, theme-matched via <picture>
+   so the shot always matches the reader's own colour scheme. */
+
+.shot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+@media (max-width: 860px) {
+  .shot-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.shot-card {
+  margin: 0;
+  padding: 14px;
+  background-color: var(--bo-surface);
+}
+
+.shot-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--bo-radius-sm);
+  border: 1px solid var(--bo-border);
+}
+
+.shot-card figcaption {
+  margin-top: 14px;
+  padding: 0 6px;
+  color: var(--bo-muted);
+  font-size: 15px;
+}
+
+.shot-card figcaption b {
+  color: var(--bo-fg);
+  font-weight: 600;
+}
+
+.shot-note {
+  margin: 28px 0 0;
+  color: var(--bo-faint);
+  font-size: 14.5px;
+  max-width: 80ch;
+}
+
 /* ------------------------------------------------------------- staircase
    Three rungs, each indented a little further than the last so the list
    itself climbs — a literal staircase rather than a boxed row list. */
@@ -1465,7 +1665,8 @@ table.status th.num {
     transition-duration: 0.001ms !important;
   }
 
-  .hero-lattice .signal {
+  .hero-lattice .signal,
+  .model-lattice .signal {
     display: none;
   }
 }

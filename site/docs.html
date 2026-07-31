@@ -18,13 +18,15 @@
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Evermesh docs — The Evermesh protocol specification, the IETF draft, and the project's decision log — rendered in the browser from the same markdown that ships in the repositor">
+  <meta property="og:image:alt" content="The Evermesh wordmark on the signal-on-carbon theme, above the docs viewer's chapter list.">
   <meta name="twitter:image" content="https://vulos.org/projects/evermesh/assets/og-image.png">
 <link rel="canonical" href="https://vulos.org/projects/evermesh/docs.html">
 <meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0C0B" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <link rel="stylesheet" href="style.css">
 <script src="assets/vendor/marked.umd.js"></script>
 </head>
@@ -79,7 +81,19 @@
  */
 const GROUPS = [
   {
-    label: "Specification",
+    label: "Start here",
+    docs: [
+      ["getting-started", "Getting started"],
+    ],
+  },
+  {
+    label: "Concepts",
+    docs: [
+      ["concepts", "Concepts"],
+    ],
+  },
+  {
+    label: "Protocol specification — advanced",
     docs: [
       ["spec-index", "Spec index"],
       ["000-overview", "000 · Overview"],
@@ -97,25 +111,25 @@ const GROUPS = [
     ],
   },
   {
-    label: "Reference",
+    label: "Reference & project",
     docs: [
       ["draft-evermesh-protocol-00", "IETF draft"],
       ["changelog", "Spec changelog"],
-    ],
-  },
-  {
-    label: "Project",
-    docs: [
       ["decisions", "Decisions log"],
       ["dmtap-convergence", "DMTAP convergence"],
     ],
   },
 ];
 
+// This is a normative-text advanced section, kept intact and in its
+// existing 000–011 order — see the group label above. Nothing in it is
+// renumbered or rewritten; "Start here" and "Concepts" exist so a reader
+// with a question doesn't have to land on chapter 000 of a protocol spec
+// to get an answer.
 const DOCS = GROUPS.flatMap((g) => g.docs);
 const TITLES = Object.fromEntries(DOCS);
 const SLUGS = new Set(DOCS.map(([slug]) => slug));
-const DEFAULT_SLUG = "000-overview";
+const DEFAULT_SLUG = "getting-started";
 
 const nav = document.getElementById("docs-nav");
 const content = document.getElementById("content");
@@ -269,6 +283,11 @@ async function load(doc) {
         }
         continue;
       }
+      // A same-site link to the landing page (`index.html`, or
+      // `index.html#gallery`) is valid exactly as written — docs.html and
+      // index.html are siblings in site/ — so it's left alone rather than
+      // being treated as an unresolved cross-reference and sent to GitHub.
+      if (/^\.?\/?index\.html(#.*)?$/i.test(href)) continue;
       // Section anchors inside a cross-reference (`004-manifest.md#5-live`)
       // are dropped: the route itself is the hash, so a viewer can only
       // carry one. The document still opens at the right file.

@@ -29,6 +29,8 @@ const dest = path.join(repo, "site", "docs");
 
 /** source (repo-relative) -> slug the docs viewer routes on */
 export const DOCS = [
+  ["docs/GETTING-STARTED.md", "getting-started"],
+  ["docs/CONCEPTS.md", "concepts"],
   ["spec/README.md", "spec-index"],
   ["spec/000-overview.md", "000-overview"],
   ["spec/001-kernel.md", "001-kernel"],

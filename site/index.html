@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Evermesh — many gateways, one substrate</title>
-<meta name="description" content="Evermesh is a decentralized media protocol for video and music: a self-certifying substrate of signed records and content-addressed blobs, served by independent gateways and playable on the web or the desktop client. No servers of record, no token, no mandatory dependencies.">
+<meta name="description" content="Evermesh: a decentralized protocol for video and music. Signed records, content-addressed blobs, independent gateways. No token, no servers of record.">
   <meta name="color-scheme" content="dark light">
   <meta property="og:site_name" content="Evermesh">
 <link rel="canonical" href="https://vulos.org/projects/evermesh/">
@@ -15,8 +15,10 @@
 <meta property="og:title" content="Evermesh — many gateways, one substrate">
 <meta property="og:description" content="A decentralized protocol for video and music, built on signed records and content-addressed blobs. Independent gateways index and serve their own selection; a desktop client verifies and plays offline. No token, no servers of record.">
 <meta property="og:image" content="https://vulos.org/projects/evermesh/assets/og-image.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Evermesh wordmark on the signal-on-carbon theme, with the tagline 'many gateways, one substrate'.">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
@@ -28,6 +30,7 @@
 <meta name="theme-color" content="#FAFBF7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0A0C0B" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
@@ -50,6 +53,7 @@
       <ul>
         <li><a href="#survival">Survival test</a></li>
         <li><a href="#how">How it works</a></li>
+        <li><a href="#model">The model</a></li>
         <li><a href="#roles">Roles</a></li>
         <li><a href="#status">Status</a></li>
         <li><a href="docs.html">Docs</a></li>
@@ -105,7 +109,7 @@
           <span class="pill pill-spec">Optionally built on <a href="docs.html#dmtap-convergence">DMTAP-PUB &sect;22</a></span>
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="docs.html#000-overview">Read the spec</a>
+          <a class="btn btn-primary" href="docs.html">Read the docs</a>
           <a class="btn btn-secondary" href="https://github.com/vul-os/evermesh#development">Run a gateway</a>
           <a class="btn btn-secondary" href="https://github.com/vul-os/evermesh/tree/main/crates/evermesh-node">Desktop client</a>
         </div>
@@ -302,11 +306,69 @@
     </div>
   </section>
 
+  <section class="section" id="model" aria-labelledby="model-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="section-num">03 / the model</span>
+          <h2 id="model-heading">The model, in pictures</h2>
+        </div>
+        <p class="lede">
+          Three ideas do almost all of the work. A record's proof travels
+          with its bytes. A gateway is a selection, not an owner. And
+          verification happens on whoever is holding the file, not on
+          whoever served it.
+        </p>
+      </div>
+
+      <div class="section-body model-figures">
+        <figure class="model-fig corner-frame">
+          <img src="assets/illustration-record.svg" width="1000" height="320" alt="A signed record — canonical CBOR with an Ed25519 signature and a deterministic id — carries a reference to a blob, addressed by the root of its BLAKE3 chunk tree rather than by a URL.">
+          <figcaption><b>Self-certifying, not self-hosted.</b> A record proves itself from its own bytes; a blob proves itself from its own hash. Neither one needs to ask a server whether it's real.</figcaption>
+        </figure>
+
+        <figure class="model-fig corner-frame model-fig-wide">
+          <p class="model-fig-label mono">A record propagating across gateways — animated, stops with prefers-reduced-motion</p>
+          <svg class="model-lattice" viewBox="0 0 900 250" role="img" aria-label="Diagram: a creator's record passes through a relay, then to independent gateways. Two gateways choose to index it and light up on arrival; a third declines and never receives the animated packet." focusable="false">
+            <g class="edge">
+              <path d="M76,125 H236"/>
+              <path d="M236,125 V60 H500"/>
+              <path d="M236,125 H500"/>
+              <path class="declined" d="M236,125 V195 H500"/>
+            </g>
+            <g class="node">
+              <circle class="creator" cx="76" cy="125" r="9"/>
+              <rect class="relay" x="218" y="107" width="36" height="36" rx="7"/>
+            </g>
+            <g class="gw-group">
+              <rect class="gw gw-a" x="500" y="34" width="200" height="52" rx="9"/>
+              <rect class="gw gw-b" x="500" y="99" width="200" height="52" rx="9"/>
+              <rect class="gw gw-c declined" x="500" y="169" width="200" height="52" rx="9"/>
+            </g>
+            <circle class="signal sig-a" r="6" style="offset-path: path('M76,125 H236 V60 H500')"/>
+            <circle class="signal sig-b" r="6" style="offset-path: path('M76,125 H236 V125 H500')"/>
+            <text x="76" y="150" text-anchor="middle" class="model-lattice-label mono">Creator</text>
+            <text x="236" y="164" text-anchor="middle" class="model-lattice-label mono">Relay</text>
+            <text x="600" y="65" text-anchor="middle" class="model-lattice-gwlabel">Gateway A &mdash; indexes it</text>
+            <text x="600" y="130" text-anchor="middle" class="model-lattice-gwlabel">Gateway B &mdash; indexes it</text>
+            <text x="600" y="200" text-anchor="middle" class="model-lattice-gwlabel declined">Gateway C &mdash; declines it</text>
+          </svg>
+          <figcaption><b>Selection happens at the edge.</b> The relay forwards to anyone subscribed; nothing requires a gateway to index everything it sees. A record two gateways carry and one doesn't is not an error — it's the design.</figcaption>
+        </figure>
+
+        <figure class="model-fig corner-frame">
+          <img src="assets/illustration-offline.svg" width="1000" height="320" alt="Even with no path to the gateway, the desktop client verifies a pinned manifest's signature and re-hashes its cached blob locally before playing it.">
+          <figcaption><b>Verification travels with the file.</b> The desktop client checks a manifest's signature and re-derives a pinned blob's hash on its own, in Rust, before a frame plays — the gateway that served it doesn't need to be reachable, or even to still exist.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="roles" aria-labelledby="roles-heading">
     <div class="wrap">
       <div class="section-head">
         <div>
-          <span class="section-num">03 / participation</span>
+          <span class="section-num">04 / participation</span>
           <h2 id="roles-heading">Three ways to take part</h2>
         </div>
         <p class="lede">
@@ -373,11 +435,56 @@
     </div>
   </section>
 
+  <section class="section" id="gallery" aria-labelledby="gallery-heading">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="section-num">05 / what it looks like</span>
+          <h2 id="gallery-heading">Two real frontends, one uniform UI</h2>
+        </div>
+        <p class="lede">
+          These are the actual reference gateway and the actual desktop
+          client, screenshotted against a stubbed API and a stubbed Tauri
+          IPC boundary — see the caption below. Not mockups; the same code
+          a gateway operator deploys.
+        </p>
+      </div>
+
+      <div class="section-body shot-grid">
+        <figure class="shot-card corner-frame">
+          <picture>
+            <source srcset="screenshots/ui-dark.png" media="(prefers-color-scheme: dark)">
+            <img src="screenshots/ui-light.png" width="1280" height="820" loading="lazy"
+                 alt="Gateway reference UI: the hero strip naming video, music, client-side verification and the desktop client, above a grid mixing video and audio cards.">
+          </picture>
+          <figcaption><b>Reference gateway UI</b> &mdash; <code>apps/gateway/web</code>. Every gateway that wants trademark compliance ships this same interface; operators re-skin accents, not layout.</figcaption>
+        </figure>
+
+        <figure class="shot-card corner-frame">
+          <picture>
+            <source srcset="screenshots/ui-node-dark.png" media="(prefers-color-scheme: dark)">
+            <img src="screenshots/ui-node-light.png" width="1280" height="820" loading="lazy"
+                 alt="Desktop client Browse view: the same mixed video/audio grid, with a gateway picker and an All/Video/Audio filter.">
+          </picture>
+          <figcaption><b>Desktop client</b> &mdash; <code>crates/evermesh-node</code> (Tauri 2). Browses a gateway, verifies manifests natively, pins video and audio for offline playback.</figcaption>
+        </figure>
+      </div>
+
+      <p class="shot-note">
+        Both are real frontends rendered against fixtures, because no
+        Evermesh gateway is deployed and there is no built desktop binary
+        to run against a live network yet &mdash; see
+        <a href="#status">what actually exists</a>. They show the
+        interfaces, not a running network.
+      </p>
+    </div>
+  </section>
+
   <section class="section" id="status" aria-labelledby="status-heading">
     <div class="wrap">
       <div class="section-head">
         <div>
-          <span class="section-num">04 / honesty</span>
+          <span class="section-num">06 / honesty</span>
           <h2 id="status-heading">What actually exists</h2>
         </div>
         <p class="lede">
@@ -507,13 +614,16 @@
     <div class="wrap">
       <div class="section-head">
         <div>
-          <span class="section-num">05 / the spec</span>
+          <span class="section-num">07 / the spec</span>
           <h2 id="spec-heading">Twelve files, one concern each</h2>
         </div>
         <p class="lede">
           Cross-referenced, self-consistent, and boring on purpose, so a
-          stranger can reimplement the whole thing from the text alone. Read
-          them <a href="docs.html">in the docs viewer</a> or in the repository.
+          stranger can reimplement the whole thing from the text alone. This
+          is the normative, advanced material — if you just want to run
+          something, <a href="docs.html#getting-started">start here</a>
+          instead. Read the spec <a href="docs.html#000-overview">in the docs
+          viewer</a> or in the repository.
         </p>
       </div>
 
@@ -539,7 +649,7 @@
     <div class="wrap">
       <div class="section-head">
         <div>
-          <span class="section-num">06 / objections</span>
+          <span class="section-num">08 / objections</span>
           <h2 id="faq-heading">Reasonable objections</h2>
         </div>
         <p class="lede">
