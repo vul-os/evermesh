@@ -55,6 +55,10 @@
 </header>
 
 <div class="wrap docs-shell">
+  <button type="button" class="docs-nav-toggle" id="docs-nav-toggle" aria-expanded="false" aria-controls="docs-nav">
+    <span>Docs menu</span>
+    <span class="docs-nav-toggle-chevron" aria-hidden="true"></span>
+  </button>
   <nav class="docs-nav" id="docs-nav" aria-label="Documents"></nav>
   <main class="docs-main">
     <p class="docs-crumb" id="crumb"></p>
@@ -148,6 +152,23 @@ for (const group of GROUPS) {
     nav.append(a);
   }
 }
+
+// Mobile drawer: .docs-nav-toggle/.docs-nav-toggle's CSS only shows this
+// button under the 940px breakpoint (style.css), where .docs-nav itself
+// starts collapsed. Picking a chapter also closes it, same as any
+// off-canvas nav, so the reader lands on content, not on the menu they
+// just used. At wider viewports the toggle is hidden and .docs-nav is
+// always the plain sticky sidebar, unaffected by the "open" class.
+const navToggle = document.getElementById("docs-nav-toggle");
+navToggle.addEventListener("click", () => {
+  const open = nav.classList.toggle("open");
+  navToggle.setAttribute("aria-expanded", String(open));
+});
+nav.addEventListener("click", (e) => {
+  if (e.target.tagName !== "A") return;
+  nav.classList.remove("open");
+  navToggle.setAttribute("aria-expanded", "false");
+});
 
 if (window.marked && marked.setOptions) marked.setOptions({ gfm: true, breaks: false });
 

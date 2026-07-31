@@ -781,9 +781,17 @@ h3 {
   padding: 22px;
 }
 
+/* the diagram is authored at 1000px wide with type as small as 15px; below
+   that width scaling it down would push type under the 12px floor, so it
+   scrolls horizontally instead of shrinking, like a wide table would */
+.diagram-scroll {
+  overflow-x: auto;
+}
+
 .diagram img {
   display: block;
   width: 100%;
+  min-width: 1000px;
   border-radius: var(--bo-radius-sm);
 }
 
@@ -793,9 +801,16 @@ h3 {
    the page besides the hero that moves), and offline verification. Same
    corner-frame card language as the architecture diagram above. */
 
+/* One column, not a 2-up grid: these three diagrams are authored at
+   900-1000px wide with type as small as 12px. A 2-column grid at the
+   section's own 1180px wrap would give each card ~575px — already below
+   the width these need to keep their smallest labels at or above the
+   12px floor — so they read top-to-bottom instead, each at full wrap
+   width, and only actually need to scroll (see .model-fig-scroll below)
+   on viewports narrower than they are. */
 .model-figures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 28px;
 }
 
@@ -803,18 +818,6 @@ h3 {
   margin: 0;
   padding: 22px;
   background-color: var(--bo-surface);
-}
-
-.model-fig-wide {
-  grid-column: 1 / -1;
-}
-
-.model-fig img,
-.model-fig svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--bo-radius-sm);
 }
 
 .model-fig figcaption {
@@ -829,12 +832,6 @@ h3 {
   font-weight: 600;
 }
 
-@media (max-width: 860px) {
-  .model-figures {
-    grid-template-columns: 1fr;
-  }
-}
-
 .model-fig-label {
   margin: 0 0 14px;
   font-size: 12px;
@@ -843,12 +840,30 @@ h3 {
   color: var(--bo-faint);
 }
 
+/* Scrolls rather than shrinks below native size — same reasoning as
+   .diagram-scroll above. illustration-record.svg and
+   illustration-offline.svg are authored at 1000px wide; the inline
+   propagation lattice at 900px. min-width is set per-child below so
+   neither ever renders its smallest label under 12px. */
+.model-fig-scroll {
+  overflow-x: auto;
+}
+
+.model-fig-scroll img {
+  display: block;
+  width: 100%;
+  min-width: 1000px;
+  height: auto;
+  border-radius: var(--bo-radius-sm);
+}
+
 /* the propagation diagram: same lattice/signal technique as the hero,
    plus two gateways that "light up" roughly when the travelling packet
    would reach them, and a third, dimmer, dashed path a gateway declined
    to subscribe to — selection is part of the picture, not just carriage */
 .model-lattice {
   width: 100%;
+  min-width: 900px;
   height: auto;
   display: block;
 }
@@ -1400,10 +1415,56 @@ table.status th.num {
   overflow-y: auto;
 }
 
+/* ---------------------------------------------------------- docs drawer
+   Wide viewports: the toggle button is hidden and .docs-nav is always
+   the plain sticky sidebar above — the "open" class .docs-nav-toggle
+   adds/removes is simply irrelevant at this width.
+   Narrow viewports: a real off-canvas drawer, collapsed by default, so a
+   reader lands on content first rather than scrolling past all 19
+   chapters to reach it. Keyboard-operable for free (a plain <button>). */
+.docs-nav-toggle {
+  display: none;
+}
+
 @media (max-width: 940px) {
+  .docs-nav-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    padding: 14px 18px;
+    margin-bottom: 4px;
+    border: 1px solid var(--bo-border);
+    border-radius: var(--bo-radius);
+    background: var(--bo-surface);
+    color: var(--bo-fg);
+    font-family: var(--bo-font-display);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .docs-nav-toggle-chevron::before {
+    content: "\25BE";
+    color: var(--bo-signal);
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  .docs-nav-toggle[aria-expanded="true"] .docs-nav-toggle-chevron::before {
+    transform: rotate(180deg);
+  }
+
   .docs-nav {
+    display: none;
     position: static;
-    max-height: none;
+    max-height: 55vh;
+  }
+
+  .docs-nav.open {
+    display: block;
+    margin-bottom: 20px;
   }
 }
 

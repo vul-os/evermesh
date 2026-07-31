@@ -300,7 +300,9 @@
         </div>
 
         <figure class="diagram corner-frame">
-          <img src="assets/architecture.svg" alt="Creators publish signed manifests into a substrate of records and content-addressed blobs; independent gateways index and serve their own selection of it; viewers and nodes verify signatures and hashes and re-seed the blobs." width="1000" height="380">
+          <div class="diagram-scroll">
+            <img src="assets/architecture.svg" alt="Creators publish signed manifests into a substrate of records and content-addressed blobs; independent gateways index and serve their own selection of it; viewers and nodes verify signatures and hashes and re-seed the blobs." width="1000" height="380">
+          </div>
         </figure>
       </div>
     </div>
@@ -323,12 +325,15 @@
 
       <div class="section-body model-figures">
         <figure class="model-fig corner-frame">
-          <img src="assets/illustration-record.svg" width="1000" height="320" alt="A signed record — canonical CBOR with an Ed25519 signature and a deterministic id — carries a reference to a blob, addressed by the root of its BLAKE3 chunk tree rather than by a URL.">
+          <div class="model-fig-scroll">
+            <img src="assets/illustration-record.svg" width="1000" height="320" alt="A signed record — canonical CBOR with an Ed25519 signature and a deterministic id — carries a reference to a blob, addressed by the root of its BLAKE3 chunk tree rather than by a URL.">
+          </div>
           <figcaption><b>Self-certifying, not self-hosted.</b> A record proves itself from its own bytes; a blob proves itself from its own hash. Neither one needs to ask a server whether it's real.</figcaption>
         </figure>
 
         <figure class="model-fig corner-frame model-fig-wide">
           <p class="model-fig-label mono">A record propagating across gateways — animated, stops with prefers-reduced-motion</p>
+          <div class="model-fig-scroll">
           <svg class="model-lattice" viewBox="0 0 900 250" role="img" aria-label="Diagram: a creator's record passes through a relay, then to independent gateways. Two gateways choose to index it and light up on arrival; a third declines and never receives the animated packet." focusable="false">
             <g class="edge">
               <path d="M76,125 H236"/>
@@ -353,11 +358,14 @@
             <text x="600" y="130" text-anchor="middle" class="model-lattice-gwlabel">Gateway B &mdash; indexes it</text>
             <text x="600" y="200" text-anchor="middle" class="model-lattice-gwlabel declined">Gateway C &mdash; declines it</text>
           </svg>
+          </div>
           <figcaption><b>Selection happens at the edge.</b> The relay forwards to anyone subscribed; nothing requires a gateway to index everything it sees. A record two gateways carry and one doesn't is not an error — it's the design.</figcaption>
         </figure>
 
         <figure class="model-fig corner-frame">
-          <img src="assets/illustration-offline.svg" width="1000" height="320" alt="Even with no path to the gateway, the desktop client verifies a pinned manifest's signature and re-hashes its cached blob locally before playing it.">
+          <div class="model-fig-scroll">
+            <img src="assets/illustration-offline.svg" width="1000" height="320" alt="Even with no path to the gateway, the desktop client verifies a pinned manifest's signature and re-hashes its cached blob locally before playing it.">
+          </div>
           <figcaption><b>Verification travels with the file.</b> The desktop client checks a manifest's signature and re-derives a pinned blob's hash on its own, in Rust, before a frame plays — the gateway that served it doesn't need to be reachable, or even to still exist.</figcaption>
         </figure>
       </div>
