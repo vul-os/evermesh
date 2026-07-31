@@ -27,8 +27,9 @@
  * subsets, vendored, no CDN request at runtime.
  */
 
-@import "@fontsource/syne/latin-700.css";
-@import "@fontsource/syne/latin-800.css";
+@import "@fontsource/bricolage-grotesque/latin-600.css";
+@import "@fontsource/bricolage-grotesque/latin-700.css";
+@import "@fontsource/bricolage-grotesque/latin-800.css";
 @import "@fontsource/hanken-grotesk/latin-400.css";
 @import "@fontsource/hanken-grotesk/latin-500.css";
 @import "@fontsource/hanken-grotesk/latin-600.css";
@@ -102,7 +103,15 @@
   --bo-fg: var(--bo-neutral-950);
   --bo-muted: var(--bo-neutral-600);
   --bo-faint: #6d7a70;
-  --bo-border: var(--bo-neutral-200);
+  /* Not var(--bo-neutral-200) for both: that made --bo-border identical to
+     --bo-surface-2, so a card's outline vanished against any surface-2
+     background (the filter-tab track, a chip) and the light theme read as
+     flat/washed-out — the dark theme never had this bug because its
+     border (neutral-700) and surface-2 (neutral-800) were already two
+     different stops. These two literals match assets/tokens.css, the
+     project-wide source of truth, restoring the hairline definition. */
+  --bo-surface-2: #e7eae2;
+  --bo-border: #d7dcd1;
   --bo-border-strong: #b9c2b2;
   --bo-link: var(--bo-brand-800);
   --bo-link-hover: var(--bo-brand-700);
@@ -130,8 +139,8 @@
   --bo-duration: 160ms;
 
   /* ---- type ---- */
-  --bo-font-display: "Syne", "Hanken Grotesk", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --bo-font-display: "Bricolage Grotesque", "Hanken Grotesk", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   --bo-font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
   --bo-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
@@ -181,8 +190,8 @@ body {
 }
 
 /* Display face on page-level headings only. Card and item titles (h3) stay
-   on the UI face: Syne is wide, and a grid of truncated video titles set in
-   it reads as decoration rather than content. */
+   on the UI face: even Bricolage, calmer than Syne, still reads as
+   decoration rather than content in a dense grid of truncated titles. */
 h1,
 h2 {
   font-family: var(--bo-font-display);

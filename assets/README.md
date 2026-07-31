@@ -81,7 +81,7 @@ runtime, in the site or in the app.
 
 | Role | Family | Weights | Why |
 |---|---|---|---|
-| Display | **Syne** | 700, 800 | Wide, slightly odd geometry; reads as broadcast/editorial rather than SaaS. Headlines only. |
+| Display | **Bricolage Grotesque** | 600, 700, 800 | Real character (flicked terminals on e/s) without Syne's overly-wide, odd-at-hero-size geometry. Headlines only; also traced to static paths for `logo*.svg`. |
 | UI / body | **Hanken Grotesk** | 400–700 | A quiet grotesque with real character in the terminals; carries long spec prose without fatigue. |
 | Data | **JetBrains Mono** | 400, 500 | Content addresses, record ids, code, tables. Distinct `0`/`O` matters when a hash is the point. |
 

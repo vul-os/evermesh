@@ -71,8 +71,8 @@
   --bo-signal: var(--bo-brand-700); /* the signal colour that is safe on paper */
 
   /* ---- type ---- */
-  --bo-font-display: "Syne", "Hanken Grotesk", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --bo-font-display: "Bricolage Grotesque", "Hanken Grotesk", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
   --bo-font-sans: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
   --bo-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo,
