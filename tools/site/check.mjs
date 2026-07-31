@@ -126,9 +126,9 @@ for (const scheme of ["dark", "light"]) {
   await checkLinks(page, `index.html (${scheme})`);
 
   const h1 = (await page.textContent("h1")) ?? "";
-  if (!h1.includes("substrate")) fail(`index.html (${scheme})`, "hero headline missing");
+  if (!h1.includes("platforms")) fail(`index.html (${scheme})`, "hero headline missing");
   const usedFont = await page.evaluate(() => getComputedStyle(document.querySelector("h1")).fontFamily);
-  if (!/Syne/.test(usedFont)) fail(`index.html (${scheme})`, `display font not applied (${usedFont})`);
+  if (!/Bricolage/.test(usedFont)) fail(`index.html (${scheme})`, `display font not applied (${usedFont})`);
 
   if (withShots) {
     fs.mkdirSync(shotsDir, { recursive: true });
