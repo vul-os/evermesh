@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MediaCard } from "../components/MediaCard.js";
-import { EmptyState, ErrorState, LoadingState } from "../components/StateViews.js";
+import { EmptyState, ErrorState, GRID_CLASS, LoadingState } from "../components/StateViews.js";
 import { useGateways } from "../lib/GatewayContext.js";
 import { fetchCatalog } from "../lib/tauri.js";
 import type { MediaKind, VideoSummary } from "../lib/types.js";
 
 type MediaFilter = MediaKind | "all";
+
+const FILTERS: Array<{ value: MediaFilter; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "video", label: "Video" },
+  { value: "audio", label: "Audio" },
+];
 
 /**
  * The remote catalog: `fetch_catalog()` (Rust → the active gateway's
@@ -66,21 +72,25 @@ export function Browse(): JSX.Element {
 
   return (
     <div>
-      <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-signal">Browsing</p>
           <h1 className="mt-1 break-all text-2xl font-bold tracking-tight text-ink sm:text-3xl">{current}</h1>
         </div>
-        <div className="flex gap-2" role="group" aria-label="Filter by media kind">
-          {(["all", "video", "audio"] as const).map((k) => (
+        <div role="tablist" aria-label="Filter by media kind" className="flex gap-1 rounded-control border border-line bg-surface-2 p-1">
+          {FILTERS.map((f) => (
             <button
-              key={k}
+              key={f.value}
               type="button"
-              onClick={() => setFilter(k)}
-              aria-pressed={filter === k}
-              className={filter === k ? "vm-btn vm-btn-primary text-xs" : "vm-btn vm-btn-secondary text-xs"}
+              role="tab"
+              aria-selected={filter === f.value}
+              onClick={() => setFilter(f.value)}
+              className={
+                "rounded-[0.4rem] px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 " +
+                (filter === f.value ? "bg-surface text-ink shadow-card" : "text-muted hover:text-ink")
+              }
             >
-              {k === "all" ? "All" : k === "video" ? "Video" : "Audio"}
+              {f.label}
             </button>
           ))}
         </div>
@@ -94,7 +104,7 @@ export function Browse(): JSX.Element {
         <EmptyState>This gateway hasn&rsquo;t published anything yet.</EmptyState>
       ) : (
         <>
-          <ul className="vm-fade-up grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <ul className={"vm-fade-up " + GRID_CLASS}>
             {items.map((video) => (
               <li key={video.id}>
                 <MediaCard video={video} gatewayUrl={current} />

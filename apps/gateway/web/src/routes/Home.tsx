@@ -1,10 +1,10 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { MusicNoteIcon, PlayIcon } from "@evermesh/ui";
+import { MusicNoteIcon, PlayIcon, WarningIcon } from "@evermesh/ui";
 import { useSearchParams } from "react-router-dom";
 import { getVideos, search } from "../api.js";
 import type { MediaKind } from "../lib/api-types.js";
 import { QueryBoundary } from "../components/QueryState.js";
-import { VideoGrid } from "../components/VideoGrid.js";
+import { SkeletonGrid, VideoGrid } from "../components/VideoGrid.js";
 
 export function Home(): JSX.Element {
   const [params] = useSearchParams();
@@ -12,89 +12,59 @@ export function Home(): JSX.Element {
 
   return (
     <>
-      <Hero />
+      <StatusStrip />
       {q ? <SearchResults q={q} /> : <LatestMedia />}
     </>
   );
 }
 
 /**
- * The gateway app's own front page — the first thing a visitor sees before
- * any video or track has loaded. Built as one instrument strip rather than
- * a centred marketing block: an eyebrow bar in the same "monitor" language
- * as evermesh.org (mono label, signal dot), the tagline as the headline,
- * a one-line value prop naming both media kinds, then a chip row that
- * doubles as an honest capability list. The experimental/DMTAP notice
- * lives in this strip's second column rather than as a separate banner —
- * still first-class, not a dismissible toast, but not competing with the
- * tagline for the reader's first glance either.
- *
- * Spec 009 §7 (uniform UI) requires the DMTAP wording; DECISIONS P17 is
- * why this whole component reads its colours from the token layer instead
- * of hard-coded brand values, so a gateway operator's accent re-skin still
- * applies here.
+ * A slim capability/status strip — not a marketing hero. This is a media
+ * browser: the catalogue below is the point, so the tagline that used to
+ * headline this space ("Many gateways. One substrate. Media that outlives
+ * its platforms.") moved to the footer, where it already lived a second
+ * time, and the whole thing collapsed from a two-column display-type block
+ * to one row of small print. What has to stay did: the honest capability
+ * list (spec 009 §7 says a gateway operator re-skins accents, never
+ * invents claims) and the experimental/DMTAP notice, required verbatim and
+ * still first-class — not a dismissible toast — just no longer sized like
+ * a hero competing with the grid for attention.
  */
-function Hero(): JSX.Element {
+function StatusStrip(): JSX.Element {
   return (
-    <section className="mb-8 overflow-hidden rounded-card border border-line-strong bg-surface shadow-card">
-      <div className="flex items-center gap-2 border-b border-line px-4 py-2 sm:px-6">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal" aria-hidden="true" />
-        <p className="font-mono text-[11px] uppercase tracking-[0.1em] text-faint">On this gateway</p>
-      </div>
+    <section
+      aria-label="About this gateway"
+      className="mb-6 flex flex-col gap-3 rounded-control border border-line bg-surface px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-5"
+    >
+      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-muted" aria-label="What this gateway serves">
+        <li className="inline-flex items-center gap-1.5 font-medium text-ink">
+          <PlayIcon size={13} /> Video
+        </li>
+        <li className="inline-flex items-center gap-1.5 font-medium text-ink">
+          <MusicNoteIcon size={13} /> Music &amp; playlists
+        </li>
+        <li>Client-side verification</li>
+        <li>
+          <a href="https://github.com/vul-os/evermesh/tree/main/crates/evermesh-node" className="hover:text-signal">
+            Desktop client ↗
+          </a>
+        </li>
+      </ul>
 
-      <div className="grid gap-7 p-5 sm:p-7 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:gap-10">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold leading-[1.1] tracking-tight text-ink sm:text-[2rem]">
-            Many gateways. One substrate.
-            <br />
-            <span className="text-signal">Media that outlives its platforms.</span>
-          </h1>
-          <p className="mt-3 max-w-[52ch] text-[15px] text-muted">
-            Video and music live side by side here as signed, content-addressed
-            records &mdash; verified in your browser before a frame or a beat
-            plays, because the math checks out, not because this gateway says
-            so.
-          </p>
-
-          <ul className="mt-4 flex flex-wrap gap-2" aria-label="What this gateway serves">
-            <li className="vm-chip">
-              <PlayIcon size={13} /> Video
-            </li>
-            <li className="vm-chip">
-              <MusicNoteIcon size={13} /> Music &amp; playlists
-            </li>
-            <li className="vm-chip">Client-side verification</li>
-            <li className="vm-chip">
-              <a
-                href="https://github.com/vul-os/evermesh/tree/main/crates/evermesh-node"
-                className="hover:text-signal"
-              >
-                Desktop client ↗
-              </a>
-            </li>
-          </ul>
-        </div>
-
-        <aside
-          aria-label="Project status"
-          className="rounded-control border border-line bg-surface-2 px-4 py-3.5 text-xs leading-relaxed text-muted"
-        >
-          <p>
-            <span className="font-semibold text-live">⚠️ Experimental.</span>{" "}
-            Evermesh is early-stage software, not production-ready.
-          </p>
-          <p className="mt-2">
-            It optionally distributes over{" "}
-            <a
-              href="https://vulos.org/projects/evermesh/docs.html#dmtap-convergence"
-              className="underline decoration-dotted underline-offset-2 hover:text-ink"
-            >
-              DMTAP-PUB (§22)
-            </a>{" "}
-            &mdash; additive, default-off, never a dependency.
-          </p>
-        </aside>
-      </div>
+      <p role="note" className="flex items-start gap-1.5 leading-relaxed text-muted sm:max-w-sm">
+        <WarningIcon size={14} className="mt-0.5 shrink-0 text-live" />
+        <span>
+          <span className="font-semibold text-live">Experimental.</span>{" "}
+          Evermesh is early-stage software, not production-ready. It optionally distributes over{" "}
+          <a
+            href="https://vulos.org/projects/evermesh/docs.html#dmtap-convergence"
+            className="underline decoration-dotted underline-offset-2 hover:text-ink"
+          >
+            DMTAP-PUB (§22)
+          </a>{" "}
+          &mdash; additive, default-off, never a dependency.
+        </span>
+      </p>
     </section>
   );
 }
@@ -136,12 +106,12 @@ function LatestMedia(): JSX.Element {
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-signal">On this gateway</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Latest</h2>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">Latest</h1>
         </div>
-        <div role="tablist" aria-label="Filter by media kind" className="flex gap-1.5 rounded-control border border-line bg-surface-2 p-1">
+        <div role="tablist" aria-label="Filter by media kind" className="flex gap-1 rounded-control border border-line bg-surface-2 p-1">
           {MEDIA_TABS.map((tab) => (
             <button
               key={tab.value}
@@ -150,7 +120,7 @@ function LatestMedia(): JSX.Element {
               aria-selected={activeKind === tab.value}
               onClick={() => setKind(tab.value)}
               className={
-                "rounded-[0.4rem] px-3 py-1.5 text-sm font-medium transition-colors duration-150 " +
+                "rounded-[0.4rem] px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 " +
                 (activeKind === tab.value ? "bg-surface text-ink shadow-card" : "text-muted hover:text-ink")
               }
             >
@@ -160,11 +130,14 @@ function LatestMedia(): JSX.Element {
         </div>
       </div>
       {query.isLoading ? (
-        <p role="status" className="py-6 text-sm text-muted">
-          Loading…
-        </p>
+        <>
+          <p role="status" className="sr-only">
+            Loading…
+          </p>
+          <SkeletonGrid />
+        </>
       ) : query.isError ? (
-        <p role="alert" className="py-6 text-sm text-red-700 dark:text-red-300">
+        <p role="alert" className="vm-card border-red-300 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:text-red-300">
           {query.error instanceof Error ? query.error.message : "Could not load the catalogue."}
         </p>
       ) : (
@@ -188,17 +161,18 @@ function SearchResults({ q }: { q: string }): JSX.Element {
 
   return (
     <div>
-      <div className="mb-7">
+      <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-signal">Search</p>
-        <h2 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink sm:text-3xl">
           Results for &ldquo;{q}&rdquo;
-        </h2>
+        </h1>
       </div>
       <QueryBoundary
         isLoading={query.isLoading}
         isError={query.isError}
         error={query.error}
         data={query.data}
+        loading={<SkeletonGrid />}
         isEmpty={(d) => d.items.length === 0}
         emptyLabel={`Nothing on this gateway matches "${q}".`}
       >

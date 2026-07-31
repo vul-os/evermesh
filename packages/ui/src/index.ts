@@ -64,6 +64,7 @@ export {
   SearchIcon,
   CaptionsIcon,
   UploadCloudIcon,
+  WarningIcon,
   SkipNextIcon,
   SkipPrevIcon,
   QueueIcon,

@@ -427,8 +427,8 @@ pre,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.25rem;
-  width: 2.25rem;
+  height: 2.5rem;
+  width: 2.5rem;
   border-radius: var(--bo-radius-pill);
   border: 1px solid var(--bo-border-strong);
   color: var(--bo-fg);

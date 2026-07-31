@@ -55,40 +55,57 @@ export function Layout(): JSX.Element {
                 Active gateway
               </label>
               {gateways.length > 0 ? (
-                <select
-                  id="gateway-select"
-                  value={current ?? ""}
-                  onChange={(e) => setCurrent(e.target.value || undefined)}
-                  className="vm-field max-w-sm"
-                >
-                  {gateways.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative w-full max-w-sm">
+                  {/* The connected-gateway dot, same "signal" language as the
+                      status dot in apps/gateway/web's hero strip — this app
+                      talks to more than one gateway, so its chrome needs the
+                      same "you are here, and it's live" affordance a single
+                      gateway's own header gets for free. */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-signal"
+                  />
+                  <select
+                    id="gateway-select"
+                    value={current ?? ""}
+                    onChange={(e) => setCurrent(e.target.value || undefined)}
+                    className="vm-field pl-7 font-medium"
+                  >
+                    {gateways.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               ) : (
-                <button type="button" onClick={() => navigate("/settings")} className="vm-btn vm-btn-secondary text-xs">
+                <button type="button" onClick={() => navigate("/settings")} className="vm-btn vm-btn-secondary">
                   Add a gateway to get started →
                 </button>
               )}
             </div>
 
             <nav aria-label="Primary">
-              <ul className="flex items-center gap-5 text-sm font-medium text-muted [&_a]:relative [&_a]:py-1 [&_a]:transition-colors [&_a:hover]:text-ink">
+              <ul className="flex items-center gap-5 text-sm font-medium text-muted [&_a]:relative [&_a]:py-1 [&_a]:transition-colors [&_a:hover]:text-ink [&_a[aria-current]]:text-ink [&_a[aria-current]]:after:absolute [&_a[aria-current]]:after:-bottom-[13px] [&_a[aria-current]]:after:left-0 [&_a[aria-current]]:after:h-[2px] [&_a[aria-current]]:after:w-full [&_a[aria-current]]:after:bg-signal">
                 <li>
-                  <Link to="/">Browse</Link>
+                  <Link to="/" aria-current={location.pathname === "/" ? "page" : undefined}>
+                    Browse
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/library">Library</Link>
+                  <Link to="/library" aria-current={location.pathname === "/library" ? "page" : undefined}>
+                    Library
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/settings">Settings</Link>
+                  <Link to="/settings" aria-current={location.pathname === "/settings" ? "page" : undefined}>
+                    Settings
+                  </Link>
                 </li>
               </ul>
             </nav>
 
-            <button type="button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} className="vm-icon-btn">
+            <button type="button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} className="vm-icon-btn shrink-0">
               {theme === "dark" ? <SunIcon size={17} /> : <MoonIcon size={17} />}
             </button>
           </div>

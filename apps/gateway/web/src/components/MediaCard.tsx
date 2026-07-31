@@ -136,23 +136,32 @@ export function MediaCard({ video }: MediaCardProps): JSX.Element {
             type="button"
             aria-label="Add to queue"
             onClick={onAddToQueue}
-            className="absolute bottom-1.5 right-1.5 rounded-full bg-black/75 p-1.5 text-white opacity-0 backdrop-blur-sm transition-opacity duration-150 hover:bg-black/90 focus-visible:opacity-100 group-hover:opacity-100"
+            className="absolute bottom-1.5 right-1.5 rounded-full bg-black/75 p-1.5 text-white opacity-90 backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:bg-black/90 hover:opacity-100 focus-visible:opacity-100"
           >
             <QueueIcon size={14} />
           </button>
         )}
       </div>
-      <div className="mt-2.5 flex gap-2.5">
-        <Avatar name={video.author.name} src={video.author.avatarUrl} size="sm" />
+      <div className="mt-3 flex gap-2.5">
+        <Avatar name={video.author.name} src={video.author.avatarUrl} size="sm" className="mt-0.5" />
         <div className="min-w-0">
-          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink decoration-brand-600 decoration-2 underline-offset-2 group-hover:underline dark:decoration-brand-400">
+          <h3 className="line-clamp-2 text-[0.9375rem] font-semibold leading-snug text-ink decoration-brand-600 decoration-2 underline-offset-2 group-hover:underline dark:decoration-brand-400">
             {video.title}
           </h3>
-          <p className="mt-0.5 truncate text-xs text-muted">{video.author.name}</p>
-          {/* API.md's createdAt fields are Unix seconds (unlike the Ms-suffixed
-              duration/sponsorship fields), matching the kernel record's native
-              createdAt unit — see README.md "API.md gaps". */}
-          <TimeAgo unixMs={video.createdAt * 1000} className="text-xs text-faint" />
+          {/* Channel + recency on one line, the same "channel · time" scan
+              pattern most media apps use, instead of two stacked lines —
+              a card's metadata block reading as two disconnected labels
+              was part of why the grid felt sparse rather than dense. */}
+          <div className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted">
+            <span className="truncate">{video.author.name}</span>
+            <span aria-hidden="true" className="shrink-0 text-faint">
+              &middot;
+            </span>
+            {/* API.md's createdAt fields are Unix seconds (unlike the Ms-suffixed
+                duration/sponsorship fields), matching the kernel record's native
+                createdAt unit — see README.md "API.md gaps". */}
+            <TimeAgo unixMs={video.createdAt * 1000} className="shrink-0 text-faint" />
+          </div>
         </div>
       </div>
     </Link>

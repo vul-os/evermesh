@@ -86,22 +86,30 @@ export function Layout(): JSX.Element {
             </form>
 
             <nav aria-label="Primary">
-              <ul className="flex items-center gap-5 text-sm font-medium text-muted [&_a]:relative [&_a]:py-1 [&_a]:transition-colors [&_a:hover]:text-ink">
+              <ul className="flex items-center gap-5 text-sm font-medium text-muted [&_a]:relative [&_a]:py-1 [&_a]:transition-colors [&_a:hover]:text-ink [&_a[aria-current]]:text-ink [&_a[aria-current]]:after:absolute [&_a[aria-current]]:after:-bottom-[13px] [&_a[aria-current]]:after:left-0 [&_a[aria-current]]:after:h-[2px] [&_a[aria-current]]:after:w-full [&_a[aria-current]]:after:bg-signal">
                 <li>
-                  <Link to="/upload">Upload</Link>
+                  <Link to="/upload" aria-current={location.pathname === "/upload" ? "page" : undefined}>
+                    Upload
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/policy">Policy</Link>
+                  <Link to="/policy" aria-current={location.pathname === "/policy" ? "page" : undefined}>
+                    Policy
+                  </Link>
                 </li>
                 <li>
-                  <Link to={me ? "/me" : "/auth"} className="text-ink">
+                  <Link
+                    to={me ? "/me" : "/auth"}
+                    aria-current={["/me", "/auth"].includes(location.pathname) ? "page" : undefined}
+                    className="text-ink"
+                  >
                     {me ? me.handle : "Sign in"}
                   </Link>
                 </li>
               </ul>
             </nav>
 
-            <button type="button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} className="vm-icon-btn">
+            <button type="button" onClick={toggle} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} className="vm-icon-btn shrink-0">
               {theme === "dark" ? <SunIcon size={17} /> : <MoonIcon size={17} />}
             </button>
           </div>

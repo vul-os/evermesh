@@ -191,3 +191,17 @@ export function UploadCloudIcon({ size = 20, ...props }: IconProps): JSX.Element
     </svg>
   );
 }
+
+/** A status/notice glyph — used for the "Experimental" disclosure, in the
+ *  same hand-drawn stroke language as the rest of the set instead of an
+ *  emoji (which renders as a different picture, at a different weight, on
+ *  every OS/font stack). */
+export function WarningIcon({ size = 20, ...props }: IconProps): JSX.Element {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M10 3.2 17.3 16H2.7L10 3.2Z" strokeLinejoin="round" />
+      <path d="M10 8.3v3.6" />
+      <circle cx="10" cy="14.1" r="0.15" fill="currentColor" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
