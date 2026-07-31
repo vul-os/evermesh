@@ -87,12 +87,10 @@ export function MediaCard({ video, gatewayUrl }: MediaCardProps): JSX.Element {
       to={(isAudio ? `/listen/${encodeURIComponent(video.id)}` : `/watch/${encodeURIComponent(video.id)}`) + gatewayParam}
       className="group block rounded-card focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-accent-600 dark:focus-visible:outline-brand-300"
     >
-      <div
-        className={
-          "relative w-full overflow-hidden rounded-card border border-line-strong bg-surface-2 shadow-card transition-all duration-200 group-hover:border-signal/60 group-hover:shadow-elevated " +
-          (isAudio ? "aspect-square" : "aspect-video")
-        }
-      >
+      {/* Every card is 16:9, video and audio alike — see the web MediaCard
+          this is ported from for why a per-kind aspect ratio broke the
+          grid's row heights. */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-card border border-line-strong bg-surface-2 shadow-card transition-all duration-200 group-hover:border-signal/60 group-hover:shadow-elevated">
         {coverUrl ? (
           <img
             src={coverUrl}

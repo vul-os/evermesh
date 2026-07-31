@@ -99,12 +99,14 @@ export function MediaCard({ video }: MediaCardProps): JSX.Element {
       to={isAudio ? `/album/${encodeURIComponent(video.id)}` : `/watch/${encodeURIComponent(video.id)}`}
       className="group block rounded-card focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-accent-600 dark:focus-visible:outline-brand-300"
     >
-      <div
-        className={
-          "relative w-full overflow-hidden rounded-card border border-line-strong bg-surface-2 shadow-card transition-all duration-200 group-hover:border-signal/60 group-hover:shadow-elevated " +
-          (isAudio ? "aspect-square" : "aspect-video")
-        }
-      >
+      {/* Every card in this grid is 16:9, video and audio alike — this
+          catalogue mixes both kinds in one grid (spec 004 §2), and giving
+          audio a taller aspect-square cover used to make CSS Grid stretch
+          the whole row to match it (a grid row's height is its tallest
+          cell), leaving a slab of dead space under every shorter video
+          card sharing that row. A square cover-art image still reads
+          fine center-cropped into a wide frame via object-cover below. */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-card border border-line-strong bg-surface-2 shadow-card transition-all duration-200 group-hover:border-signal/60 group-hover:shadow-elevated">
         {coverUrl ? (
           <img
             src={coverUrl}

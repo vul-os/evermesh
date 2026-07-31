@@ -36,7 +36,10 @@ function StatusStrip(): JSX.Element {
       aria-label="About this gateway"
       className="mb-6 flex flex-col gap-3 rounded-control border border-line bg-surface px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-5"
     >
-      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-muted" aria-label="What this gateway serves">
+      <ul
+        className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-muted [&>li+li]:before:mr-3 [&>li+li]:before:text-faint [&>li+li]:before:content-['·']"
+        aria-label="What this gateway serves"
+      >
         <li className="inline-flex items-center gap-1.5 font-medium text-ink">
           <PlayIcon size={13} /> Video
         </li>
