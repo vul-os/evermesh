@@ -5,13 +5,18 @@ viewer. No framework, no build step, no CDN. Deployable as a directory.
 
 ```
 index.html          landing page — hero, survival test, how it works,
-                    roles, honest status, spec index, objections
-docs.html           docs viewer (hash routes over ./docs/*.md)
-docs/               copies of spec/ + DECISIONS.md + docs/, written by
-                    tools/site/sync-docs.mjs — do not hand-edit
+                    the model (illustrations), roles, gallery
+                    (screenshots), honest status, spec index, objections
+docs.html           docs viewer (hash routes over ./docs/*.md); nav is
+                    Start here -> Concepts -> Protocol specification
+                    (advanced, the untouched 000-011 chapters) ->
+                    Reference & project
+docs/               copies of docs/GETTING-STARTED.md, docs/CONCEPTS.md,
+                    spec/, DECISIONS.md, docs/DMTAP-CONVERGENCE.md,
+                    written by tools/site/sync-docs.mjs — do not hand-edit
 style.css           layout only; colour/type come from assets/tokens.css
 assets/             brand: logos, favicon, tokens.css, vendored fonts,
-                    architecture diagram, OG card, marked.js
+                    architecture + model illustrations, OG card, marked.js
 screenshots/        refreshed by `just site-shots`
 ```
 
@@ -62,8 +67,15 @@ gateway's reference UI both read from.
 - Both themes come from `prefers-color-scheme` — no toggle, no JavaScript,
   no flash of the wrong theme. Contrast is measured, not eyeballed; the
   table is in `assets/README.md`.
-- One animation on the whole site (a packet crossing the hero lattice),
-  and it is removed entirely under `prefers-reduced-motion`.
+- Two animations on the whole site — a packet crossing the hero lattice,
+  and the "record propagating across gateways" diagram in `#model` — both
+  removed entirely under `prefers-reduced-motion`.
+- Diagrams that carry small type (`assets/architecture.svg`,
+  `assets/illustration-record.svg`, `assets/illustration-offline.svg`,
+  and the inline propagation lattice) never scale down past their native
+  width — see `.diagram-scroll`/`.model-fig-scroll` in `style.css`. Below
+  that width they scroll horizontally in their own container instead of
+  shrinking their labels under the 12px floor.
 - The status section is deliberately unflattering and mirrors the
   repository README. If the README's truth changes, change it here in the
   same commit.
