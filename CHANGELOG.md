@@ -12,6 +12,41 @@ Versions follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Full brand PNG icon set**, rendered from `brand/logo.svg` (favicon.ico,
+  apple-touch-icon, 8 raster sizes 16–1024, maskable 192/512) and wired into
+  `site/site.webmanifest` and the Tauri app manifests — replacing a stale
+  icon that still carried the retired "Boloka" cairn mark.
+- **`docs/ARCHITECTURE.md`** — a contributor-facing page: repo layout,
+  crate/package/app map, and the four-layer test strategy (unit/property,
+  frozen fixtures, cross-runtime conformance, JS/TS suites). Deliberately
+  **not** mirrored to `site/docs/` (it isn't in `tools/site/sync-docs.mjs`'s
+  `DOCS` list) — it's for people working in the repo, not spec readers.
+- `docs/screenshots/hero-{dark,light}.png` — a local copy of the reference
+  UI screenshot for the README's header, so the README never hotlinks into
+  `site/screenshots/` (a tree that changes independently of this file).
+
+### Changed
+
+- **README restructured to the VulOS suite's product-README standard**:
+  centered header (logo, tagline, badges, the "Part of VulOS" banner, a
+  hero screenshot), then `What is Evermesh?`, `Part of VulOS`, `Features`,
+  `Screenshots`, `Quick start (standalone)`, `How it works` (a mermaid
+  diagram replacing the old inline SVG-in-docs illustration for this
+  file), `Configuration`, `Documentation`, `Development`, `Contributing`,
+  `License`. Content is reorganized, not softened — every existing
+  "pre-alpha" / "not yet built" / "scaffold" caveat carries over verbatim,
+  and every command and test count in it was re-run for this pass (real
+  output, not restated from memory).
+- The **`packages/kernel-ts` test count** in the status table corrected
+  from 5 to 7 — the suite already had 7 passing tests (`signDerivation`
+  audio-only and exactly-one-of-width/height cases were added since the
+  README was last updated); the doc was stale, not the code.
+- `site/` landing page and docs viewer restructured user-first: real
+  navigation for the docs sidebar, three hand-authored illustrations, real
+  product screenshots on the landing page, a working mobile docs drawer,
+  and a regenerated OG card — tracked in `site/`'s own history, noted here
+  because it's part of this wave.
+
 - **`crates/evermesh-node`** promoted from a Phase 8 UI scaffold to a real
   Tauri 2 desktop media client: browses a user-configured gateway's public
   catalog (`gateway_client.rs`, native `reqwest`), verifies every
