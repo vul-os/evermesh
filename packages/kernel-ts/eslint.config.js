@@ -23,6 +23,25 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // kernel.test.ts's skip-mode wrapper `(name, _fn) => test(...skip)`
+      // deliberately ignores the real test body when wasm isn't built —
+      // leading underscore for "intentionally unused" (same option
+      // diwan/wibbly use fleet-wide).
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    },
+  },
+  // node:test's test(name, fn) is a fire-and-forget registration API by
+  // design — node --test tracks and awaits every top-level test() call
+  // itself. All 7 no-floating-promises findings measured here are exactly
+  // this shape (kernel.test.ts's own top-level t(...) calls), same as
+  // gateway-server's test/**.
+  {
+    files: ['src/**/*.test.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
+    },
   },
   {
     files: ['scripts/**/*.mjs'],
