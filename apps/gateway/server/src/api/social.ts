@@ -35,13 +35,18 @@ export function registerSocialRoutes(app: FastifyInstance, deps: AppDeps): void 
     deps.relays.publish(record);
 
     const recordRow = db.prepare("SELECT json FROM records WHERE id = ?").get(result.recordId) as { json: string } | undefined;
-    const commentRow = db.prepare("SELECT * FROM comments WHERE record_id = ?").get(result.recordId) as never | undefined;
+    // `undefined` here, not `never | undefined` (they're the same type —
+    // never contributes nothing to a union): the point of the cast is that
+    // after the not-undefined check below, TS narrows this to `never`,
+    // which is assignable to commentRowToView's typed row parameter without
+    // separately modeling better-sqlite3's loose row shape.
+    const commentRow = db.prepare("SELECT * FROM comments WHERE record_id = ?").get(result.recordId) as undefined;
     if (!recordRow || !commentRow) {
       // Should be unreachable: processRecord just reported this comment as
       // stored. Fail loudly rather than throw a raw TypeError below.
       throw invalid("comment was indexed but could not be re-read");
     }
-    return commentRowToView(db, commentRow, JSON.parse(recordRow.json));
+    return commentRowToView(db, commentRow, JSON.parse(recordRow.json) as Record<string, unknown>);
   });
 
   app.post("/api/videos/:manifestId/reactions", async (request) => {
