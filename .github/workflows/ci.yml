@@ -164,5 +164,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @evermesh/kernel build:wasm
+      # "lint" is real ESLint (type-aware) as of this repo's lint pass —
+      # unused vars, floating promises, react-hooks correctness, import
+      # hygiene. "typecheck" is the tsc --noEmit each package's "lint"
+      # script used to be; kept as its own gate rather than folded away, so
+      # this workflow still enforces both.
       - run: pnpm -r --if-present lint
+      - run: pnpm -r --if-present typecheck
       - run: pnpm -r --if-present test
