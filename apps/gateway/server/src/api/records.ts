@@ -17,11 +17,12 @@ interface RecordRow {
 export function registerRecordRoutes(app: FastifyInstance, db: Db): void {
   const getStmt = db.prepare("SELECT id, kind, json, cbor FROM records WHERE id = ?");
 
-  app.get("/api/records/:recordId", async (request) => {
+  // Synchronous: better-sqlite3 read only, nothing to await.
+  app.get("/api/records/:recordId", (request) => {
     const { recordId } = request.params as { recordId: string };
     const row = getStmt.get(recordId) as RecordRow | undefined;
     if (!row) throw notFound("record not found");
-    return { record: JSON.parse(row.json), id: row.id, kind: row.kind };
+    return { record: JSON.parse(row.json) as Record<string, unknown>, id: row.id, kind: row.kind };
   });
 
   app.get("/api/records/:recordId/cbor", async (request, reply) => {
