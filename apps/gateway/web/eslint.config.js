@@ -12,7 +12,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist', 'node_modules', 'tsconfig.tsbuildinfo']),
   {
-    files: ['src/**/*.{ts,tsx}', 'test/**/*.{ts,tsx}', 'vite.config.ts', 'vitest.config.ts', 'tailwind.config.ts', 'postcss.config.js'],
+    files: ['src/**/*.{ts,tsx}', 'test/**/*.{ts,tsx}', 'vite.config.ts', 'vitest.config.ts', 'tailwind.config.ts'],
     extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked, reactHooks.configs.flat.recommended],
     languageOptions: {
       ecmaVersion: 2022,
@@ -34,6 +34,19 @@ export default defineConfig([
     files: ['test/**/*.{ts,tsx}'],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node, ...globals.vitest },
+    },
+  },
+  // postcss.config.js is listed in tsconfig.json's "include", but this
+  // project has no allowJs — tsc (and so projectService) never actually
+  // processes .js files as part of this program, so there is no type
+  // information to resolve honestly here. Untyped instead.
+  {
+    files: ['postcss.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: globals.node,
     },
   },
 ])
