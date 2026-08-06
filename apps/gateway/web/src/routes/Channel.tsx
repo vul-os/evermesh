@@ -10,16 +10,18 @@ import { useMe } from "../hooks/useMe.js";
 export function Channel(): JSX.Element {
   const { identityId } = useParams<{ identityId: string }>();
 
-  if (!identityId) {
-    return (
-      <p role="alert" className="vm-card px-6 py-10 text-sm text-red-700 dark:text-red-300">
-        No channel id in the URL.
-      </p>
-    );
-  }
-
+  // Hooks must run unconditionally on every render (react-hooks/
+  // rules-of-hooks) — the previous early `return` above these calls meant
+  // none of them ran at all on a missing id. enabled: Boolean(identityId)
+  // keeps the query inert until there's a real id; the `identityId!` inside
+  // queryFn is safe precisely because enabled guarantees it never runs
+  // while identityId is falsy.
   const { data: me } = useMe();
-  const query = useQuery({ queryKey: ["channel", identityId], queryFn: () => getChannel(identityId) });
+  const query = useQuery({
+    queryKey: ["channel", identityId],
+    queryFn: () => getChannel(identityId!),
+    enabled: Boolean(identityId),
+  });
 
   // GAP: API.md's /api/follow endpoints have no way to read the
   // caller's current follow state for a given identity (no `following`
@@ -27,10 +29,21 @@ export function Channel(): JSX.Element {
   // locally and optimistically; resets on reload until the contract
   // grows a source of truth for it.
   const [following, setFollowing] = useState(false);
+  // mutationFn only ever runs from the button's onClick below, which is
+  // unreachable while identityId is falsy (the early return beneath this
+  // still guards the whole render), so identityId! here is safe too.
   const followMutation = useMutation({
-    mutationFn: () => (following ? unfollow(identityId) : follow(identityId)),
+    mutationFn: () => (following ? unfollow(identityId!) : follow(identityId!)),
     onSuccess: () => setFollowing((v) => !v),
   });
+
+  if (!identityId) {
+    return (
+      <p role="alert" className="vm-card px-6 py-10 text-sm text-red-700 dark:text-red-300">
+        No channel id in the URL.
+      </p>
+    );
+  }
 
   return (
     <QueryBoundary
