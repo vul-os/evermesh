@@ -62,10 +62,13 @@ await kernelTest("register creates an account, indexes + publishes genesis, and 
   assert.equal(indexed?.kind, 1); // genesis (rotation) is indexed locally, not just published out
 
   const user = custody.getUserByHandle("alice");
+  // node:assert/strict types assert.ok as an assertion function, so this
+  // already narrows `user` non-null below — the `!` on each use was
+  // redundant on top of it.
   assert.ok(user);
-  assert.equal(user!.identity_id, identityId);
-  assert.notEqual(user!.secret_key_enc, "");
-  assert.ok(!user!.secret_key_enc.includes(identityId)); // ciphertext shouldn't leak the identity id as substring
+  assert.equal(user.identity_id, identityId);
+  assert.notEqual(user.secret_key_enc, "");
+  assert.ok(!user.secret_key_enc.includes(identityId)); // ciphertext shouldn't leak the identity id as substring
 });
 
 await kernelTest("duplicate handle registration is rejected", async () => {
