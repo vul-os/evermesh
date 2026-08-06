@@ -30,4 +30,17 @@ export default defineConfig([
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
+  // node:test's test(name, fn) is a fire-and-forget registration API by
+  // design — node --test tracks and awaits every top-level test() call
+  // itself (the same contract Mocha's it()/describe() have), not something
+  // the calling module is meant to await. Every no-floating-promises finding
+  // measured here (47, across cbor/db/policy/relay-frames.test.ts and
+  // kernel-available.ts's own test() calls) is exactly this shape — none is
+  // an actual dropped async operation inside a test body.
+  {
+    files: ['test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'off',
+    },
+  },
 ])
