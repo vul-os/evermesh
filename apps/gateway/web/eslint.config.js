@@ -35,6 +35,18 @@ export default defineConfig([
     languageOptions: {
       globals: { ...globals.browser, ...globals.node, ...globals.vitest },
     },
+    rules: {
+      // 5 findings, all the same shape: a scripted fake (jsonResponse()'s
+      // fake Response, verifiedBadge.test.tsx's fetchCbor/throwing fetcher)
+      // implementing an interface whose real method IS async
+      // (Response.json/arrayBuffer, verifyRecordById's fetchCbor param), so
+      // the fake must return a Promise to satisfy the type even though its
+      // own fake body never needs to await anything. Same idiom wibbly
+      // documents fleet-wide for test fixtures; require-await has no
+      // narrower configurable option, so this is scoped to test files
+      // rather than disabled repo-wide.
+      '@typescript-eslint/require-await': 'warn',
+    },
   },
   // postcss.config.js is listed in tsconfig.json's "include", but this
   // project has no allowJs — tsc (and so projectService) never actually

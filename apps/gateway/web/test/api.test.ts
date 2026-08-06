@@ -56,7 +56,7 @@ describe("api client", () => {
       json: async () => {
         throw new Error("not json");
       },
-    } as unknown as Response);
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(getInfo()).rejects.toMatchObject({ code: "unknown", status: 500 });
