@@ -18,7 +18,8 @@ const SearchQuerySchema = z.object({
 export function registerSearchRoutes(app: FastifyInstance, deps: AppDeps): void {
   const { db } = deps;
 
-  app.get("/api/search", async (request) => {
+  // Synchronous: better-sqlite3 read only, nothing to await.
+  app.get("/api/search", (request) => {
     const query = SearchQuerySchema.safeParse(request.query);
     if (!query.success) throw invalid(query.error.message);
     const { q, limit } = query.data;
@@ -34,6 +35,6 @@ export function registerSearchRoutes(app: FastifyInstance, deps: AppDeps): void 
       )
       .all(like, like, like, limit) as never[];
 
-    return { items: rows.map((r) => videoRowToSummary(db, r as never)) };
+    return { items: rows.map((r) => videoRowToSummary(db, r)) };
   });
 }
