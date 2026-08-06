@@ -80,10 +80,11 @@ export function registerComplianceRoutes(app: FastifyInstance, deps: AppDeps): v
     return { counterId: result.recordId };
   });
 
-  app.get("/api/compliance/notices/:id", async (request) => {
+  // better-sqlite3 is synchronous — nothing here to await.
+  app.get("/api/compliance/notices/:id", (request) => {
     const { id } = request.params as { id: string };
     const row = db.prepare("SELECT json, kind FROM records WHERE id = ?").get(id) as { json: string; kind: number } | undefined;
     if (!row || (row.kind !== 64 && row.kind !== 65)) throw notFound("notice not found");
-    return { record: JSON.parse(row.json), id, kind: row.kind };
+    return { record: JSON.parse(row.json) as Record<string, unknown>, id, kind: row.kind };
   });
 }
