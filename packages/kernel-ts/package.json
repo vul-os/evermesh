@@ -14,15 +14,23 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "wasm"],
+  "files": [
+    "dist",
+    "wasm"
+  ],
   "scripts": {
     "build:wasm": "wasm-pack build ../../crates/evermesh-wasm --target web --out-dir ../../packages/kernel-ts/wasm --out-name evermesh_wasm --no-pack --release",
     "build": "tsc -p tsconfig.build.json && node scripts/emit-cjs.mjs",
-    "lint": "tsc --noEmit",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types \"src/**/*.test.ts\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.0.0",
+    "eslint": "^10.8.0",
+    "globals": "^17.9.0",
     "typescript": "6.0.3",
-    "@types/node": "^22.0.0"
+    "typescript-eslint": "^8.66.0"
   }
 }

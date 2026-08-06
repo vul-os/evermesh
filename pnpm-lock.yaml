@@ -236,12 +236,24 @@ importers:
 
   packages/kernel-ts:
     devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.8.0(jiti@1.21.7))
       '@types/node':
         specifier: ^22.0.0
         version: 22.20.1
+      eslint:
+        specifier: ^10.8.0
+        version: 10.8.0(jiti@1.21.7)
+      globals:
+        specifier: ^17.9.0
+        version: 17.9.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.66.0
+        version: 8.66.0(eslint@10.8.0(jiti@1.21.7))(typescript@6.0.3)
 
   packages/ui:
     dependencies:
