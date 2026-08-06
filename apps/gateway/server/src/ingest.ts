@@ -123,7 +123,11 @@ function parseFeedBody(body: Record<string, unknown>): FeedTakedownBody {
   const add = ((body.add as unknown[] | undefined) ?? []) as [number, string, string, string?][];
   const remove = ((body.remove as unknown[] | undefined) ?? []) as [number, string][];
   return {
-    feed: String(body.feed ?? ""),
+    // body.feed is untrusted input (typed unknown); a plain String(x ?? "")
+    // would print "[object Object]" for a malformed non-string field
+    // instead of catching it — narrow explicitly and fall back to "" the
+    // same way a missing field already does.
+    feed: typeof body.feed === "string" ? body.feed : "",
     seq: Number(body.seq ?? 0),
     add: add.map(([t, h, r, n]) => [t, unhexLocal(h), r, n ? unhexLocal(n) : undefined]),
     remove: remove.map(([t, h]) => [t, unhexLocal(h)]),
