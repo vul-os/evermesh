@@ -16,7 +16,10 @@ const ListQuerySchema = z.object({
 export function registerChannelRoutes(app: FastifyInstance, deps: AppDeps): void {
   const { db } = deps;
 
-  app.get("/api/channels/:identityId", async (request): Promise<Channel> => {
+  // better-sqlite3 is synchronous end to end — neither handler below awaits
+  // anything, so plain functions rather than async ones (Fastify accepts a
+  // returned value the same way it accepts a resolved promise).
+  app.get("/api/channels/:identityId", (request): Channel => {
     const { identityId } = request.params as { identityId: string };
 
     const profileRow = db.prepare("SELECT name, about, avatar_blob FROM profiles WHERE identity_id = ?").get(identityId) as
@@ -49,11 +52,11 @@ export function registerChannelRoutes(app: FastifyInstance, deps: AppDeps): void
         avatarUrl: c.avatar_blob ? `/media/thumb/${c.avatar_blob}` : undefined,
         bannerUrl: c.banner_blob ? `/media/thumb/${c.banner_blob}` : undefined,
       })),
-      videos: videoRows.map((r) => videoRowToSummary(db, r as never)),
+      videos: videoRows.map((r) => videoRowToSummary(db, r)),
     };
   });
 
-  app.get("/api/channels/:identityId/videos", async (request) => {
+  app.get("/api/channels/:identityId/videos", (request) => {
     const { identityId } = request.params as { identityId: string };
     const query = ListQuerySchema.safeParse(request.query);
     if (!query.success) throw invalid(query.error.message);
