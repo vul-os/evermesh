@@ -5,6 +5,7 @@
   "description": "Evermesh monorepo root. See README.md.",
   "scripts": {
     "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build"
   },
