@@ -27,6 +27,18 @@ export default defineConfig([
     plugins: { 'react-refresh': reactRefresh },
     rules: {
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // Player.tsx's one finding: `track.mode = isActive ? "showing" :
+      // "hidden"` on a native TextTrack read off videoRef.current.textTracks.
+      // Assigning .mode is the only browser API for toggling caption
+      // visibility — there's no immutable alternative, same category of
+      // necessary imperative DOM write as `video.volume =`/
+      // `video.currentTime =` a few lines above it in the same file, which
+      // this rule doesn't flag (its heuristic treats a value reached via
+      // property-access-then-indexing off a ref differently from a direct
+      // `.current.prop =`). One of the newer React Compiler-derived checks;
+      // downgraded per the same triage diwan documents fleet-wide for this
+      // rule category.
+      'react-hooks/immutability': 'warn',
     },
   },
 ])
