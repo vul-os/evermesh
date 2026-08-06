@@ -69,15 +69,18 @@ function extractSessionCookie(setCookieHeader: string | string[] | undefined): s
   return header.split(";")[0];
 }
 
+/** Shape of the { error: { code, message } } envelope errors.ts's helpers build. */
+type ErrorEnvelope = { error: { code: string; message?: string } };
+
 await kernelTest("GET /api/info and /api/policy work with no auth", async () => {
   const { app } = await buildTestApp();
   const info = await app.inject({ method: "GET", url: "/api/info" });
   assert.equal(info.statusCode, 200);
-  assert.equal(info.json().uploadEnabled, true);
+  assert.equal(info.json<{ uploadEnabled: boolean }>().uploadEnabled, true);
 
   const policyRes = await app.inject({ method: "GET", url: "/api/policy" });
   assert.equal(policyRes.statusCode, 200);
-  assert.equal(policyRes.json().name, "test gateway");
+  assert.equal(policyRes.json<{ name: string }>().name, "test gateway");
 });
 
 await kernelTest("register -> login -> me -> logout flow", async () => {
@@ -93,12 +96,13 @@ await kernelTest("register -> login -> me -> logout flow", async () => {
 
   const me = await app.inject({ method: "GET", url: "/api/me", headers: { cookie } });
   assert.equal(me.statusCode, 200);
-  assert.equal(me.json().handle, "alice");
-  assert.equal(me.json().exportAvailable, true);
+  const meBody = me.json<{ handle: string; exportAvailable: boolean }>();
+  assert.equal(meBody.handle, "alice");
+  assert.equal(meBody.exportAvailable, true);
 
   const meNoAuth = await app.inject({ method: "GET", url: "/api/me" });
   assert.equal(meNoAuth.statusCode, 401);
-  assert.equal(meNoAuth.json().error.code, "unauthorized");
+  assert.equal(meNoAuth.json<ErrorEnvelope>().error.code, "unauthorized");
 
   const logout = await app.inject({ method: "POST", url: "/api/auth/logout", headers: { cookie } });
   assert.equal(logout.statusCode, 200);
@@ -111,7 +115,7 @@ await kernelTest("duplicate registration returns a conflict error envelope", asy
   await app.inject({ method: "POST", url: "/api/auth/register", payload: { handle: "bob", password: "hunter2hunter2" } });
   const second = await app.inject({ method: "POST", url: "/api/auth/register", payload: { handle: "bob", password: "hunter2hunter2" } });
   assert.equal(second.statusCode, 409);
-  assert.equal(second.json().error.code, "conflict");
+  assert.equal(second.json<ErrorEnvelope>().error.code, "conflict");
 });
 
 await kernelTest("comment flow: post a comment and read it back threaded", async () => {
@@ -142,12 +146,13 @@ await kernelTest("comment flow: post a comment and read it back threaded", async
     payload: { text: "great video" },
   });
   assert.equal(post.statusCode, 200);
-  assert.equal(post.json().text, "great video");
+  assert.equal(post.json<{ text: string }>().text, "great video");
 
   const list = await app.inject({ method: "GET", url: `/api/videos/${manifestId}/comments` });
   assert.equal(list.statusCode, 200);
-  assert.equal(list.json().items.length, 1);
-  assert.equal(list.json().items[0].text, "great video");
+  const listBody = list.json<{ items: { text: string }[] }>();
+  assert.equal(listBody.items.length, 1);
+  assert.equal(listBody.items[0].text, "great video");
 });
 
 await kernelTest("export requires a valid session and re-confirms the password", async () => {
@@ -174,8 +179,9 @@ await kernelTest("export requires a valid session and re-confirms the password",
     payload: { password: "correct-horse-battery" },
   });
   assert.equal(ok.statusCode, 200);
-  assert.ok(ok.json().identity.identityId);
-  assert.equal(ok.json().secretKeys.length, 1);
+  const okBody = ok.json<{ identity: { identityId: string }; secretKeys: unknown[] }>();
+  assert.ok(okBody.identity.identityId);
+  assert.equal(okBody.secretKeys.length, 1);
 });
 
 function buildMultipart(fields: Record<string, string>, file: Buffer): { body: Buffer; contentType: string } {
@@ -212,21 +218,23 @@ await kernelTest("upload without ffmpeg degrades to original-only and still publ
     payload: body,
   });
   assert.equal(upload.statusCode, 200);
-  const { uploadId } = upload.json();
+  const { uploadId } = upload.json<{ uploadId: string }>();
   assert.ok(uploadId);
 
-  let status: { status: string; manifestId?: string; error?: string } = { status: "processing" };
+  type UploadStatus = { status: string; manifestId?: string; error?: string };
+  let status: UploadStatus = { status: "processing" };
   for (let i = 0; i < 200 && status.status === "processing"; i++) {
     await new Promise((resolve) => setTimeout(resolve, 20));
     const poll = await app.inject({ method: "GET", url: `/api/upload/${uploadId}`, headers: { cookie } });
-    status = poll.json();
+    status = poll.json<UploadStatus>();
   }
   assert.equal(status.status, "published", JSON.stringify(status));
   assert.ok(status.manifestId);
 
   const video = await app.inject({ method: "GET", url: `/api/videos/${status.manifestId}` });
   assert.equal(video.statusCode, 200);
-  assert.equal(video.json().title, "My Video");
-  assert.equal(video.json().playback.hlsUrl, null); // no ffmpeg -> no HLS renditions
-  assert.ok(video.json().playback.mp4Url); // original is always servable
+  const videoBody = video.json<{ title: string; playback: { hlsUrl: string | null; mp4Url: string | null } }>();
+  assert.equal(videoBody.title, "My Video");
+  assert.equal(videoBody.playback.hlsUrl, null); // no ffmpeg -> no HLS renditions
+  assert.ok(videoBody.playback.mp4Url); // original is always servable
 });
