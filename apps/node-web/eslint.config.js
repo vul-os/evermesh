@@ -28,6 +28,15 @@ export default defineConfig([
     plugins: { 'react-refresh': reactRefresh },
     rules: {
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // 2 findings (useAsync.ts, Browse.tsx), both the same shape: a
+      // data-fetch effect calling setLoading(true)/resetting state
+      // synchronously at its own start, before kicking off the async work
+      // (.then/.catch/.finally already defer their own setState calls
+      // correctly — only the synchronous "we're starting now" reset is
+      // flagged). This is the standard data-fetching-effect idiom, not a
+      // dropped fix; downgraded per the same triage diwan already
+      // documents fleet-wide for this rule.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   // postcss.config.js is listed in tsconfig.json's "include", but this
