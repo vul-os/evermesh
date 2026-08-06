@@ -107,7 +107,10 @@ export class PolicyEngine {
 
   /** Re-read the policy file. Wired to SIGHUP by main.ts. */
   reload(): void {
-    const raw = JSON.parse(readFileSync(this.filePath, "utf-8"));
+    // Typed unknown rather than left as JSON.parse's implicit any: zod's
+    // .parse() is exactly the tool for safely narrowing untrusted input, so
+    // there's no reason for `raw` itself to be any before it gets there.
+    const raw: unknown = JSON.parse(readFileSync(this.filePath, "utf-8"));
     this.file = PolicyFileSchema.parse(raw);
     this.denyIdentities = new Set(this.file.denyIdentities);
     this.denyBlobHashes = new Set(this.file.denyBlobHashes);
