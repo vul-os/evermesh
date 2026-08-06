@@ -20,7 +20,8 @@ const ProfileSchema = z.object({
 export function registerMeRoutes(app: FastifyInstance, deps: AppDeps): void {
   const { db } = deps;
 
-  app.get("/api/me", async (request) => {
+  // Synchronous: custody + db reads only, nothing to await.
+  app.get("/api/me", (request) => {
     const userId = requireUserId(request, db);
     const user = deps.custody.getUserById(userId);
     if (!user) throw notFound("user not found");
