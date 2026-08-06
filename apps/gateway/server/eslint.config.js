@@ -20,5 +20,14 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // csam.ts's StubMatcher.checkBlob(blob, _meta) already used the
+      // leading-underscore convention for "intentionally unused, kept for
+      // interface-signature symmetry" before this config existed — matching
+      // that convention rather than fighting it (same option diwan/wibbly
+      // use fleet-wide).
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    },
   },
 ])
