@@ -93,7 +93,8 @@ export function registerUploadRoutes(app: FastifyInstance, deps: AppDeps): void 
     return { uploadId };
   });
 
-  app.get("/api/upload/:uploadId", async (request) => {
+  // Synchronous: better-sqlite3 read only, nothing to await.
+  app.get("/api/upload/:uploadId", (request) => {
     const userId = requireUserId(request, db);
     const { uploadId } = request.params as { uploadId: string };
     const row = getUploadRow(db, uploadId);
