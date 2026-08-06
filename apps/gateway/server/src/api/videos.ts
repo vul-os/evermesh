@@ -29,7 +29,10 @@ const ListQuerySchema = z.object({
 export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
   const { db } = deps;
 
-  app.get("/api/videos", async (request) => {
+  // better-sqlite3 is synchronous end to end, so none of these handlers
+  // await anything — plain functions rather than async ones, since Fastify
+  // accepts either (a returned value is serialised the same way regardless).
+  app.get("/api/videos", (request) => {
     const query = ListQuerySchema.safeParse(request.query);
     if (!query.success) throw invalid(query.error.message);
     const { limit, cursor, channel, author, mediaKind } = query.data;
@@ -62,7 +65,7 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
     return { items: page.map((r) => videoRowToSummary(db, r as never)), next };
   });
 
-  app.get("/api/videos/:manifestId", async (request) => {
+  app.get("/api/videos/:manifestId", (request) => {
     const { manifestId } = request.params as { manifestId: string };
     const row = db.prepare("SELECT * FROM videos WHERE manifest_id = ?").get(manifestId) as
       | { manifest_id: string; retracted: number }
@@ -72,10 +75,10 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
 
     const recordRow = db.prepare("SELECT json FROM records WHERE id = ?").get(manifestId) as { json: string } | undefined;
     if (!recordRow) throw notFound("video not found");
-    return videoRowToDetail(db, row as never, JSON.parse(recordRow.json));
+    return videoRowToDetail(db, row as never, JSON.parse(recordRow.json) as Record<string, unknown>);
   });
 
-  app.get("/api/videos/:manifestId/comments", async (request) => {
+  app.get("/api/videos/:manifestId/comments", (request) => {
     const { manifestId } = request.params as { manifestId: string };
     if (isRecordDenylisted(db, manifestId)) throw policyDenied();
     const rows = db
@@ -89,12 +92,12 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
     for (const r of rows) {
       const recordRow = db.prepare("SELECT json FROM records WHERE id = ?").get(r.record_id) as { json: string } | undefined;
       if (!recordRow) continue; // shouldn't happen (comment rows are always written with their record) — skip defensively
-      items.push(commentRowToView(db, r as never, JSON.parse(recordRow.json)));
+      items.push(commentRowToView(db, r as never, JSON.parse(recordRow.json) as Record<string, unknown>));
     }
     return { items };
   });
 
-  app.get("/api/videos/:manifestId/claims", async (request) => {
+  app.get("/api/videos/:manifestId/claims", (request) => {
     const { manifestId } = request.params as { manifestId: string };
     if (isRecordDenylisted(db, manifestId)) throw policyDenied();
     const rows = db
@@ -104,10 +107,10 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
          ORDER BY received_at ASC`,
       )
       .all(manifestId) as never[];
-    return { items: rows.map((r) => claimRowToView(r as never)) };
+    return { items: rows.map((r) => claimRowToView(r)) };
   });
 
-  app.get("/api/videos/:manifestId/receipts", async (request) => {
+  app.get("/api/videos/:manifestId/receipts", (request) => {
     const { manifestId } = request.params as { manifestId: string };
     if (isRecordDenylisted(db, manifestId)) throw policyDenied();
     const rows = db
@@ -117,10 +120,10 @@ export function registerVideoRoutes(app: FastifyInstance, deps: AppDeps): void {
          ORDER BY received_at ASC`,
       )
       .all(manifestId) as never[];
-    return { items: rows.map((r) => receiptRowToView(r as never)) };
+    return { items: rows.map((r) => receiptRowToView(r)) };
   });
 
-  app.get("/api/videos/:manifestId/og", async (request) => {
+  app.get("/api/videos/:manifestId/og", (request) => {
     const { manifestId } = request.params as { manifestId: string };
     const row = db.prepare("SELECT * FROM videos WHERE manifest_id = ? AND retracted = 0").get(manifestId) as
       | { manifest_id: string; title: string; description: string; thumbnail_blob: string | null }
