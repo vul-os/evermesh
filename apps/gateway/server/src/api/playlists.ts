@@ -22,7 +22,8 @@ const CreatePlaylistSchema = z.object({
 export function registerPlaylistRoutes(app: FastifyInstance, deps: AppDeps): void {
   const { db } = deps;
 
-  app.get("/api/playlists/:recordId", async (request) => {
+  // Synchronous: better-sqlite3 read only, nothing to await.
+  app.get("/api/playlists/:recordId", (request) => {
     const { recordId } = request.params as { recordId: string };
     const row = db.prepare("SELECT * FROM playlists WHERE record_id = ?").get(recordId) as
       | (PlaylistRow & { retracted: number })
