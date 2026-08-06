@@ -93,7 +93,9 @@ describe("bufferedRanges", () => {
   it("reads a TimeRanges-shaped object into plain [start,end] tuples", () => {
     const starts = [0, 20];
     const ends = [10, 30];
-    const fakeTimeRanges = { length: 2, start: (i: number) => starts[i]!, end: (i: number) => ends[i]! };
+    // No noUncheckedIndexedAccess in this tsconfig, so starts[i]/ends[i] are
+    // already typed plain number — no assertion needed.
+    const fakeTimeRanges = { length: 2, start: (i: number) => starts[i], end: (i: number) => ends[i] };
     expect(bufferedRanges(fakeTimeRanges)).toEqual([
       [0, 10],
       [20, 30],
