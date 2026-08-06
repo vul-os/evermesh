@@ -26,7 +26,7 @@ const UNITS: [number, string][] = [
 
 /** Pure formatting function — kept separate from the component for testing. */
 export function formatTimeAgo(unixMs: number, now: number = Date.now()): string {
-  let diffSeconds = Math.max(0, Math.round((now - unixMs) / 1000));
+  const diffSeconds = Math.max(0, Math.round((now - unixMs) / 1000));
   if (diffSeconds < 5) return "just now";
 
   let value = diffSeconds;
