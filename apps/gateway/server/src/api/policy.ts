@@ -12,7 +12,8 @@ import type { PolicyPageData, InfoResponse } from "../types.ts";
 const GATEWAY_VERSION = "0.1.0";
 
 export function registerPolicyRoutes(app: FastifyInstance, deps: AppDeps): void {
-  app.get("/api/policy", async (): Promise<PolicyPageData> => {
+  // Both handlers just read from deps — nothing to await.
+  app.get("/api/policy", (): PolicyPageData => {
     return {
       name: deps.policy.name,
       description: deps.policy.description,
@@ -22,7 +23,7 @@ export function registerPolicyRoutes(app: FastifyInstance, deps: AppDeps): void 
     };
   });
 
-  app.get("/api/info", async (): Promise<InfoResponse> => {
+  app.get("/api/info", (): InfoResponse => {
     return {
       gateway: deps.config.gatewayName,
       version: GATEWAY_VERSION,
