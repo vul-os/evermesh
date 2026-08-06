@@ -191,6 +191,9 @@ importers:
         specifier: ^6.26.2
         version: 6.30.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.8.0(jiti@1.21.7))
       '@types/react':
         specifier: ^18.3.5
         version: 18.3.31
@@ -203,6 +206,18 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.5.3(postcss@8.5.19)
+      eslint:
+        specifier: ^10.8.0
+        version: 10.8.0(jiti@1.21.7)
+      eslint-plugin-react-hooks:
+        specifier: ^7.1.1
+        version: 7.1.1(eslint@10.8.0(jiti@1.21.7))
+      eslint-plugin-react-refresh:
+        specifier: ^0.5.3
+        version: 0.5.3(eslint@10.8.0(jiti@1.21.7))
+      globals:
+        specifier: ^17.9.0
+        version: 17.9.0
       postcss:
         specifier: ^8.4.45
         version: 8.5.19
@@ -212,6 +227,9 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.66.0
+        version: 8.66.0(eslint@10.8.0(jiti@1.21.7))(typescript@6.0.3)
       vite:
         specifier: ^5.4.6
         version: 5.4.21(@types/node@22.20.1)
