@@ -19,15 +19,12 @@ import type { VideoSummary } from "../lib/api-types.js";
 export function Playlist(): JSX.Element {
   const { id } = useParams<{ id: string }>();
 
-  if (!id) {
-    return (
-      <p role="alert" className="vm-card px-6 py-10 text-sm text-red-700 dark:text-red-300">
-        No playlist id in the URL.
-      </p>
-    );
-  }
-
-  const query = useQuery({ queryKey: ["playlist", id], queryFn: () => getPlaylist(id) });
+  // Hooks must run unconditionally on every render (react-hooks/
+  // rules-of-hooks) — the previous early `return` above these calls meant
+  // neither ran at all on a missing id. enabled: Boolean(id) keeps the
+  // query inert until there's a real id; the `id!` inside queryFn is safe
+  // precisely because enabled guarantees it never runs while id is falsy.
+  const query = useQuery({ queryKey: ["playlist", id], queryFn: () => getPlaylist(id!), enabled: Boolean(id) });
   const queue = useQueuePlayback();
 
   // "Play all" needs each entry's playable URL, which only the detail
@@ -55,6 +52,14 @@ export function Playlist(): JSX.Element {
       if (tracks.length > 0) queue.playNow(tracks);
     },
   });
+
+  if (!id) {
+    return (
+      <p role="alert" className="vm-card px-6 py-10 text-sm text-red-700 dark:text-red-300">
+        No playlist id in the URL.
+      </p>
+    );
+  }
 
   return (
     <QueryBoundary
