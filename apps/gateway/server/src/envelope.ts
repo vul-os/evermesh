@@ -33,7 +33,9 @@ export function extractEnvelope(json: Record<string, unknown>): EnvelopeFields {
     authorId: authorTuple ? unhex(authorTuple[0]) : "",
     signingKey: authorTuple ? unhex(authorTuple[1]) : "",
     createdAt,
-    refs: refsRaw.map(([t, h]) => ({ type: (t === 1 ? 1 : 0) as 0 | 1, hash: unhex(h) })),
+    // TS already infers this ternary as the literal union `0 | 1` from its
+    // two branches — no assertion needed.
+    refs: refsRaw.map(([t, h]) => ({ type: t === 1 ? 1 : 0, hash: unhex(h) })),
     body,
   };
 }
