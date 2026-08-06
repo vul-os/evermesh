@@ -21,6 +21,22 @@ import { useVerification } from "../hooks/useVerification.js";
 export function Album(): JSX.Element {
   const { id } = useParams<{ id: string }>();
 
+  // Hooks must run unconditionally on every render (react-hooks/
+  // rules-of-hooks) — the previous early `return` above these calls meant
+  // none of them ran at all on a missing id, which is a real "hooks called
+  // conditionally" bug, not just a lint technicality: if `id` ever changed
+  // between present and missing across renders of the same mounted
+  // component, React would throw ("Rendered fewer hooks than expected").
+  // `enabled: Boolean(id)` keeps the queries inert until there's a real id
+  // to fetch; the `id!` inside each queryFn is safe precisely because
+  // `enabled` guarantees it never runs while id is falsy.
+  const videoQuery = useQuery({ queryKey: ["video", id], queryFn: () => getVideo(id!), enabled: Boolean(id) });
+  const commentsQuery = useQuery({ queryKey: ["comments", id], queryFn: () => getVideoComments(id!), enabled: Boolean(id) });
+  const claimsQuery = useQuery({ queryKey: ["claims", id], queryFn: () => getVideoClaims(id!), enabled: Boolean(id) });
+  const receiptsQuery = useQuery({ queryKey: ["receipts", id], queryFn: () => getVideoReceipts(id!), enabled: Boolean(id) });
+  const verification = useVerification(id);
+  const queue = useQueuePlayback();
+
   if (!id) {
     return (
       <p role="alert" className="vm-card px-6 py-10 text-sm text-red-700 dark:text-red-300">
@@ -28,13 +44,6 @@ export function Album(): JSX.Element {
       </p>
     );
   }
-
-  const videoQuery = useQuery({ queryKey: ["video", id], queryFn: () => getVideo(id) });
-  const commentsQuery = useQuery({ queryKey: ["comments", id], queryFn: () => getVideoComments(id) });
-  const claimsQuery = useQuery({ queryKey: ["claims", id], queryFn: () => getVideoClaims(id) });
-  const receiptsQuery = useQuery({ queryKey: ["receipts", id], queryFn: () => getVideoReceipts(id) });
-  const verification = useVerification(id);
-  const queue = useQueuePlayback();
 
   const badgeState: VerifiedState = verification.isLoading
     ? "verifying"
