@@ -14,6 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # crates/evermesh-node is a Tauri 2 app, so `cargo clippy --workspace`
+      # builds glib-sys/webkit against the system GTK stack. Without these the
+      # job died at "The system library `glib-2.0` required by crate
+      # `glib-sys` was not found" — before clippy linted a single line, so this
+      # job has been reporting a lint failure that was really a missing apt
+      # package. Same list the rest of the suite's Tauri builds install.
+      - name: Install Linux system dependencies (webkit2gtk)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -164,6 +177,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @evermesh/kernel build:wasm
+      # …and `build` too, which is a different script: build:wasm produces the
+      # wasm artefact, `build` produces dist/index.d.ts. @evermesh/kernel's
+      # "types" field points at that file, so without it every import of the
+      # kernel resolves to an error type — and type-aware lint reports the
+      # result as 220 "Unsafe assignment of an error typed value" errors in
+      # gateway-server, which reads as a code problem rather than a missing
+      # build step. It passed on developer machines purely because dist/ was
+      # already lying around there. Verified by deleting dist/ locally and
+      # reproducing the exact failure.
+      - run: pnpm --filter @evermesh/kernel build
       # "lint" is real ESLint (type-aware) as of this repo's lint pass —
       # unused vars, floating promises, react-hooks correctness, import
       # hygiene. "typecheck" is the tsc --noEmit each package's "lint"
