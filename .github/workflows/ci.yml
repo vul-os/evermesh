@@ -195,3 +195,43 @@ jobs:
       - run: pnpm -r --if-present lint
       - run: pnpm -r --if-present typecheck
       - run: pnpm -r --if-present test
+
+  # The landing page and docs are rendered in a real browser at eight widths in
+  # both colour schemes, and all nineteen docs routes are loaded at 320 and 1440.
+  # None of what this catches is visible in a diff: a diagram whose labels are
+  # declared at 14px and drawn at 3.23px because the svg was fitted to the
+  # column, a screenshot upscaled past its own resolution, a cross-page link to
+  # an id the landing does not define.
+  site-render:
+    name: site/ renders correctly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # playwright is a root devDependency, so the gate resolves it from the
+      # workspace install rather than carrying its own node_modules.
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # The self-test runs FIRST and as its own step, so a gate that has stopped
+      # discriminating stops the job before it can report a green. It breaks each
+      # invariant on purpose and requires the check to notice.
+      - name: Gate self-test
+        run: node scripts/check-render.mjs --selftest
+
+      - name: Render checks
+        run: node scripts/check-render.mjs
+
+      # This one already existed and nothing ran it: console errors, failed
+      # requests, every internal link, and each doc route actually rendering.
+      - name: Site link and console check
+        run: node tools/site/check.mjs
+
+      - name: site/docs is in sync with docs/
+        run: node tools/site/sync-docs.mjs --check

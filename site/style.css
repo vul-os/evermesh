@@ -1208,6 +1208,18 @@ h3 {
   margin-top: 0;
 }
 
+/* Inline diagrams are drawn at their viewBox width and panned rather than
+   fitted to the column — fitting them scales their labels down with the
+   drawing, which is how concepts.md came to render 14px text at 3.23px on a
+   phone. docs.html wraps each svg[viewBox] in this box. */
+.markdown .diagram-scroll {
+  overflow-x: auto;
+  margin: 1.4em 0;
+}
+.markdown .diagram-scroll > svg {
+  display: block;
+}
+
 .markdown h1 {
   font-size: clamp(28px, 4vw, 38px);
   margin: 0.2em 0 0.5em;

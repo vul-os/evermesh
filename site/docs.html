@@ -296,6 +296,29 @@ async function load(doc) {
     const res = await fetch("docs/" + doc + ".md", { cache: "no-cache" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     content.innerHTML = marked.parse(stripFrontmatter(await res.text()));
+
+    // An inline diagram set to width:100% scales its OWN LABELS.
+    //
+    // concepts.md draws a viewBox="0 0 900 250" diagram at width:100%. In the
+    // prose column that maps 0.688x, so its 12px and 14px labels were drawn at
+    // 8.26px and 9.63px; at 320 the map is 0.269x and they reach 3.23px.
+    // Nothing in the markup says so — getComputedStyle inside an svg reports
+    // nominal user units, and the declared font-size never changes. Measured by
+    // scripts/check-render.mjs via getScreenCTM, which is the authority here.
+    //
+    // So give the diagram its own width and let the box pan. A diagram you
+    // scroll beats a diagram you cannot read.
+    for (const svg of content.querySelectorAll("svg[viewBox]")) {
+      const w = parseFloat((svg.getAttribute("viewBox") || "").split(/[\s,]+/)[2]);
+      if (!w) continue;
+      const box = document.createElement("div");
+      box.className = "diagram-scroll";
+      svg.replaceWith(box);
+      box.appendChild(svg);
+      svg.style.width = w + "px";
+      svg.style.maxWidth = "none";
+      svg.style.height = "auto";
+    }
     for (const a of content.querySelectorAll("a[href]")) {
       const href = a.getAttribute("href");
       if (/^(https?:|mailto:|#)/i.test(href)) {

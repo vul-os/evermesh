@@ -190,7 +190,10 @@ const base = `http://localhost:${server.address().port}`;
 fs.mkdirSync(shots, { recursive: true });
 const browser = await chromium.launch();
 for (const scheme of ["dark", "light"]) {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 820 }, colorScheme: scheme });
+  // deviceScaleFactor 2: without it these are 1x captures, and the landing draws
+  // them 1160 CSS px wide — 1.81x at dpr2, measured by scripts/check-render.mjs,
+  // i.e. visibly soft on every retina display the product is shown on.
+  const page = await browser.newPage({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 2, colorScheme: scheme });
   await page.goto(base + "/", { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.waitForSelector("h3");
