@@ -211,6 +211,17 @@ h3 {
   gap: 6px;
 }
 
+/* The GitHub pill carries the mark instead of the word; the anchor keeps the
+   accessible name via aria-label. display:block on the svg drops the inline
+   descender gap that would otherwise make the pill taller than it looks. */
+.site-header nav a.nav-cta-icon {
+  padding: 7px 13px;
+}
+
+.site-header nav a.nav-cta svg {
+  display: block;
+}
+
 .site-header nav a.nav-cta:hover {
   border-color: var(--bo-signal);
   color: var(--bo-fg);
